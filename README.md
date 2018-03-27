@@ -1,22 +1,22 @@
 # EIT-4 BEN Processor
 EIT-4 Project
 
-##Getting Started
+## Getting Started
 
-###Prerequisites
+### Prerequisites
 You need the following:
 1
 2
 3
-###Installing
+### Installing
 
 ```
 Example
 ```
 
-###Running an Example
+### Running an Example
 
-##Assembly Programming
+## Assembly Programming
 
 ## Authors
 
