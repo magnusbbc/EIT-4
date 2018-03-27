@@ -38,7 +38,6 @@
 # software binary files
 ### tbd
 
-/*
 !/*.gitignore
 ##
 !*.qpf
@@ -233,9 +232,6 @@ project.fragment.lock.json
 artifacts/
 **/Properties/launchSettings.json
 
-*_i.c
-*_p.c
-*_i.h
 *.ilk
 *.meta
 *.obj
