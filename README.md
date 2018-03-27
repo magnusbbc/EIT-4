@@ -20,7 +20,7 @@ Example
 
 ## Authors
 
-* **Frederik Skyt Rasmussen**
+* **Frederik Skyt Dæncker Rasmussen**
 * **Jakob Thomsen**
 * **Mikkel Hardysøe**
 * **Max Wæhrens**
