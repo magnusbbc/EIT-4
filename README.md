@@ -25,4 +25,4 @@ Example
 * **Mikkel Hardysøe**
 * **Max Wæhrens**
 * **Peter Fisker**
-* **Magnus Christensen**
+* **Magnus B.B. Christensen**
