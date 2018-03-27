@@ -21,7 +21,7 @@ Example
 ## Authors
 
 * **Frederik Skyt Dæncker Rasmussen**
-* **Jakob Thomsen**
+* **Jakob Karup Thomsen**
 * **Mikkel Hardysøe**
 * **Max Wæhrens**
 * **Peter Fisker**
