@@ -2,7 +2,7 @@
 EIT-4 Project
 
 ## Getting Started
-
+FPGA and Software
 ### Prerequisites
 You need the following:
 1
