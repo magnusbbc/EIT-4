@@ -16,20 +16,35 @@
 ---- Revision 0.01 - File Created
 ---- Additional Comments:
 ----
+----	Denne fil ligger i GIT-mappe
 ------------------------------------------------------------------------------------
 
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 -- This is a simple ALU.
--- It can:
+-- It has:
+-- OPERATIONS:
 -- Add
 -- Sub
 -- AND
 -- OR
 -- XOR
--- Negate
--- Add + 1 ???
+-- Negate A
+-- Negate B
+-- Logic shift left   * To be implemented
+-- Logic shift right  * To be implemented
+-- Arith shift left	 * To be implemented
+-- Arith shift right  * To be implemented
+-- INC A					 * To be implemented
+-- DEC A 				 * To be implemented
+
+
+-- FLAGS
+-- Zero flag
+-- Overflow flag
+-- Signed flag
+-- Parity flag    * To be implemented
 
 ENTITY My_first_ALU IS
 	GENERIC 
@@ -40,7 +55,13 @@ ENTITY My_first_ALU IS
 		ELLER  : std_logic_vector := "0011";
 		XELLER : std_logic_vector := "0100";
 		NOT_A  : std_logic_vector := "0101";
-		NOT_B  : std_logic_vector := "0110"
+		NOT_B  : std_logic_vector := "0110";
+		LSL	: std_logic_vector := "0111";
+		LSR	: std_logic_vector := "1000";
+		ASL	: std_logic_vector := "1001";
+		ASR	: std_logic_vector := "1010";
+		INC	: std_logic_vector := "1011";
+		LSL	: std_logic_vector := "1100"
 	);
 	PORT 
 	(
@@ -115,11 +136,22 @@ BEGIN
 
 			WHEN NOT_B => 
 				Result <= NOT Operand2;
+				
+			WHEN LSL => -- Logic Shift Left Operand1 by Operand2 number of bits. Fill with "0"
+				Result <= Operand1 sll Operand2;
+				
+			WHEN LSR => -- Logic Shift Right Operand1 by Operand2 number of bits. Fill with "0"
+				Result <= Operand1 srl Operand2;
+				
+			WHEN LSL => -- Arithmetic Shift Left Operand1 by Operand2 number of bits. Fill with right bit
+				Result <= Operand1 sla Operand2;
+				
+			WHEN LSL => -- Arithmetic Shift ri Operand1 by Operand2 number of bits. Fill with left bit
+				Result <= Operand1 sra Operand2;
+						
 
-			WHEN OTHERS => -- res = op1 + op2 + 1, flag = 0 // Fatter ikke hvad denne gør endnu
-				Temp   <= std_logic_vector((signed("0" & Operand1) + signed(NOT Operand2)) + 1);
-				Result <= temp(15 DOWNTO 0);
-				Signed_Flag   <= temp(16);
+			WHEN OTHERS => 
+
 		END CASE;
 	END PROCESS;
 
