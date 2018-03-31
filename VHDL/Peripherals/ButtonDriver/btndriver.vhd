@@ -1,56 +1,42 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+--Debouncer for 3 buttons
+--Debounces the buttons 'btn' and debounced output 'dbtn' by checking 'btn' for 3 clock cycles
+ENTITY btndriver IS
+	PORT
+	(
+		clk  : IN STD_LOGIC;								--Clock used for debouncing
+		clr  : IN STD_LOGIC;								--Clear
+		btn  : IN STD_LOGIC_vector (2 DOWNTO 0);	--Button inputs
+		dbtn : OUT STD_LOGIC_vector (2 DOWNTO 0)	--Debounced button output
+	);
+END btndriver;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+ARCHITECTURE Behavioral OF btndriver IS
+	SIGNAL Q0, Q1, Q2 : std_logic_vector (2 DOWNTO 0); -- Debounce registers
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+BEGIN
 
-entity btndriver is
-    Port ( clk : in  STD_LOGIC;
-           clr : in  STD_LOGIC;
-           btn : in  STD_LOGIC_vector (2 downto 0);
-           dbtn : out  STD_LOGIC_vector (2 downto 0)
-			  );
-end btndriver;
+	PROCESS (clk)
+	BEGIN
+		IF (clk'event AND clk = '1') THEN
+			IF (clr = '1') THEN							--Clear 
+				Q0 <= (OTHERS => '0');
+				Q1 <= (OTHERS => '0');
+				Q2 <= (OTHERS => '0');
 
-architecture Behavioral of btndriver is
-signal Q0, Q1, Q2 : std_logic_vector (2 downto 0); -- Debounce registers
-
-
-				
-begin
-
-process(clk)
-begin
-   if (clk'event and clk = '1') then
-       if ( clr = '1') then
-         Q0<= (others => '0');
-			Q1<= (others => '0');
-			Q2<= (others => '0');
-			
-       else
-         Q0(2) <= btn(0);
-         Q0(1 downto 0) <= Q0(2 downto 1);
-			 Q1(2) <= btn(1);
-         Q1(1 downto 0) <= Q1(2 downto 1);
-			 Q2(2) <= btn(2);
-         Q2(1 downto 0) <= Q2(2 downto 1);
-			
-        
-      end if;
-   end if;
-end process;
- 
-dbtn(0) <= Q0(1) and Q0(2) and Q0(0);
-dbtn(1) <= Q1(1) and Q1(2) and Q1(0);
-dbtn(2) <= Q2(1) and Q2(2) and Q2(0);
-
-
-
-
-end Behavioral;
+			ELSE												--Shift registers for each button
+				Q0(2)          <= btn(0);
+				Q0(1 DOWNTO 0) <= Q0(2 DOWNTO 1);
+				Q1(2)          <= btn(1);
+				Q1(1 DOWNTO 0) <= Q1(2 DOWNTO 1);
+				Q2(2)          <= btn(2);
+				Q2(1 DOWNTO 0) <= Q2(2 DOWNTO 1);
+			END IF;
+		END IF;
+	END PROCESS;
+																--If all values in shift regisers are on the output will be on.
+	dbtn(0) <= Q0(1) AND Q0(2) AND Q0(0);
+	dbtn(1) <= Q1(1) AND Q1(2) AND Q1(0);
+	dbtn(2) <= Q2(1) AND Q2(2) AND Q2(0);
+END Behavioral;
