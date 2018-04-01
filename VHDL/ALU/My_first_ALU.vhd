@@ -65,7 +65,7 @@ ENTITY My_first_ALU IS
 		Operand1, Operand2 : IN std_logic_vector(15 DOWNTO 0); -- Operands 1 and 2
 		Operation          : IN std_logic_vector(3 DOWNTO 0);
 
-		Carry_Out          : OUT std_logic; -- Flag raised when a carry is present after adding
+		Parity_Flag          : OUT std_logic; -- Flag raised when a carry is present after adding
 		Signed_Flag        : OUT std_logic; -- Flag that does something?
 		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
 		Zero_Flag          : OUT std_logic; -- Flag raised when operands are equal?
@@ -78,10 +78,13 @@ ARCHITECTURE Behavioral OF My_first_ALU IS
 
 	SIGNAL Temp          : std_logic_vector(16 DOWNTO 0); -- Used to store results when adding. Has room for the carry
 	SIGNAL Overflow_temp : std_logic_vector(15 DOWNTO 0); -- Used to store the value of the overflow flag.
-
+	
 BEGIN
 	PROCESS (Operand1, Operand2, Operation, temp) IS
+	variable Parity 		: std_logic; 
 	BEGIN
+		Parity := '0';
+		Parity_Flag   <= '0';
 		Signed_Flag   <= '0';
 		Overflow_Flag <= '0';
 		Zero_Flag     <= '0';
@@ -97,52 +100,61 @@ BEGIN
 				Temp <= std_logic_vector(signed("0" & Operand1) + signed(Operand2)); -- We append "0" to the first operand before adding the two operands.
 				-- This is done to make room for the sign-bit/carry bit.
 				Result        <= Temp(15 DOWNTO 0);
-				Carry_Out     <= Temp(16);
+				Signed_Flag		<= Temp(15);
 				Overflow_Flag <= ((Operand1(15)) OR (Temp(15))) AND ((NOT (Operand2(15))) OR(NOT (Temp(15)))) AND ((NOT (Operand1(15))) OR ((Operand2(15))));
 				-- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Her står om overflow detection
-
-			WHEN SUB => -- res = |op1 - op2|, flag = 1 iff op2 > op1, Zero = 1 if op2 = op1
-				IF (Operand1 > Operand2) THEN
-					Temp          <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
-					Result        <= Temp(15 DOWNTO 0);
-					Signed_Flag   <= '0'; -- Flag raised if result is negative
-					Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
-
-				ELSE
-					Temp          <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
-					Result        <= Temp(15 DOWNTO 0);
-					Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
-					IF (Operand1 < Operand2) THEN
-						Signed_Flag <= '1'; -- Flag raised if result is negative
-					ELSE
-						Zero_Flag <= '1';
-					END IF;
+				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				Zero_flag <= '1' ; 
 				END IF;
-
+         When SUB => 
+				Temp          <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
+				Result        <= Temp(15 DOWNTO 0);
+				Signed_Flag <= Temp(15); -- Flag raised if result is negative
+				Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
+				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				Zero_flag <= '1' ; 
+				END IF;
+				
 			WHEN OG => -- Returns Operand1 AND Operand2
 				Overflow_temp <= Operand1 AND Operand2;
 				Result        <= Overflow_temp;
-				Signed_flag   <= Overflow_temp(15);
+				Signed_Flag   <= Overflow_temp(15);
+				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				Zero_Flag <= '1' ; 
+				END IF;
+				
 			WHEN ELLER => -- Returns Operand1 OR Operand2
 				Overflow_temp <= Operand1 OR Operand2;
 				Result        <= Overflow_temp;
-				Signed_flag   <= Overflow_temp(15);
-
+				Signed_Flag   <= Overflow_temp(15);
+				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				Zero_Flag <= '1' ; 
+				END IF;
+				
 			WHEN XELLER => -- Returns Operand1 XOR Operand2
 				Overflow_temp <= Operand1 XOR Operand2;
 				Result        <= Overflow_temp;
-				Signed_flag   <= Overflow_temp(15);
-
+				Signed_Flag   <= Overflow_temp(15);
+				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				Zero_Flag <= '1' ; 
+				END IF;
+				
 			WHEN NOT_A => -- Returns NOT Operand1
 				Overflow_temp <= NOT Operand1;
 				Result        <= Overflow_temp;
-				Signed_flag   <= Overflow_temp(15);
-
+				Signed_Flag   <= Overflow_temp(15);
+				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				Zero_Flag <= '1' ; 
+				END IF;
+				
 			WHEN NOT_B => -- Returns NOT Operand2
 				Overflow_temp <= NOT Operand2;
 				Result        <= Overflow_temp;
-				Signed_flag   <= Overflow_temp(15);
-
+				Signed_Flag   <= Overflow_temp(15);
+				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				Zero_Flag <= '1' ; 
+				END IF;
+				
 			WHEN LSL => -- Logic Shift Left Operand1 by Operand2 number of bits. Fill with "0"
 				Overflow_temp <= std_logic_vector(shift_left(unsigned(Operand1), to_integer(unsigned(Operand2))));
 				Result        <= Overflow_temp(15 DOWNTO 0);
@@ -182,10 +194,16 @@ BEGIN
 			When PASS =>
 			
 				Result <= Operand1; 
-				Signed_flag <= Operand1(15);
+				Signed_Flag <= Operand1(15);
+				
+				for I in 0 to 15 loop
+				Parity := Parity xor Operand1(I); 
+				end loop; 
+				
+				Parity_Flag <= Parity; 
 				
 				IF (Operand1 = "0000000000000000") THEN
-				Zero_flag <= '1' ; 
+				Zero_Flag <= '1' ; 
 				END IF;
 				
 			WHEN OTHERS => 
