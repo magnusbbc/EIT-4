@@ -1,159 +1,112 @@
-------------------------------------------------------------------------------------
----- Company:
----- Engineer:
-----
----- Create Date: 10:53:18 03/23/2018
----- Design Name:
----- Module Name: My_first_ALU - Behavioral
----- Project Name:
----- Target Devices:
----- Tool versions:
----- Description:
-----
----- Dependencies:
-----
----- Revision:
----- Revision 0.01 - File Created
----- Additional Comments:
-----
----- Denne fil ligger i GIT-mappe
-------------------------------------------------------------------------------------
-
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
-use ieee.numeric_std.all; 
 
--- This is a simple ALU.
--- It has:
--- OPERATIONS:
--- Add
--- Sub
--- AND
--- OR
--- XOR
--- Negate A
--- Negate B
--- Logic shift left 		* To be implemented
--- Logic shift right 	* To be implemented
--- Arith shift left 		* To be implemented
--- Arith shift right  	* To be implemented
--- INC A 					* To be implemented
--- DEC A 					* To be implemented
-
--- FLAGS
--- Zero flag
--- Overflow flag
--- Signed flag
--- Parity flag 			* To be implemented
-ENTITY My_first_ALU IS
+ENTITY Control IS
 	GENERIC (
-		ADD    : std_logic_vector := "0000"; -- Adds two operands
-		SUB    : std_logic_vector := "0001"; -- Subtracts two operands
-		OG     : std_logic_vector := "0010"; -- ANDs two operands
-		ELLER  : std_logic_vector := "0011"; -- ORs two operands
-		XELLER : std_logic_vector := "0100"; -- XORs two operands
-		NOT_A  : std_logic_vector := "0101"; -- Negates operand A
-		NOT_B  : std_logic_vector := "0110"; -- Negates operand B
-		LSL    : std_logic_vector := "0111"; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
-		LSR    : std_logic_vector := "1000"; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
-		ASL    : std_logic_vector := "1001"; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
-		ASR    : std_logic_vector := "1010"; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
-		INC_A  : std_logic_vector := "1011"; -- Increments A
-		DEC_A  : std_logic_vector := "1100"  -- Decrements A
+		--ALU Generics
+		ADD     : std_logic_vector := x"1"; -- Adds two operands
+		ADC     : std_logic_vector := x"2"; -- Adds two operands, and the prevous overflow flag
+		SUB     : std_logic_vector := x"3"; -- Subtracts two operands
+		MUL     : std_logic_vector := x"4"; -- Multiplies two operands
+		OGG     : std_logic_vector := x"5"; -- ANDs two operands
+		ELL     : std_logic_vector := x"6"; -- ORs two operands
+		XEL     : std_logic_vector := x"7"; -- XORs two operands
+		IKK     : std_logic_vector := x"8"; -- NEGATES operand A
+		NOO     : std_logic_vector := x"9"; -- NOT operand A
+		LSL     : std_logic_vector := x"A"; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
+		LSR     : std_logic_vector := x"B"; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
+		ASL     : std_logic_vector := x"C"; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
+		ASR     : std_logic_vector := x"D"; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
+		PAS     : std_logic_vector := x"E"; -- Passes opeand A
+		NAA     : std_logic_vector := x"0"; -- Does nothing, does not change flags
+
+		--JUMP Generics
+		NB      : std_logic_vector := "0000";
+		BR      : std_logic_vector := "0001";
+		EQ      : std_logic_vector := "0010";
+		LE      : std_logic_vector := "0100";
+		GE      : std_logic_vector := "1000";
+
+		--Other Control lines ENABLE
+		MEMRD_E : std_logic        := '1';
+		MEM2R_E : std_logic        := '1';
+		MEMWR_E : std_logic        := '1';
+		REGWR_E : std_logic        := '1';
+		ALUS1_E : std_logic        := '1';
+		ALUS2_E : std_logic        := '1';
+
+		--Other Control lines DISABLE
+		MEMRD_D : std_logic        := '0';
+		MEM2R_D : std_logic        := '0';
+		MEMWR_D : std_logic        := '0';
+		REGWR_D : std_logic        := '0';
+		ALUS1_D : std_logic        := '0';
+		ALUS2_D : std_logic        := '0';
+
+		--Opcodes
+		R       : INTEGER          := 0;
+		ADDI    : INTEGER          := 1;
+		ADDCI   : INTEGER          := 2;
+		SUBI    : INTEGER          := 3;
+		NEGI    : INTEGER          := 4;
+		ANDI    : INTEGER          := 5;
+		ORI     : INTEGER          := 6;
+		XORI    : INTEGER          := 7;
+		MULTI   : INTEGER          := 8;
+		LSLI    : INTEGER          := 9;
+		LSRI    : INTEGER          := 10;
+		RASI    : INTEGER          := 11;
+		LASI    : INTEGER          := 12;
+		NOP     : INTEGER          := 14;
+		CMP     : INTEGER          := 15;
+		MOV     : INTEGER          := 16;
+		CMPI    : INTEGER          := 17;
+		MOVI    : INTEGER          := 18;
+		LOAD    : INTEGER          := 19;
+		STORE   : INTEGER          := 20;
+		POP     : INTEGER          := 21;
+		PUSH    : INTEGER          := 22;
+		JMP     : INTEGER          := 23;
+		JMPEQ   : INTEGER          := 24;
+		JMPLE   : INTEGER          := 25;
+		JMPGR   : INTEGER          := 26
+
 	);
 	PORT (
-		Operand1, Operand2 : IN std_logic_vector(15 DOWNTO 0); -- Operands 1 and 2
-		Operation          : IN std_logic_vector(3 DOWNTO 0);
-
-		Carry_Out          : OUT std_logic; -- Flag raised when a carry is present after adding
-		Signed_Flag        : OUT std_logic; -- Flag that does something?
-		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
-		Zero_Flag          : OUT std_logic; -- Flag raised when operands are equal?
-
-		Result             : OUT std_logic_vector(15 DOWNTO 0)
+		opcode    : IN std_logic_vector(31 DOWNTO 26); -- Operands 1 and 2
+		cntSignal : OUT std_logic_vector(13 DOWNTO 0)
 	);
-END ENTITY My_first_ALU;
+END ENTITY control;
 
-ARCHITECTURE Behavioral OF My_first_ALU IS
-
-	SIGNAL Temp          : std_logic_vector(16 DOWNTO 0); -- Used to store results when adding. Has room for the carry
-	SIGNAL Overflow_temp : std_logic_vector(15 DOWNTO 0); -- Used to store the value of the overflow flag.
-
+ARCHITECTURE Behavioral OF control IS
 BEGIN
-	PROCESS (Operand1, Operand2, Operation, temp) IS
-	BEGIN
-		Signed_Flag   <= '0';
-		Overflow_Flag <= '0';
-		Zero_Flag     <= '0';
-		CASE Operation IS
-			WHEN ADD => -- res = op1 + op2, flag = carry = overflow // Det med flaget her fanger jeg ikke endnu.
-
-				-- Here, you first need to cast your input vectors to signed or unsigned
-				-- (according to your needs). Then, you will be allowed to add them.
-				-- The result will be a signed or unsigned vector, so you won't be able
-				-- to assign it directly to your output vector. You first need to cast
-				-- the result to std_logic_vector.
-
-				Temp <= std_logic_vector(signed("0" & Operand1) + signed(Operand2)); -- We append "0" to the first operand before adding the two operands.
-				-- This is done to make room for the sign-bit/carry bit.
-				Result        <= Temp(15 DOWNTO 0);
-				Carry_Out     <= Temp(16);
-				Overflow_Flag <= ((Operand1(15)) OR (Temp(15))) AND ((NOT (Operand2(15))) OR(NOT (Temp(15)))) AND ((NOT (Operand1(15))) OR ((Operand2(15))));
-				-- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Her står om overflow detection
-
-			WHEN SUB => -- res = |op1 - op2|, flag = 1 iff op2 > op1, Zero = 1 if op2 = op1
-				IF (Operand1 > Operand2) THEN
-					Temp          <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
-					Result        <= Temp(15 DOWNTO 0);
-					Signed_Flag   <= '0'; -- Flag raised if result is negative
-					Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
-
-				ELSE
-					Temp          <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
-					Result        <= Temp(15 DOWNTO 0);
-					Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
-					IF (Operand1 < Operand2) THEN
-						Signed_Flag <= '1'; -- Flag raised if result is negative
-					ELSE
-						Zero_Flag <= '1';
-					END IF;
-				END IF;
-
-			WHEN OG => -- Returns Operand1 AND Operand2
-				Result <= Operand1 AND Operand2;
-
-			WHEN ELLER => -- Returns Operand1 OR Operand2
-				Result <= Operand1 OR Operand2;
-
-			WHEN XELLER => -- Returns Operand1 XOR Operand2
-				Result <= Operand1 XOR Operand2;
-
-			WHEN NOT_A => -- Returns NOT Operand1
-				Result <= NOT Operand1;
-
-			WHEN NOT_B => -- Returns NOT Operand2
-				Result <= NOT Operand2;
- 
-			WHEN LSL => -- Logic Shift Left Operand1 by Operand2 number of bits. Fill with "0"
-				Overflow_temp   <= std_logic_vector(signed(Operand1) sll signed(Operand2));
-				Result <= Overflow_temp(15 DOWNTO 0);
-				
---			WHEN LSR => -- Logic Shift Right Operand1 by Operand2 number of bits. Fill with "0"
---				Overflow_temp   <= std_logic_vector(unsigned(Operand1) srl unsigned(Operand2));
---				Result <= Overflow_temp(15 DOWNTO 0);
-				
-			WHEN LSL => -- Arithmetic Shift Left Operand1 by Operand2 number of bits. Fill with right bit
-				Overflow_temp   <= std_logic_vector(signed(Operand1) sla signed(Operand2));
-				Result <= Overflow_temp(15 DOWNTO 0);  
-				
-			WHEN LSL => -- Arithmetic Shift ri Operand1 by Operand2 number of bits. Fill with left bit
-				Overflow_temp   <= std_logic_vector(signed(Operand1) sra signed(Operand2));
-				Result <= Overflow_temp(15 DOWNTO 0);
-
-			WHEN OTHERS => 
-
-		END CASE;
-	END PROCESS;
-
+	WITH to_integer(unsigned(opcode)) SELECT cntSignal <=
+	NAA & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_D WHEN R,
+	ADD & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN ADDI,
+	ADC & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN ADDCI,
+	SUB & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN SUBI,
+	NOO & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN NEGI,
+	OGG & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN ANDI,
+	ELL & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN ORI,
+	XEL & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN XORI,
+	MUL & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN MULTI,
+	LSL & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN LSLI,
+	LSR & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN LSRI,
+	ASL & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN RASI,
+	ASR & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN LASI,
+	NAA & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_D & ALUS1_D & ALUS2_D WHEN NOP,
+	SUB & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_D & ALUS1_D & ALUS2_D WHEN CMP,
+	PAS & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_D WHEN MOV,
+	SUB & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_D & ALUS1_D & ALUS2_E WHEN CMPI,
+	PAS & NB & MEMRD_D & MEM2R_D & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN MOVI,
+	ADD & NB & MEMRD_E & MEM2R_E & MEMWR_D & REGWR_E & ALUS1_D & ALUS2_E WHEN LOAD,
+	ADD & NB & MEMRD_D & MEM2R_D & MEMWR_E & REGWR_D & ALUS1_D & ALUS2_E WHEN STORE,
+	"00000000000000" WHEN POP,
+	"00000000000000" WHEN PUSH,
+	"00000000000000" WHEN JMP,
+	"00000000000000" WHEN JMPEQ,
+	"00000000000000" WHEN JMPLE,
+	"00000000000000" WHEN JMPGR,
+	"00000000000000" WHEN OTHERS;
 END ARCHITECTURE Behavioral;
