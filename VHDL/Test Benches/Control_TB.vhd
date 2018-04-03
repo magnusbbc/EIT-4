@@ -7,6 +7,7 @@ END Control_TB;
 
 ARCHITECTURE Behavioral OF Control_TB IS
 	 
+	SIGNAL MO : std_logic_vector(15 downto 0);
 	--Input
 	SIGNAL input : std_logic_vector(5 DOWNTO 0) := (others => '0'); 
 	
@@ -19,7 +20,7 @@ ARCHITECTURE Behavioral OF Control_TB IS
    signal TbSimEnded : std_logic := '0';
 	signal cnt : integer := 0;
 BEGIN
-	MAIN : ENTITY work.Master(Behavioral) PORT MAP(op =>input , cnt => output);
+	MAIN : ENTITY work.Master(Behavioral) PORT MAP(op =>input , cnt => output, clk=>TbClock, PDO => MO);
 	
 	-- Clock generation
    TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';
@@ -30,7 +31,7 @@ stim_proc:process(TbClock)
 			IF(rising_edge(TbClock)) THEN
 			input<=std_logic_vector(to_unsigned(cnt, input'length));
 			cnt<=cnt+1;
-				IF(cnt = 5) THEN
+				IF(cnt = 80) THEN
 						TbSimEnded <= '1';
 						--wait;
 				END IF; 
