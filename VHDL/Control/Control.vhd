@@ -1,7 +1,7 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
-
+--FIX MIXING POP
 ENTITY Control IS
 	GENERIC (
 		--ALU Generics
@@ -13,7 +13,7 @@ ENTITY Control IS
 		ELL     : std_logic_vector := x"6"; -- ORs two operands
 		XEL     : std_logic_vector := x"7"; -- XORs two operands
 		IKK     : std_logic_vector := x"8"; -- NEGATES operand A
-		NOO     : std_logic_vector := x"9"; -- NOT operand A
+		NOA     : std_logic_vector := x"9"; -- NOT operand A
 		LSL     : std_logic_vector := x"A"; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
 		LSR     : std_logic_vector := x"B"; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
 		ASL     : std_logic_vector := x"C"; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
@@ -97,7 +97,7 @@ BEGIN
 	ADD & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN ADDR,
 	ADC & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN ADDCR,
 	SUB & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN SUBR,
-	NOO & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN NEGR,
+	NOA & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN NEGR,  -- TJEK OM DET ER NOA DER SKAL BRUGES
 	OGG & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN ANDR,
 	ELL & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN ORR,
 	XEL & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN XORR,
@@ -110,7 +110,7 @@ BEGIN
 	ADD & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_E & DECRR_D WHEN ADDI,
 	ADC & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_E & DECRR_D WHEN ADDCI,
 	SUB & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_E & DECRR_D WHEN SUBI,
-	NOO & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_E & DECRR_D WHEN NEGI,
+	NOA & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_E & DECRR_D WHEN NEGI,   -- TJEK OM DET ER NOA DER SKAL BRUGES
 	OGG & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_E & DECRR_D WHEN ANDI,
 	ELL & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_E & DECRR_D WHEN ORI,
 	XEL & NB & MEMRD_D & MEMWR_D & REGWR_E & MREWE_D & IMSEL_E & DECRR_D WHEN XORI,
@@ -132,7 +132,7 @@ BEGIN
 	ADD & NB & MEMRD_D & MEMWR_E & REGWR_D & MREWE_D & IMSEL_E & DECRR_D WHEN STORE,
 	
 	INC & NB & MEMRD_D & MEMWR_E & REGWR_E & MREWE_D & IMSEL_D & DECRR_D WHEN PUSH,
-	NOP & NB & MEMRD_E & MEMWR_D & REGWR_E & MREWE_E & IMSEL_D & DECRR_E WHEN POP,
+	--NOP & NB & MEMRD_E & MEMWR_D & REGWR_E & MREWE_E & IMSEL_D & DECRR_E WHEN POP, //IMPORTANT
 
 	PAS & BR & MEMRD_D & MEMWR_D & REGWR_D & MREWE_D & IMSEL_E & DECRR_D WHEN JMP,
 	PAS & EQ & MEMRD_D & MEMWR_D & REGWR_D & MREWE_D & IMSEL_E & DECRR_D WHEN JMPEQ,
