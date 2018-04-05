@@ -4,7 +4,7 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY Master IS
 	PORT (
-		clk : std_logic;
+		clk : std_logic
 	);
 END ENTITY Master;
 
@@ -22,7 +22,6 @@ BEGIN
 	CONTROLLER : ENTITY work.Control(Behavioral) PORT MAP(opcode => INSTRUCTION, cntSignal => cnt);
 	PMEMORY    : ENTITY work.Memory(Behavioral) PORT MAP(DO => INSTRUCTION, DI => PDI, Address => PADDR, EN => PEN, RW => PRW);
 	REGFILE	  : ENTITY work.Registers(Behavioral) PORT MAP(R1I => , R2I => , R1O => , R2O => , R3I => , R4I => , DI3 => , DI4 => , WE3 => , WE4 => );
-	ALUCONTROL : ENTITY work.AluCnt(Behavioral) PORT MAP(InsOp => , CntOp => , AluOp => );
 	ALU 		  : ENTITY work.ALU(Behavioral) PORT MAP();
 	
 	onEdge : PROCESS(clk)
