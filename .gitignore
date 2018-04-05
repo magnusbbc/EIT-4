@@ -41,6 +41,7 @@
 !/*.gitignore
 ##
 !*.qpf
+!*.ipinfo
 !*.qsf
 !*.qws
 ##
