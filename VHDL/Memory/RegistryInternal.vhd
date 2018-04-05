@@ -18,7 +18,10 @@ entity RegistryInternal is
 		dataOutOne : out std_logic_vector(15 downto 0);
 		dataOutTwo : out std_logic_vector(15 downto 0);
 		
-		pcIn : in std_logic_vector(15 downto 0)
+		pcIn : in std_logic_vector(15 downto 0);
+		
+		WR1_E : in std_logic;
+		WR2_E : in std_logic
 	);
 
 end RegistryInternal;
@@ -46,8 +49,13 @@ begin
 			dataOutTwo <= REG(conv_integer(readTwo));
 		end if;		
 		
+		if(WR1_E = '1') THEN
 		REG(conv_integer(writeOne)) <= dataInOne;
+		END IF;
+		
+		if(WR2_E = '1') THEN
 		REG(conv_integer(writeTwo)) <= dataInTwo;
+		END IF;
 		
 end process;
 
