@@ -37,13 +37,15 @@ USE ieee.numeric_std.ALL;
 -- Logic shift right * To be implemented
 -- Arith shift left * To be implemented
 -- Arith shift right * To be implemented
--- Pass through      * To be implemented
+-- Pass through      
+-- NOP					* To be implemented
 
 -- FLAGS
 -- Zero flag
 -- Overflow flag
 -- Signed flag
 -- Parity flag * To be implemented
+
 ENTITY My_first_ALU IS
 	GENERIC (
 		ADD    : std_logic_vector := "0000"; -- Adds two operands
@@ -59,13 +61,13 @@ ENTITY My_first_ALU IS
 		ASR    : std_logic_vector := "1010"; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
 		INC_A  : std_logic_vector := "1011"; -- Increments A
 		DEC_A  : std_logic_vector := "1100"; -- Decrements A
-		PASS   : std_logic_vector := "1110" -- Lets operand1 pass through without manipulation
+		PASS   : std_logic_vector := "1110"  -- Lets operand1 pass through without manipulation
 	);
 	PORT (
 		Operand1, Operand2 : IN std_logic_vector(15 DOWNTO 0); -- Operands 1 and 2
 		Operation          : IN std_logic_vector(3 DOWNTO 0);
 
-		Parity_Flag          : OUT std_logic; -- Flag raised when a carry is present after adding
+		Parity_Flag        : OUT std_logic; -- Flag raised when a carry is present after adding
 		Signed_Flag        : OUT std_logic; -- Flag that does something?
 		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
 		Zero_Flag          : OUT std_logic; -- Flag raised when operands are equal?
@@ -83,14 +85,13 @@ BEGIN
 	PROCESS (Operand1, Operand2, Operation, temp) IS
 	variable Parity 		: std_logic; 
 	BEGIN
-		Parity := '0';
+		Parity 		  := '0';
 		Parity_Flag   <= '0';
 		Signed_Flag   <= '0';
 		Overflow_Flag <= '0';
 		Zero_Flag     <= '0';
 		CASE Operation IS
-			WHEN ADD => -- res = op1 + op2, flag = carry = overflow // Det med flaget her fanger jeg ikke endnu.
-
+			WHEN ADD => -- res = op1 + op2
 				-- Here, you first need to cast your input vectors to signed or unsigned
 				-- (according to your needs). Then, you will be allowed to add them.
 				-- The result will be a signed or unsigned vector, so you won't be able
@@ -103,10 +104,12 @@ BEGIN
 				Signed_Flag		<= Temp(15);
 				Overflow_Flag <= ((Operand1(15)) OR (Temp(15))) AND ((NOT (Operand2(15))) OR(NOT (Temp(15)))) AND ((NOT (Operand1(15))) OR ((Operand2(15))));
 				-- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Her står om overflow detection
+				
 				IF ( Temp(15 downto 0) = "0000000000000000") THEN
 				Zero_flag <= '1' ; 
 				END IF;
-         When SUB => 
+				
+         When SUB => -- Returns Operand1 - Operand2 
 				Temp          <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
 				Result        <= Temp(15 DOWNTO 0);
 				Signed_Flag <= Temp(15); -- Flag raised if result is negative
@@ -116,18 +119,25 @@ BEGIN
 				END IF;
 				
 			WHEN OG => -- Returns Operand1 AND Operand2
-				Overflow_temp <= Operand1 AND Operand2;
-				Result        <= Overflow_temp;
-				Signed_Flag   <= Overflow_temp(15);
+				Temp 				<= ("0" & (Operand1 AND Operand2));
+				Result        <= Temp(15 DOWNTO 0);
+				Signed_Flag   <= Temp(15);
 				IF ( Temp(15 downto 0) = "0000000000000000") THEN
 				Zero_Flag <= '1' ; 
 				END IF;
+				
+				--Overflow_temp <= Operand1 AND Operand2;
+--				Result        <= Overflow_temp;
+--				Signed_Flag   <= Overflow_temp(15);
+--				IF ( Overflow_temp(15 downto 0) = "0000000000000000") THEN
+--				Zero_Flag <= '1' ; 
+--				END IF;
 				
 			WHEN ELLER => -- Returns Operand1 OR Operand2
 				Overflow_temp <= Operand1 OR Operand2;
 				Result        <= Overflow_temp;
 				Signed_Flag   <= Overflow_temp(15);
-				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				IF ( Overflow_temp(15 downto 0) = "0000000000000000") THEN
 				Zero_Flag <= '1' ; 
 				END IF;
 				
@@ -135,7 +145,7 @@ BEGIN
 				Overflow_temp <= Operand1 XOR Operand2;
 				Result        <= Overflow_temp;
 				Signed_Flag   <= Overflow_temp(15);
-				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				IF ( Overflow_temp(15 downto 0) = "0000000000000000") THEN
 				Zero_Flag <= '1' ; 
 				END IF;
 				
@@ -143,7 +153,7 @@ BEGIN
 				Overflow_temp <= NOT Operand1;
 				Result        <= Overflow_temp;
 				Signed_Flag   <= Overflow_temp(15);
-				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				IF ( Overflow_temp(15 downto 0) = "0000000000000000") THEN
 				Zero_Flag <= '1' ; 
 				END IF;
 				
@@ -151,7 +161,7 @@ BEGIN
 				Overflow_temp <= NOT Operand2;
 				Result        <= Overflow_temp;
 				Signed_Flag   <= Overflow_temp(15);
-				IF ( Temp(15 downto 0) = "0000000000000000") THEN
+				IF ( Overflow_temp(15 downto 0) = "0000000000000000") THEN
 				Zero_Flag <= '1' ; 
 				END IF;
 				
@@ -193,15 +203,16 @@ BEGIN
 
 			When PASS =>
 			
-				Result <= Operand1; 
-				Signed_Flag <= Operand1(15);
-				
+				Result		<= Operand1; 
+																	-- Here magic begins
 				for I in 0 to 15 loop
-				Parity := Parity xor Operand1(I); 
+					Parity := Parity xor Operand1(I); 
 				end loop; 
 				
-				Parity_Flag <= Parity; 
+				Parity_Flag <= Parity;						
+																	-- Here magic ends
 				
+				Signed_Flag <= Operand1(15);				
 				IF (Operand1 = "0000000000000000") THEN
 				Zero_Flag <= '1' ; 
 				END IF;
