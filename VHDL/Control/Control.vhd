@@ -18,8 +18,8 @@ ENTITY Control IS
 		LSR     : std_logic_vector := x"B"; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
 		ASL     : std_logic_vector := x"C"; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
 		ASR     : std_logic_vector := x"D"; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
-		PAS     : std_logic_vector := x"E"; -- Passes opeand A
-		INC	  : std_logic_vector := x"F"; -- Passes opeand A
+		PAS     : std_logic_vector := x"E"; -- Passes operand A
+		INC	  : std_logic_vector := x"F"; -- Increments operand A
 		NAA     : std_logic_vector := x"0"; -- Does nothing, does not change flags
 
 		--JUMP Generics

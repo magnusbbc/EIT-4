@@ -38,31 +38,32 @@ USE ieee.numeric_std.ALL;
 -- Arith shift left * To be implemented
 -- Arith shift right * To be implemented
 -- Pass through      
--- NOP					* To be implemented
+-- NOP					
 
 -- FLAGS
 -- Zero flag
 -- Overflow flag
 -- Signed flag
--- Parity flag * To be implemented
+-- Parity flag 
 
 ENTITY My_first_ALU IS
 	GENERIC (
-		ADD    : std_logic_vector := "0000"; -- Adds two operands
-		SUB    : std_logic_vector := "0001"; -- Subtracts two operands
-		OGG    : std_logic_vector := "0010"; -- ANDs two operands
-		ELL 	 : std_logic_vector := "0011"; -- ORs two operands
-		XEL	 : std_logic_vector := "0100"; -- XORs two operands
-		NOA    : std_logic_vector := "0101"; -- NOT's operand A
-		NOB    : std_logic_vector := "0110"; -- NOT's operand B
-		LSL    : std_logic_vector := "0111"; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
-		LSR    : std_logic_vector := "1000"; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
-		ASL    : std_logic_vector := "1001"; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
-		ASR    : std_logic_vector := "1010"; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
-		INC_A  : std_logic_vector := "1011"; -- Increments A
-		DEC_A  : std_logic_vector := "1100"; -- Decrements A
-		PAS    : std_logic_vector := "1110";  -- Lets operand1 pass through without manipulation
-		NOP    : std_logic_vector := "1111"  -- Does nothing
+		ADD    : std_logic_vector := x"1"; -- Adds two operands
+		SUB    : std_logic_vector := x"3"; -- Subtracts two operands
+		OGG    : std_logic_vector := x"5"; -- ANDs two operands
+		ELL 	 : std_logic_vector := x"6"; -- ORs two operands
+		XEL	 : std_logic_vector := x"7"; -- XORs two operands
+		IKK	 : STD_logic_vector := x"8"; -- Negates A
+		NOA    : std_logic_vector := x"9"; -- NOT's operand A
+		NOB    : std_logic_vector := x"0110"; -- NOT's operand B
+		LSL    : std_logic_vector := x"A"; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
+		LSR    : std_logic_vector := x"B"; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
+		ASL    : std_logic_vector := x"C"; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
+		ASR    : std_logic_vector := x"D"; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
+		DEC_A  : std_logic_vector := x"1100"; -- Decrements A
+		PAS    : std_logic_vector := x"E";  -- Lets operand1 pass through without manipulation
+		INC_A  : std_logic_vector := x"F"; -- Increments A		
+		NOP    : std_logic_vector := x"0"  -- Does nothing
 	);
 	PORT (
 		Operand1, Operand2 : IN std_logic_vector(15 DOWNTO 0); -- Operands 1 and 2
@@ -106,71 +107,38 @@ BEGIN
 					Temp <= std_logic_vector(signed("0" & Operand1) + signed(Operand2)); -- We append "0" to the first operand before adding the two operands.
 					-- This is done to make room for the sign-bit/carry bit.
 					Result        <= Temp(15 DOWNTO 0);
-	--				Signed_Flag		<= Temp(15);
 	--				Overflow_Flag <= ((Operand1(15)) OR (Temp(15))) AND ((NOT (Operand2(15))) OR(NOT (Temp(15)))) AND ((NOT (Operand1(15))) OR ((Operand2(15))));
 	--				-- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Her st�r om overflow detection
 					
-	--				IF ( Temp(15 downto 0) = "0000000000000000") THEN
-	--				Zero_flag <= '1' ; 
-	--				END IF;
 					
 				When SUB => -- Returns Operand1 - Operand2 
 					Temp          <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
 					Result        <= Temp(15 DOWNTO 0);
-	--				Signed_Flag <= Temp(15); -- Flag raised if result is negative
-	--				Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
-	--				IF ( Temp(15 downto 0) = "0000000000000000") THEN
-	--				Zero_flag <= '1' ; 
-	--				END IF;
 					
 				WHEN OGG => -- Returns Operand1 AND Operand2
 					Temp 				<= ("0" & (Operand1 AND Operand2));
 					Result        <= Temp(15 DOWNTO 0);
-	--				Signed_Flag   <= Temp(15);
-	--				IF ( Temp(15 downto 0) = "0000000000000000") THEN
-	--				Zero_Flag <= '1' ; 
-	--				END IF;
-					
-					--Overflow_temp <= Operand1 AND Operand2;
-	--				Result        <= Overflow_temp;
-	--				Signed_Flag   <= Overflow_temp(15);
-	--				IF ( Overflow_temp(15 downto 0) = "0000000000000000") THEN
-	--				Zero_Flag <= '1' ; 
-	--				END IF;
 					
 				WHEN ELL => -- Returns Operand1 OR Operand2
 					Temp 			<= ("0" & (Operand1 OR Operand2));
 					Result        <= Temp(15 downto 0);
-	--				Signed_Flag   <= Temp(15);
-	--				IF ( Temp(15 downto 0) = "0000000000000000") THEN
-	--				Zero_Flag <= '1' ; 
-	--				END IF;
 					
 				WHEN XEL => -- Returns Operand1 XOR Operand2
 					Temp 				<= ("0" & (Operand1 XOR Operand2));
 					Result        <= Temp(15 downto 0);
-	--				Signed_Flag   <= Temp(15);
-	--				IF ( Temp(15 downto 0) = "0000000000000000") THEN
-	--				Zero_Flag <= '1' ; 
-	--				END IF;
 					
+				When IKK =>  -- Negates operand A
+					Temp 			<= ("0" &((NOT Operand1)+1));
+					Result        <= Temp(15 downto 0);		
+			
 				WHEN NOA => -- Returns NOT Operand1
 					Temp 			  <= ("0" & (NOT Operand1));
 					Result        <= Temp(15 downto 0);
-	--				Signed_Flag   <= Temp(15);
-	--				IF (Temp(15 downto 0) = "0000000000000000") THEN
-	--				Zero_Flag <= '1' ; 
-	--				END IF;
-					
+				
 				WHEN NOB => -- Returns NOT Operand1
 					Temp 			  <= ("0" & (NOT Operand2));
 					Result        <= Temp(15 downto 0);
-	--				Signed_Flag   <= Temp(15);
-	--				IF (Temp(15 downto 0) = "0000000000000000") THEN
-	--				Zero_Flag <= '1' ; 
-	--				END IF;
-					
-					
+										
 				WHEN LSL => -- Logic Shift Left Operand1 by Operand2 number of bits. Fill with "0"
 					Overflow_temp <= std_logic_vector(shift_left(unsigned(Operand1), to_integer(unsigned(Operand2))));
 					Result        <= Overflow_temp(15 DOWNTO 0);
@@ -191,37 +159,17 @@ BEGIN
 					-- Overflow_temp <= std_logic_vector(signed(Operand1) sra signed(Operand2));
 					-- Result <= Overflow_temp(15 DOWNTO 0);
 	
-	--			WHEN INC_A => 
-	--				Result <= std_logic_vector(signed(Operand1) + 1);
-	-- 
-	--				-- Overflow_temp <= std_logic_vector(signed(Operand1) + 1);
-	--				-- Result <= Overflow_temp;
-	--				-- Signed_flag <= Overflow_temp(15);
-	--				-- Overflow_flag <= ((NOT Operand1(15)) AND Overflow_temp(15));
-	--			WHEN DEC_A => 
-	--				Result <= std_logic_vector(signed(Operand1) - 1);
-	-- 
-	--				-- Overflow_temp <= std_logic_vector(signed(Operand1) - 1);
-	--				-- Result <= Overflow_temp;
-	--				-- Signed_flag <= Overflow_temp(15);
-	--				-- Overflow_flag <= ((NOT Overflow_temp(15)) AND Operand1(15));
-	--				--
-	
+				WHEN INC_A => 
+					Temp <= std_logic_vector("0" & (signed(Operand1) + 1)));
+					Result <= Temp(15 downto 0);
+
+--			   WHEN DEC_A => 
+--			  		Result <= std_logic_vector(signed(Operand1) - 1);  
+--			  	-- Overflow_flag <= ((NOT Overflow_temp(15)) AND Operand1(15));
+--			  	--	
 				When PAS =>
 					Temp 			<= ("0" & Operand1);
-					Result		<= Operand1; 
-																		-- Here magic begins
-	--				for I in 0 to 15 loop
-	--					Parity := Parity xor Operand1(I); 
-	--				end loop; 
-					
-	--				Parity_Flag <= Parity;						
-																		-- Here magic ends
-					
-	--				Signed_Flag <= Operand1(15);				
-	--				IF (Operand1 = "0000000000000000") THEN
-	--				Zero_Flag <= '1' ; 
-	--				END IF;
+					Result		<= Operand1; 	
 					
 				WHEN OTHERS => 
 	
@@ -231,7 +179,8 @@ BEGIN
 				Overflow_Flag <= ((Operand1(15)) OR (Temp(15))) AND ((NOT (Operand2(15))) OR(NOT (Temp(15)))) AND ((NOT (Operand1(15))) OR ((Operand2(15))));
 			ELsif (Operation = SUB) theN
 				Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
-			else
+			elsif (operation = INC_A) theN
+				Overflow_flag <= ((NOT Operand1(15)) AND Overflow_temp(15));
 			end if;
 			
 			Signed_Flag   <= Temp(15);
@@ -241,16 +190,13 @@ BEGIN
 			end if;
 																		-- Here magic begins
 			for I in 0 to 15 loop
-				Parity := Parity xor Operand1(I); 
+				Parity := Parity xor Temp(I); 
 			end loop; 
 			
 			Parity_Flag <= Parity;						
-																		-- Here magic ends
-			
-			
+																		-- Here magic ends			
 		END IF;
 		
-
 	END PROCESS;
 
 END ARCHITECTURE Behavioral;
