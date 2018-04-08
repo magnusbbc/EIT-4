@@ -5,23 +5,26 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY Master IS
 	GENERIC 
 	(
-		--ALU Generics
-		ADD : std_logic_vector := x"1"; -- Adds two operands
-		ADC : std_logic_vector := x"2"; -- Adds two operands, and the prevous overflow flag
-		SUB : std_logic_vector := x"3"; -- Subtracts two operands
-		MUL : std_logic_vector := x"4"; -- Multiplies two operands
-		OGG : std_logic_vector := x"5"; -- ANDs two operands
-		ELL : std_logic_vector := x"6"; -- ORs two operands
-		XEL : std_logic_vector := x"7"; -- XORs two operands
-		IKK : std_logic_vector := x"8"; -- NEGATES operand A
-		NOA : std_logic_vector := x"9"; -- NOT operand A
-		LSL : std_logic_vector := x"A"; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
-		LSR : std_logic_vector := x"B"; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
-		ASL : std_logic_vector := x"C"; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
-		ASR : std_logic_vector := x"D"; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
-		PAS : std_logic_vector := x"E"; -- Passes operand A
-		INC : std_logic_vector := x"F"; -- Increments operand A
-		NAA : std_logic_vector := x"0" -- Does nothing, does not change flags
+		ADD : integer := 1; -- Adds two operands
+		ADC : integer := 2;-- Adds two operands, and the prevous overflow flag
+		SUB : integer := 3;-- Subtracts two operands
+		MUL : integer := 4;-- Multiplies two operands
+		OGG : integer := 5;-- ANDs two operands
+		ELL : integer := 6;-- ORs two operands
+		XEL : integer := 7;-- XORs two operands
+		IKA : integer := 8;-- NEGATES operand A
+		IKB : integer := 9; -- NEGATES operand B
+		NOA : integer := 10; -- NOT operand A
+		NOB : integer := 11; -- NOT operand B
+		LSL : integer := 12; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
+		LSR : integer := 13; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
+		ASL : integer := 14; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
+		ASR : integer := 15; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
+		PAS : integer := 16;-- Passes operand A
+		PBS : integer := 17; -- Passes operand B
+		ICA : integer := 18; -- Increments operand A
+		ICB : integer := 19; -- Increments operand B
+		NAA : integer := 20-- Does nothing, does not change flags
 	);
 	PORT 
 	(
@@ -30,17 +33,19 @@ ENTITY Master IS
 END ENTITY Master;
 
 ARCHITECTURE Behavioral OF Master IS
-	SIGNAL CONTROL : STD_logic_vector(13 DOWNTO 0);
+	SIGNAL CONTROL : STD_logic_vector(16 DOWNTO 0);
 	SIGNAL INSTRUCTION : std_logic_vector(31 DOWNTO 0);
 	
 	SIGNAL OP1, OP2, ALU_OUTPUT   : std_logic_vector(15 DOWNTO 0);
+	
+	SIGNAL RWSWITCH : std_logic_vector(4 DOWNTO 0);
 	
 	--PRAM Signals
 	SIGNAL PC : std_logic_vector(9 DOWNTO 0) := (others => '0') ;
 	SIGNAL pDataIn : std_logic_vector(31 DOWNTO 0);
 	SIGNAL pDataOut : std_logic_vector(31 DOWNTO 0);
 	SIGNAL PWE : std_logic := '0';
-	SIGNAL PRE : std_logic := '0';
+	SIGNAL PRE : std_logic := '1';
 	--DRAM Signals
 	
 	SIGNAL DADDRS : std_logic_vector(9 downto 0);
@@ -58,14 +63,18 @@ BEGIN
 		OGG => OGG,
 		ELL => ELL,
 		XEL => XEL,
-		IKK => IKK,
+		IKA => IKA,
+		IKB => IKB,
 		NOA => NOA,
+		NOB => NOB,
 		LSL => LSL,
 		LSR => LSR,
 		ASL => ASL,
 		ASR => ASR,
 		PAS => PAS,
-		INC => INC,
+		PBS => PBS,
+		ICA => ICA,
+		ICB => ICB,
 		NAA => NAA
 		)
 		PORT MAP(
@@ -82,36 +91,50 @@ BEGIN
 		OGG => OGG,
 		ELL => ELL,
 		XEL => XEL,
-		IKK => IKK,
+		IKA => IKA,
+		IKB => IKB,
 		NOA => NOA,
+		NOB => NOB,
 		LSL => LSL,
 		LSR => LSR,
 		ASL => ASL,
 		ASR => ASR,
 		PAS => PAS,
-		INC => INC,
+		PBS => PBS,
+		ICA => ICA,
+		ICB => ICB,
 		NAA => NAA
 		)
 		PORT MAP(
-		Operation => CONTROL(13 DOWNTO 10), 
+		Operation => CONTROL(16 DOWNTO 11), 
 		Operand1 => OP1, 
 		Operand2 => OP2, 
 		Result => ALU_OUTPUT
 		);
 		
-	PRAM : ENTITY work.Memory(rising)
-		GENERIC MAP(
-		WORD_SIZE => 31,
-		ADDR_SIZE => 9,
-		WORD_COUNT => 1023
-		)
+--	PRAM : ENTITY work.Memory(rising)
+--		GENERIC MAP(
+--		WORD_SIZE => 31,
+--		ADDR_SIZE => 9,
+--		WORD_COUNT => 1023
+--		)
+--		PORT MAP(
+--		DI => pDataIn,
+--		DO => pDataOut,
+--		Address => PC,
+--		WE => PWE,
+--		RE => PRE,
+--		CLK => clk
+--		);
+		
+	PRAM : ENTITY work.MemAuto(SYN)
 		PORT MAP(
-		DI => pDataIn,
-		DO => pDataOut,
-		Address => PC,
-		WE => PWE,
-		RE => PRE,
-		CLK => clk
+		data => pDataIn,
+		q => INSTRUCTION,
+		address => PC,
+		wren => PWE,
+		rden => PRE,
+		clock => clk
 		);
 		
 	DRAM : ENTITY work.Memory(falling)
@@ -121,20 +144,19 @@ BEGIN
 		WORD_COUNT => 1023
 		)
 		PORT MAP(
-		DI => OP2,
+		DI => R2O,
 		DO => dDataOut,
 		Address => ALU_OUTPUT,
-		WE => CONTROL(4),
-		RE => CONTROL(5),
+		WE => CONTROL(5),
+		RE => CONTROL(6),
 		CLK => clk
 		);
 
 	REGS : ENTITY work.RegistryInternal(Behavioral)
 		PORT MAP(
 		readOne =>INSTRUCTION(25 downto 21),
-		readTwo =>INSTRUCTION(20 downto 16),
-		
-		WriteOne =>INSTRUCTION(15 downto 11),
+		WriteOne =>INSTRUCTION(20 downto 16),
+		readTwo =>RWSWITCH,
 		WriteTwo =>INSTRUCTION(10 downto 6),
 		
 		dataInOne => ALU_OUTPUT,
@@ -145,14 +167,21 @@ BEGIN
 		
 		pcIn => x"0000",
 		
-		WR1_E => CONTROL(2), 
-		WR2_E => CONTROL(3)
+		WR1_E => CONTROL(4), 
+		WR2_E => CONTROL(3),
+		
+		clk => clk
 		);
 		
-	WITH CONTROL(1) SELECT OP2 <=
+	WITH CONTROL(2) SELECT OP2 <=
 		R2O 							 WHEN '0',
 		INSTRUCTION(15 downto 0) WHEN '1',
 		R2O WHEN OTHERS;
+	
+	WITH CONTROL(0) SELECT RWSWITCH <=
+		INSTRUCTION(15 downto 11) when '0',
+		INSTRUCTION(20 downto 16) WHEN  '1',
+		INSTRUCTION(15 downto 11) when OTHERS;
 		
 	RUN: process (clk)
 		BEGIN

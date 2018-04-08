@@ -21,7 +21,9 @@ entity RegistryInternal is
 		pcIn : in std_logic_vector(15 downto 0);
 		
 		WR1_E : in std_logic;
-		WR2_E : in std_logic
+		WR2_E : in std_logic;
+		
+		clk : in std_logic
 	);
 
 end RegistryInternal;
@@ -29,12 +31,12 @@ end RegistryInternal;
 architecture Behavioral of RegistryInternal is
 
 type register_type is array (31 downto 0) of std_logic_vector(15 downto 0);
-signal REG: register_type;
+signal REG: register_type := (others => x"0000");
 
 
 begin
 
-RegProc: process (readOne, readTwo, writeOne, writeTwo) is
+RegProc: process (readOne, readTwo, writeOne, writeTwo, pcIn, REG) is
 
 begin
 		if conv_integer(readOne) = 32 then --pc to outOne
@@ -48,7 +50,11 @@ begin
 		else
 			dataOutTwo <= REG(conv_integer(readTwo));
 		end if;		
-		
+end process;
+
+WriteProc: process (clk) is
+begin
+	if(falling_edge(clk)) then
 		if(WR1_E = '1') THEN
 		REG(conv_integer(writeOne)) <= dataInOne;
 		END IF;
@@ -56,7 +62,7 @@ begin
 		if(WR2_E = '1') THEN
 		REG(conv_integer(writeTwo)) <= dataInTwo;
 		END IF;
-		
+	end if;
 end process;
 
 end Behavioral;

@@ -48,7 +48,8 @@ end rising;
 architecture falling of Memory is
 
 	type ram_type is array (WORD_COUNT downto 0) of std_logic_vector(WORD_SIZE downto 0); -- Total 516k memory bits 8k*32 = 256k we use 50% for DataMemory and 50% for ProgramMemory
-	signal RAM: ram_type;
+	signal RAM: ram_type := (others => x"0000");
+	
 	
 Begin
 process(CLK) -- Memory only works with a clock...

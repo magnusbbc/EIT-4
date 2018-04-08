@@ -48,26 +48,30 @@ USE ieee.numeric_std.ALL;
 
 ENTITY My_first_ALU IS
 	GENERIC (
-		ADD : std_logic_vector := x"1"; -- Adds two operands
-		ADC : std_logic_vector := x"2"; -- Adds two operands, and the prevous overflow flag
-		SUB : std_logic_vector := x"3"; -- Subtracts two operands
-		MUL : std_logic_vector := x"4"; -- Multiplies two operands
-		OGG : std_logic_vector := x"5"; -- ANDs two operands
-		ELL : std_logic_vector := x"6"; -- ORs two operands
-		XEL : std_logic_vector := x"7"; -- XORs two operands
-		IKK : std_logic_vector := x"8"; -- NEGATES operand A
-		NOA : std_logic_vector := x"9"; -- NOT operand A
-		LSL : std_logic_vector := x"A"; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
-		LSR : std_logic_vector := x"B"; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
-		ASL : std_logic_vector := x"C"; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
-		ASR : std_logic_vector := x"D"; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
-		PAS : std_logic_vector := x"E"; -- Passes operand A
-		INC : std_logic_vector := x"F"; -- Increments operand A
-		NAA : std_logic_vector := x"0" -- Does nothing, does not change flags
+		ADD : integer := 1; -- Adds two operands
+		ADC : integer := 2;-- Adds two operands, and the prevous overflow flag
+		SUB : integer := 3;-- Subtracts two operands
+		MUL : integer := 4;-- Multiplies two operands
+		OGG : integer := 5;-- ANDs two operands
+		ELL : integer := 6;-- ORs two operands
+		XEL : integer := 7;-- XORs two operands
+		IKA : integer := 8;-- NEGATES operand A
+		IKB : integer := 9; -- NEGATES operand B
+		NOA : integer := 10; -- NOT operand A
+		NOB : integer := 11; -- NOT operand B
+		LSL : integer := 12; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
+		LSR : integer := 13; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
+		ASL : integer := 14; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
+		ASR : integer := 15; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
+		PAS : integer := 16;-- Passes operand A
+		PBS : integer := 17; -- Passes operand B
+		ICA : integer := 18; -- Increments operand A
+		ICB : integer := 19; -- Increments operand B
+		NAA : integer := 20-- Does nothing, does not change flags
 	);
 	PORT (
 		Operand1, Operand2 : IN std_logic_vector(15 DOWNTO 0); -- Operands 1 and 2
-		Operation          : IN std_logic_vector(3 DOWNTO 0);
+		Operation          : IN std_logic_vector(5 DOWNTO 0);
 
 		Parity_Flag        : OUT std_logic; -- Flag raised when a carry is present after adding
 		Signed_Flag        : OUT std_logic; -- Flag that does something?
@@ -88,7 +92,7 @@ BEGIN
 	PROCESS (Operand1, Operand2, Operation, temp) IS
 	variable Parity 		: std_logic; 
 	BEGIN
-		If (operation = NAA) theN
+		If (to_integer(unsigned(Operation)) = NAA) then
 			
 		ELSE 
 			Parity 		  := '0';
@@ -96,7 +100,7 @@ BEGIN
 			Signed_Flag   <= '0';
 			Overflow_Flag <= '0';
 			Zero_Flag     <= '0';	
-			CASE Operation IS
+			CASE to_integer(unsigned(Operation)) IS
 				WHEN ADD => -- res = op1 + op2
 					-- Here, you first need to cast your input vectors to signed or unsigned
 					-- (according to your needs). Then, you will be allowed to add them.
@@ -127,21 +131,25 @@ BEGIN
 					Temp 				<= ("0" & (Operand1 XOR Operand2));
 					Result        <= Temp(15 downto 0);
 					
---				When IKK =>  -- Negates operand A
+--				When IKA =>  -- Negates operand A
 --					Temp 			<= ("0" &((NOT Operand1)+1));
+--					Result        <= Temp(15 downto 0);
+			
+--				When IKB =>  -- Negates operand A
+--					Temp 			<= ("0" &((NOT Operand2)+1));
 --					Result        <= Temp(15 downto 0);		
 			
 				WHEN NOA => -- Returns NOT Operand1
 					Temp 			  <= ("0" & (NOT Operand1));
 					Result        <= Temp(15 downto 0);
 				
---				WHEN NOB => -- Returns NOT Operand1
---					Temp 			  <= ("0" & (NOT Operand2));
---					Result        <= Temp(15 downto 0);
+				WHEN NOB => -- Returns NOT Operand1
+					Temp 			  <= ("0" & (NOT Operand2));
+					Result        <= Temp(15 downto 0);
 										
-				WHEN LSL => -- Logic Shift Left Operand1 by Operand2 number of bits. Fill with "0"
-					Overflow_temp <= std_logic_vector(shift_left(unsigned(Operand1), to_integer(unsigned(Operand2))));
-					Result        <= Overflow_temp(15 DOWNTO 0);
+--				WHEN LSL => -- Logic Shift Left Operand1 by Operand2 number of bits. Fill with "0"
+--					Overflow_temp <= std_logic_vector(shift_left(unsigned(Operand1), to_integer(unsigned(Operand2))));
+--					Result        <= Overflow_temp(15 DOWNTO 0);
 	
 					-- WHEN LSL => -- Logic Shift Left Operand1 by Operand2 number of bits. Fill with "0"
 					-- Overflow_temp <= to_stdlogicvector(to_bitvector(Operand1) sra to_integer(unsigned(Operand2)));
@@ -159,8 +167,12 @@ BEGIN
 					-- Overflow_temp <= std_logic_vector(signed(Operand1) sra signed(Operand2));
 					-- Result <= Overflow_temp(15 DOWNTO 0);
 	
-				WHEN INC => 
+				WHEN ICA => 
 					Temp <= std_logic_vector("0" & (signed(Operand1) + 1));
+					Result <= Temp(15 downto 0);
+					
+				WHEN ICB => 
+					Temp <= std_logic_vector("0" & (signed(Operand2) + 1));
 					Result <= Temp(15 downto 0);
 
 --			   WHEN DEC_A => 
@@ -169,17 +181,21 @@ BEGIN
 --			  	--	
 				When PAS =>
 					Temp 			<= ("0" & Operand1);
-					Result		<= Operand1; 	
+					Result		<= Operand1;
+			
+				When PBS =>
+					Temp 			<= ("0" & Operand2);
+					Result		<= Operand2; 			
 					
 				WHEN OTHERS => 
 	
 			END CASE;
 			
-			IF (Operation = ADD) theN
+			IF (to_integer(unsigned(Operation)) = ADD) theN
 				Overflow_Flag <= ((Operand1(15)) OR (Temp(15))) AND ((NOT (Operand2(15))) OR(NOT (Temp(15)))) AND ((NOT (Operand1(15))) OR ((Operand2(15))));
-			ELsif (Operation = SUB) theN
+			ELsif (to_integer(unsigned(Operation)) = SUB) theN
 				Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
-			elsif (operation = INC) theN
+			elsif (to_integer(unsigned(Operation)) = ICA) theN
 				Overflow_flag <= ((NOT Operand1(15)) AND Overflow_temp(15));
 			end if;
 			
