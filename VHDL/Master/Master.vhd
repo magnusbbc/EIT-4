@@ -45,7 +45,7 @@ ARCHITECTURE Behavioral OF Master IS
 	--Wires
 	SIGNAL OP1, OP2, ALU_OUTPUT   : std_logic_vector(15 DOWNTO 0);
 	SIGNAL RWSWITCH : std_logic_vector(4 DOWNTO 0);
-	
+	SIGNAL FLAGS : std_LOGIC_vector(3 downto 0);
 	--PRAM Signals
 	SIGNAL PC : std_logic_vector(9 DOWNTO 0) := (others => '0') ;
 	SIGNAL pDataIn : std_logic_vector(31 DOWNTO 0);
@@ -154,7 +154,11 @@ BEGIN
 		Operation => CONTROL(17 DOWNTO 12), 
 		Operand1 => OP1, 
 		Operand2 => OP2, 
-		Result => ALU_OUTPUT
+		Result => ALU_OUTPUT,
+		Parity_Flag => FLAGS(0),
+		Signed_Flag => FLAGS(1),
+		Overflow_Flag => FLAGS(2),
+		Zero_Flag => FLAGS(3)
 		);
 		
 		
@@ -231,8 +235,8 @@ BEGIN
 	END PROCESS;
 	
 	WITH CONTROL(0) SELECT subClock <=
-		PLL_CLOCK_TEMP when '0',
-		--DBtn(2) when '0',
+		--PLL_CLOCK_TEMP when '0',
+		DBtn(2) when '0',
 		--clk when '0',
 		'0' when others;
 	
@@ -250,5 +254,10 @@ BEGIN
 		
 	LED(0) <= DIVIDER(25);
 	LED(1) <= PLL_LOCK;
+	
+	LED(9) <= FLAGS(3);
+	LED(8) <= FLAGS(2);
+	LED(7) <= FLAGS(1);
+	LED(6) <= FLAGS(0);
  
 END ARCHITECTURE Behavioral;
