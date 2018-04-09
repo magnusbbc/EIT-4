@@ -11,30 +11,39 @@ ENTITY MemPCon IS
 	RE :	IN	STD_LOGIC;
 	Address :	IN STD_LOGIC_vector (15 DOWNTO 0);
 	DI	: IN	STD_LOGIC_vector (15 DOWNTO 0);
-	DO	: OUT	STD_LOGIC_vector (15 DOWNTO 0);
-	CLK : IN  STD_LOGIC
---	Buff : IN STD_LOGIC (5 DOWNTO 0)
-	-- 
+	DO	: buffer STD_LOGIC_vector (15 DOWNTO 0);
+	CLK : IN  STD_LOGIC;
+	clrO : buffer std_LOGIC;
+	bcdeO : buffer std_LOGIC;
+	dotsO : buffer std_LOGIC_vector(3 downto 0);
+	dbtnI : buffer std_LOGIC_vector(2 downto 0);
+	btn : in std_LOGIC_vector(2 downto 0)
 	 );
 END MemPCon;
 
 ARCHITECTURE Behavioral OF MemPCon IS
-	type ram_type is array (0 downto 0) of std_logic_vector(5 downto 0);
-	signal Buff: RAM_type;
+--	type ram_type is array (0 downto 0) of std_logic_vector(5 downto 0);
+--	signal Buff: RAM_type;
+	
 Begin
+
 Sevensegdriver : entity work.ssgddriver
 	port map(
-		dat => DO,s
-		Buff(0)(0) => clr,
-		Buff(0)(1) => bcdenable,
-		Buff(0)(5 DOWNTO 2) => dots
+		dat => DO,
+		clr => clrO,
+		bcdenable => bcdeO,
+		dots => dotsO
 	);
 
 ButtonDriver : entity work.btndriver
 	port map(
-	DI <= dbtn
+	dbtn => dbtnI,
+	clk => clk,
+	clr => clrO,
+	btn => btn
 	);
 	
+
 	
 
 process(CLK) IS
@@ -45,15 +54,15 @@ Begin
 	IF (Address = 65000) THEN -- sevensegdriver data
 	DO <= DI;
 	
-	
 	ELSIF (Address = 65001) THEN -- Sevensegdriver control
-	Buff <= DI;
+	clrO <= DI(0);
+	bcdeO <= DI(1);
+	dotsO <= DI(5 downto 2);
 
 	ELSIF (Address = 65002) THEN -- ButtonDriver Data
+	DO(2 downto 0) <= dbtnI;
 	
-	
-	
-	Else
+	Else -- memory 
 	
 	
 	
