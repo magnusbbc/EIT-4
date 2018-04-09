@@ -1,5 +1,6 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_unsigned.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY Master IS
@@ -28,16 +29,21 @@ ENTITY Master IS
 	);
 	PORT 
 	(
-		clk         : IN std_logic
+		clk         : IN std_logic;
+		btn			: IN std_logic_vector(2 downto 0);
+		sseg			: OUT std_logic_vector(31 downto 0);
+		led			: OUT std_logic_vector(9 downto 0)
 	);
 END ENTITY Master;
 
 ARCHITECTURE Behavioral OF Master IS
+
+	--Control and instruction registers
 	SIGNAL CONTROL : STD_logic_vector(16 DOWNTO 0);
 	SIGNAL INSTRUCTION : std_logic_vector(31 DOWNTO 0);
 	
+	--Wires
 	SIGNAL OP1, OP2, ALU_OUTPUT   : std_logic_vector(15 DOWNTO 0);
-	
 	SIGNAL RWSWITCH : std_logic_vector(4 DOWNTO 0);
 	
 	--PRAM Signals
@@ -47,13 +53,37 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL PWE : std_logic := '0';
 	SIGNAL PRE : std_logic := '1';
 	--DRAM Signals
-	
 	SIGNAL DADDRS : std_logic_vector(9 downto 0);
 	SIGNAL dDataOut : std_logic_vector(15 DOWNTO 0);
 	
 	--Reg Signals
 	SIGNAL R2O : STD_logic_vector(15 downto 0);
+	
+	--Peripheral Signals
+	SIGNAL clr : std_logic := '0';
+	SIGNAL bcdenable : std_logic := '1';
+	SIGNAL SsDAT : std_logic_vector(15 downto 0) := (others => '0');
+	SIGNAL SsDOT : std_logic_vector(3 downto 0) := (others => '1');
+	SIGNAL DBtn : std_logic_vector(2 downto 0);
 BEGIN
+
+	SEVENSEG : ENTITY work.ssgddriver(Behavioral)
+		PORT MAP(
+		clr => clr,     
+		bcdenable => bcdenable,
+		dat => SsDAT,
+		dots => SsDOT,
+		sseg => sseg    
+		);
+		
+	BUTTON : ENTITY work.btnDriver(Behavioral)
+		PORT MAP(
+		clk => clk,								--Clock used for debouncing
+		clr => clr,								--Clear
+		btn => btn,	--Button inputs
+		dbtn => DBtn	--Debounced button output
+		);
+		
 	CONTROLLER : ENTITY work.Control(Behavioral)
 		GENERIC MAP(
 		ADD => ADD,
@@ -134,7 +164,7 @@ BEGIN
 		address => PC,
 		wren => PWE,
 		rden => PRE,
-		clock => clk
+		clock => DBtn(2) --clock => clk
 		);
 		
 	DRAM : ENTITY work.Memory(falling)
@@ -149,7 +179,7 @@ BEGIN
 		Address => ALU_OUTPUT,
 		WE => CONTROL(5),
 		RE => CONTROL(6),
-		CLK => clk
+		CLK => DBtn(2) --CLK => clk
 		);
 
 	REGS : ENTITY work.RegistryInternal(Behavioral)
@@ -170,7 +200,7 @@ BEGIN
 		WR1_E => CONTROL(4), 
 		WR2_E => CONTROL(3),
 		
-		clk => clk
+		clk => DBtn(2) --clk => clk
 		);
 		
 	WITH CONTROL(2) SELECT OP2 <=
@@ -183,12 +213,21 @@ BEGIN
 		INSTRUCTION(20 downto 16) WHEN  '1',
 		INSTRUCTION(15 downto 11) when OTHERS;
 		
-	RUN: process (clk)
+	RUN: process (DBtn(2)) --clk
 		BEGIN
-		IF(rising_edge(clk)) THEN
+		IF(rising_edge(DBtn(2))) THEN --clk
 		PC <= std_logic_vector(unsigned(PC)+1);
 		END IF;
 	END PROCESS;
 
+	SS: process(DBtn(2)) --clk
+		BEGIN
+		IF(rising_edge(DBtn(2))) THEN
+			IF (CONTROL(5) = '1' AND ALU_OUTPUT = "0000000000101101") THEN
+				led(0) <= '1';
+				SsDAT <= R2O;
+			END IF;
+		END IF;
+	END PROCESS;
  
 END ARCHITECTURE Behavioral;

@@ -11,7 +11,7 @@ ENTITY ssgddriver IS
 	(
 		clr       : IN STD_LOGIC;									--Clear
 		bcdenable : IN std_LOGIC;                          --Enable BCD format
-		dat       : IN STD_LOGIC_vector (15 DOWNTO 0);     --Hex data in 4 nibbles
+		dat       : IN STD_LOGIC_vector (15 DOWNTO 0) := (others => '0');     --Hex data in 4 nibbles
 		dots      : IN STD_LOGIC_vector (3 DOWNTO 0);      --Dots data
 		sseg      : OUT STD_LOGIC_vector (31 DOWNTO 0)     --Segments connections (31| dot4 - 7seg4 - dot3 - 7seg3 - dot2 - 7seg2 - dot1 - 7seg1 |0)
 	);
@@ -46,81 +46,79 @@ BEGIN
  
 		--first display
 		sseg(7) <= dots(0);
-		sseg(6 DOWNTO 0)
-		"1000000" WHEN display(3 DOWNTO 0) = "0000" ELSE
-		"1111001" WHEN display(3 DOWNTO 0) = "0001" ELSE
-		"0100100" WHEN display(3 DOWNTO 0) = "0010" ELSE
-		"0110000" WHEN display(3 DOWNTO 0) = "0011" ELSE
-		"0011001" WHEN display(3 DOWNTO 0) = "0100" ELSE
-		"0010010" WHEN display(3 DOWNTO 0) = "0101" ELSE
-		"0000010" WHEN display(3 DOWNTO 0) = "0110" ELSE
-		"1111000" WHEN display(3 DOWNTO 0) = "0111" ELSE
-		"0000000" WHEN display(3 DOWNTO 0) = "1000" ELSE
-		"0010000" WHEN display(3 DOWNTO 0) = "1001" ELSE
-		"0001000" WHEN display(3 DOWNTO 0) = "1010" ELSE
-		"0000011" WHEN display(3 DOWNTO 0) = "1011" ELSE
-		"1000110" WHEN display(3 DOWNTO 0) = "1100" ELSE
-		"0100001" WHEN display(3 DOWNTO 0) = "1101" ELSE
-		"0000110" WHEN display(3 DOWNTO 0) = "1110" ELSE
-		"0001110" WHEN display(3 DOWNTO 0) = "1111";
-		-- Second display
+		WITH display(3 DOWNTO 0) SELECT sseg(6 DOWNTO 0) <=
+		"1000000" WHEN "0000",
+		"1111001" WHEN "0001",
+		"0100100" WHEN "0010",
+		"0110000" WHEN "0011", 
+		"0011001" WHEN "0100", 
+		"0010010" WHEN "0101", 
+		"0000010" WHEN "0110", 
+		"1111000" WHEN "0111", 
+		"0000000" WHEN "1000", 
+		"0010000" WHEN "1001", 
+		"0001000" WHEN "1010", 
+		"0000011" WHEN "1011", 
+		"1000110" WHEN "1100", 
+		"0100001" WHEN "1101", 
+		"0000110" WHEN "1110", 
+		"0001110" WHEN "1111";
+		
 		sseg(15) <= dots(1);
-		sseg(14 DOWNTO 8)
-		"1000000" WHEN display(7 DOWNTO 4) = "0000" ELSE
-		"1111001" WHEN display(7 DOWNTO 4) = "0001" ELSE
-		"0100100" WHEN display(7 DOWNTO 4) = "0010" ELSE
-		"0110000" WHEN display(7 DOWNTO 4) = "0011" ELSE
-		"0011001" WHEN display(7 DOWNTO 4) = "0100" ELSE
-		"0010010" WHEN display(7 DOWNTO 4) = "0101" ELSE
-		"0000010" WHEN display(7 DOWNTO 4) = "0110" ELSE
-		"1111000" WHEN display(7 DOWNTO 4) = "0111" ELSE
-		"0000000" WHEN display(7 DOWNTO 4) = "1000" ELSE
-		"0010000" WHEN display(7 DOWNTO 4) = "1001" ELSE
-		"0001000" WHEN display(7 DOWNTO 4) = "1010" ELSE
-		"0000011" WHEN display(7 DOWNTO 4) = "1011" ELSE
-		"1000110" WHEN display(7 DOWNTO 4) = "1100" ELSE
-		"0100001" WHEN display(7 DOWNTO 4) = "1101" ELSE
-		"0000110" WHEN display(7 DOWNTO 4) = "1110" ELSE
-		"0001110" WHEN display(7 DOWNTO 4) = "1111";
- 
-		-- Second display
+		WITH display(7 DOWNTO 4) SELECT sseg(14 DOWNTO 8) <=
+		"1000000" WHEN "0000",
+		"1111001" WHEN "0001",
+		"0100100" WHEN "0010",
+		"0110000" WHEN "0011", 
+		"0011001" WHEN "0100", 
+		"0010010" WHEN "0101", 
+		"0000010" WHEN "0110", 
+		"1111000" WHEN "0111", 
+		"0000000" WHEN "1000", 
+		"0010000" WHEN "1001", 
+		"0001000" WHEN "1010", 
+		"0000011" WHEN "1011", 
+		"1000110" WHEN "1100", 
+		"0100001" WHEN "1101", 
+		"0000110" WHEN "1110", 
+		"0001110" WHEN "1111";
+
 		sseg(23) <= dots(2);
-		sseg(22 DOWNTO 16)
-		"1000000" WHEN display(11 DOWNTO 8) = "0000" ELSE
-		"1111001" WHEN display(11 DOWNTO 8) = "0001" ELSE
-		"0100100" WHEN display(11 DOWNTO 8) = "0010" ELSE
-		"0110000" WHEN display(11 DOWNTO 8) = "0011" ELSE
-		"0011001" WHEN display(11 DOWNTO 8) = "0100" ELSE
-		"0010010" WHEN display(11 DOWNTO 8) = "0101" ELSE
-		"0000010" WHEN display(11 DOWNTO 8) = "0110" ELSE
-		"1111000" WHEN display(11 DOWNTO 8) = "0111" ELSE
-		"0000000" WHEN display(11 DOWNTO 8) = "1000" ELSE
-		"0010000" WHEN display(11 DOWNTO 8) = "1001" ELSE
-		"0001000" WHEN display(11 DOWNTO 8) = "1010" ELSE
-		"0000011" WHEN display(11 DOWNTO 8) = "1011" ELSE
-		"1000110" WHEN display(11 DOWNTO 8) = "1100" ELSE
-		"0100001" WHEN display(11 DOWNTO 8) = "1101" ELSE
-		"0000110" WHEN display(11 DOWNTO 8) = "1110" ELSE
-		"0001110" WHEN display(11 DOWNTO 8) = "1111";
- 
-		-- Second display
-		sseg(31) <= dots(2);
-		sseg(30 DOWNTO 24)
-		"1000000" WHEN display(15 DOWNTO 12) = "0000" ELSE
-		"1111001" WHEN display(15 DOWNTO 12) = "0001" ELSE
-		"0100100" WHEN display(15 DOWNTO 12) = "0010" ELSE
-		"0110000" WHEN display(15 DOWNTO 12) = "0011" ELSE
-		"0011001" WHEN display(15 DOWNTO 12) = "0100" ELSE
-		"0010010" WHEN display(15 DOWNTO 12) = "0101" ELSE
-		"0000010" WHEN display(15 DOWNTO 12) = "0110" ELSE
-		"1111000" WHEN display(15 DOWNTO 12) = "0111" ELSE
-		"0000000" WHEN display(15 DOWNTO 12) = "1000" ELSE
-		"0010000" WHEN display(15 DOWNTO 12) = "1001" ELSE
-		"0001000" WHEN display(15 DOWNTO 12) = "1010" ELSE
-		"0000011" WHEN display(15 DOWNTO 12) = "1011" ELSE
-		"1000110" WHEN display(15 DOWNTO 12) = "1100" ELSE
-		"0100001" WHEN display(15 DOWNTO 12) = "1101" ELSE
-		"0000110" WHEN display(15 DOWNTO 12) = "1110" ELSE
-		"0001110" WHEN display(15 DOWNTO 12) = "1111";
+		WITH display(11 DOWNTO 8) SELECT sseg(22 DOWNTO 16) <=
+		"1000000" WHEN "0000",
+		"1111001" WHEN "0001",
+		"0100100" WHEN "0010",
+		"0110000" WHEN "0011", 
+		"0011001" WHEN "0100", 
+		"0010010" WHEN "0101", 
+		"0000010" WHEN "0110", 
+		"1111000" WHEN "0111", 
+		"0000000" WHEN "1000", 
+		"0010000" WHEN "1001", 
+		"0001000" WHEN "1010", 
+		"0000011" WHEN "1011", 
+		"1000110" WHEN "1100", 
+		"0100001" WHEN "1101", 
+		"0000110" WHEN "1110", 
+		"0001110" WHEN "1111";
+		
+		sseg(31) <= dots(3);
+		WITH display(15 DOWNTO 12) SELECT sseg(30 DOWNTO 24) <=
+		"1000000" WHEN "0000",
+		"1111001" WHEN "0001",
+		"0100100" WHEN "0010",
+		"0110000" WHEN "0011", 
+		"0011001" WHEN "0100", 
+		"0010010" WHEN "0101", 
+		"0000010" WHEN "0110", 
+		"1111000" WHEN "0111", 
+		"0000000" WHEN "1000", 
+		"0010000" WHEN "1001", 
+		"0001000" WHEN "1010", 
+		"0000011" WHEN "1011", 
+		"1000110" WHEN "1100", 
+		"0100001" WHEN "1101", 
+		"0000110" WHEN "1110", 
+		"0001110" WHEN "1111";
 
 END Behavioral;
