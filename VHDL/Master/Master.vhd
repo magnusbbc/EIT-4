@@ -39,7 +39,7 @@ END ENTITY Master;
 ARCHITECTURE Behavioral OF Master IS
 
 	--Control and instruction registers
-	SIGNAL CONTROL : STD_logic_vector(16 DOWNTO 0);
+	SIGNAL CONTROL : STD_logic_vector(17 DOWNTO 0);
 	SIGNAL INSTRUCTION : std_logic_vector(31 DOWNTO 0);
 	
 	--Wires
@@ -65,7 +65,22 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL SsDAT : std_logic_vector(15 downto 0) := (others => '0');
 	SIGNAL SsDOT : std_logic_vector(3 downto 0) := (others => '1');
 	SIGNAL DBtn : std_logic_vector(2 downto 0);
+	
+	SIGNAL subClock : std_logic;
+	SIGNAL PLL_CLOCK : std_logic;
+	SIGNAL PLL_LOCK : std_logic;
+	SIGNAL PLL_CLOCK_TEMP : Std_logic;
+	
+	SIGNAL DIVIDER : std_logic_vector(25 downto 0);
 BEGIN
+	
+	PLL : ENTITY work.PLL(SYN)
+		PORT MAP(
+		inclk0 => clk,
+		c0	=>PLL_CLOCK,
+		locked => PLL_LOCK
+		);
+		
 
 	SEVENSEG : ENTITY work.ssgddriver(Behavioral)
 		PORT MAP(
@@ -136,26 +151,12 @@ BEGIN
 		NAA => NAA
 		)
 		PORT MAP(
-		Operation => CONTROL(16 DOWNTO 11), 
+		Operation => CONTROL(17 DOWNTO 12), 
 		Operand1 => OP1, 
 		Operand2 => OP2, 
 		Result => ALU_OUTPUT
 		);
 		
---	PRAM : ENTITY work.Memory(rising)
---		GENERIC MAP(
---		WORD_SIZE => 31,
---		ADDR_SIZE => 9,
---		WORD_COUNT => 1023
---		)
---		PORT MAP(
---		DI => pDataIn,
---		DO => pDataOut,
---		Address => PC,
---		WE => PWE,
---		RE => PRE,
---		CLK => clk
---		);
 		
 	PRAM : ENTITY work.MemAuto(SYN)
 		PORT MAP(
@@ -164,7 +165,7 @@ BEGIN
 		address => PC,
 		wren => PWE,
 		rden => PRE,
-		clock => DBtn(2) --clock => clk
+		clock => subClock
 		);
 		
 	DRAM : ENTITY work.Memory(falling)
@@ -177,9 +178,9 @@ BEGIN
 		DI => R2O,
 		DO => dDataOut,
 		Address => ALU_OUTPUT,
-		WE => CONTROL(5),
-		RE => CONTROL(6),
-		CLK => DBtn(2) --CLK => clk
+		WE => CONTROL(6),
+		RE => CONTROL(7),
+		CLK => subClock
 		);
 
 	REGS : ENTITY work.RegistryInternal(Behavioral)
@@ -197,37 +198,57 @@ BEGIN
 		
 		pcIn => x"0000",
 		
-		WR1_E => CONTROL(4), 
-		WR2_E => CONTROL(3),
+		WR1_E => CONTROL(5), 
+		WR2_E => CONTROL(4),
 		
-		clk => DBtn(2) --clk => clk
+		clk => subClock
 		);
 		
-	WITH CONTROL(2) SELECT OP2 <=
+	WITH CONTROL(3) SELECT OP2 <=
 		R2O 							 WHEN '0',
 		INSTRUCTION(15 downto 0) WHEN '1',
 		R2O WHEN OTHERS;
 	
-	WITH CONTROL(0) SELECT RWSWITCH <=
+	WITH CONTROL(1) SELECT RWSWITCH <=
 		INSTRUCTION(15 downto 11) when '0',
 		INSTRUCTION(20 downto 16) WHEN  '1',
 		INSTRUCTION(15 downto 11) when OTHERS;
 		
-	RUN: process (DBtn(2)) --clk
+	RUN: process (subClock)
 		BEGIN
-		IF(rising_edge(DBtn(2))) THEN --clk
+		IF(rising_edge(subClock)) THEN --clk
 		PC <= std_logic_vector(unsigned(PC)+1);
 		END IF;
 	END PROCESS;
 
-	SS: process(DBtn(2)) --clk
+	SS: process(subClock) --clk
 		BEGIN
-		IF(rising_edge(DBtn(2))) THEN
-			IF (CONTROL(5) = '1' AND ALU_OUTPUT = "0000000000101101") THEN
-				led(0) <= '1';
+		IF(rising_edge(subClock)) THEN
+			IF (CONTROL(6) = '1' AND ALU_OUTPUT = "0000000000101101") THEN
 				SsDAT <= R2O;
 			END IF;
 		END IF;
 	END PROCESS;
+	
+	WITH CONTROL(0) SELECT subClock <=
+		PLL_CLOCK_TEMP when '0',
+		--DBtn(2) when '0',
+		--clk when '0',
+		'0' when others;
+	
+	WITH PLL_LOCK SELECT PLL_CLOCK_TEMP <=
+		PLL_CLOCK when '1',
+		'0' when others;
+	
+	
+	process(PLL_CLOCK)
+		Begin
+		IF(rising_edge(PLL_CLOCK)) THEN
+		DIVIDER <= std_logic_vector(unsigned(DIVIDER)+1);
+		END IF;
+		END PROCESS;
+		
+	LED(0) <= DIVIDER(25);
+	LED(1) <= PLL_LOCK;
  
 END ARCHITECTURE Behavioral;
