@@ -46,11 +46,11 @@ BEGIN
 stim_proc:process(TbClock)
 		begin
 			IF(rising_edge(TbClock)) THEN
-			cnt<=15;
-			operand1 <= "0111011100110001";
+			cnt<=4;
+			operand1 <= "0000000000001101";
 			operand2 <= "0000000000000101";
 			operation <= std_logic_vector(to_unsigned(cnt,operation'length));
-				IF(cnt = 15) THEN
+				IF(cnt = 4) THEN
 						TbSimEnded <= '1';
 						--wait;
 				END IF; 

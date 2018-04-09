@@ -56,7 +56,7 @@ ENTITY My_first_ALU IS
 		ADD : INTEGER := 1;  -- Adds two operands
 		ADC : INTEGER := 2;  -- Adds two operands, and the prevous overflow flag
 		SUB : INTEGER := 3;  -- Subtracts two operands
-		MUL : INTEGER := 4;  -- Multiplies two operands
+		MUL : INTEGER := 4;  -- Multiplies two operands, Signed vector multiplied by signed integer. 
 		OGG : INTEGER := 5;  -- ANDs two operands
 		ELL : INTEGER := 6;  -- ORs two operands
 		XEL : INTEGER := 7;  -- XORs two operands
@@ -123,7 +123,11 @@ BEGIN
 				WHEN SUB => -- Returns Operand1 - Operand2
 					Temp   <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
 					Result <= Temp(15 DOWNTO 0);
- 
+				
+--				When MUL => -- Returns Operand1 * Operand2
+--					Temp <= std_logic_vector("0" & (signed(Operand1)* to_integer(signed(Operand2))));
+--					Result <= Temp(15 DOWNTO 0);
+					
 				WHEN OGG => -- Returns Operand1 AND Operand2
 					Temp   <= ("0" & (Operand1 AND Operand2));
 					Result <= Temp(15 DOWNTO 0);
