@@ -29,7 +29,7 @@ USE ieee.numeric_std.ALL;
 -- Add
 -- ADC Adds two operands, and the prevous overflow flag * To be implemented
 -- Sub
--- Multiplier Multiplies two numbers, *To be implemented
+-- Multiplier *To be implemented
 -- AND
 -- OR
 -- XOR
@@ -82,7 +82,7 @@ ENTITY My_first_ALU IS
 		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
 		Zero_Flag          : OUT std_logic; -- Flag raised when operands are equal?
 		
-		Flags 				: out std_logic_vector(3 downto 0);
+		Flags 				 : out std_logic_vector(3 downto 0);
 		Result             : OUT std_logic_vector(15 DOWNTO 0)
 	);
 END ENTITY My_first_ALU;
@@ -90,7 +90,6 @@ END ENTITY My_first_ALU;
 ARCHITECTURE Behavioral OF My_first_ALU IS
 
 	SIGNAL Temp          : std_logic_vector(16 DOWNTO 0); -- Used to store results when adding. Has room for the carry
-	SIGNAL Overflow_temp : std_logic_vector(15 DOWNTO 0); -- Used to store the value of the overflow flag.
 	
 BEGIN
 	PROCESS (Operand1, Operand2, Operation, temp) IS
@@ -116,7 +115,7 @@ BEGIN
 					-- This is done to make room for the sign-bit/carry bit.
 					Result        <= Temp(15 DOWNTO 0);
 	--				Overflow_Flag <= ((Operand1(15)) OR (Temp(15))) AND ((NOT (Operand2(15))) OR(NOT (Temp(15)))) AND ((NOT (Operand1(15))) OR ((Operand2(15))));
-	--				-- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Her st�r om overflow detection
+	--				-- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Her stï¿½r om overflow detection
 					
 					
 				When SUB => -- Returns Operand1 - Operand2 
@@ -178,7 +177,8 @@ BEGIN
 				WHEN ICB => 
 					Temp <= std_logic_vector("0" & (signed(Operand2) + 1));
 					Result <= Temp(15 downto 0);
-
+					Overflow_flag <= ((NOT Operand2(15)) AND Temp(15));
+					
 --			   WHEN DEC_A => 
 --			  		Result <= std_logic_vector(signed(Operand1) - 1);  
 --			  	-- Overflow_flag <= ((NOT Overflow_temp(15)) AND Operand1(15));
@@ -200,7 +200,7 @@ BEGIN
 			ELsif (to_integer(unsigned(Operation)) = SUB) theN
 				Overflow_Flag <= ((Operand1(15)) OR (Operand2(15))) AND ((NOT (Operand2(15))) OR((Temp(15)))) AND ((NOT (Operand1(15))) OR (NOT (Temp(15))));
 			elsif (to_integer(unsigned(Operation)) = ICA) theN
-				Overflow_flag <= ((NOT Operand1(15)) AND Overflow_temp(15));
+				Overflow_flag <= ((NOT Operand1(15)) AND Temp(15));
 			end if;
 			
 			Signed_Flag   <= Temp(15);
