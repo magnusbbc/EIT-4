@@ -41,19 +41,21 @@ BEGIN
 	
 	-- Clock generation
    TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';
-
+	
 	
 stim_proc:process(TbClock)
 		begin
 			IF(rising_edge(TbClock)) THEN
-			cnt<=cnt+1;
-			operand1 <= x"0001";
-			operand2 <= x"0000";
+			cnt<=15;
+			operand1 <= "0111011100110001";
+			operand2 <= "0000000000000101";
 			operation <= std_logic_vector(to_unsigned(cnt,operation'length));
-				IF(cnt = 8) THEN
+				IF(cnt = 15) THEN
 						TbSimEnded <= '1';
 						--wait;
 				END IF; 
 			END IF;
-	end process; 
+	end process;
+
+	
 END Behavioral;
