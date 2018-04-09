@@ -27,7 +27,9 @@ USE ieee.numeric_std.ALL;
 -- It has:
 -- OPERATIONS:
 -- Add
+-- ADC Adds two operands, and the prevous overflow flag * To be implemented
 -- Sub
+-- Multiplier Multiplies two numbers, *To be implemented
 -- AND
 -- OR
 -- XOR
@@ -37,8 +39,9 @@ USE ieee.numeric_std.ALL;
 -- Logic shift right * To be implemented
 -- Arith shift left * To be implemented
 -- Arith shift right * To be implemented
--- Pass through  
--- Multiplier        * To be implemented    
+-- Pass through 
+-- ICA Increments A
+-- ICB Increments B 
 -- NOP					
 
 -- FLAGS
