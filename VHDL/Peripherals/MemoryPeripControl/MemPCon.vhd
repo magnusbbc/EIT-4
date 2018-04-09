@@ -13,37 +13,43 @@ ENTITY MemPCon IS
 	DI	: IN	STD_LOGIC_vector (15 DOWNTO 0);
 	DO	: buffer STD_LOGIC_vector (15 DOWNTO 0);
 	CLK : IN  STD_LOGIC;
-	clrO : buffer std_LOGIC;
-	bcdeO : buffer std_LOGIC;
-	dotsO : buffer std_LOGIC_vector(3 downto 0);
-	dbtnI : buffer std_LOGIC_vector(2 downto 0);
-	btn : in std_LOGIC_vector(2 downto 0)
+	btn : in std_LOGIC_vector(2 downto 0);
+	ss : out std_LOGIC_vector(31 downto 0)
 	 );
 END MemPCon;
 
 ARCHITECTURE Behavioral OF MemPCon IS
 --	type ram_type is array (0 downto 0) of std_logic_vector(5 downto 0);
 --	signal Buff: RAM_type;
-	
+	signal ssreg_data, ssreg_config, btnreg_data, memreg_dataI, memreg_dataO : std_LOGIC_vector(15 downto 0);
 Begin
 
 Sevensegdriver : entity work.ssgddriver
 	port map(
-		dat => DO,
-		clr => clrO,
-		bcdenable => bcdeO,
-		dots => dotsO
+		dat => ssreg_data,
+		clr => ssreg_config(5),
+		bcdenable => ssreg_config(4),
+		dots => ssreg_config(3 downto 0)
 	);
 
 ButtonDriver : entity work.btndriver
 	port map(
-	dbtn => dbtnI,
+	dbtn => btnreg_data(2 downto 0),
 	clk => clk,
-	clr => clrO,
+	clr => '0',
 	btn => btn
 	);
 	
-
+MemoryDriver : entity work.Memory
+	port map(
+	DI => memreg_dataI,
+	DO => memreg_dataO,
+	clk => clk,
+	WE => WE,
+	RE => RE,
+	Address => Address
+	);
+	
 	
 
 process(CLK) IS
@@ -51,20 +57,21 @@ Begin
   IF(rising_edge(CLK)) THEN
 
 
-	IF (Address = 65000) THEN -- sevensegdriver data
-	DO <= DI;
+	IF (Address = 65000 AND WE = '1') THEN -- sevensegdriver data
+		ssreg_data <= DI;
 	
-	ELSIF (Address = 65001) THEN -- Sevensegdriver control
-	clrO <= DI(0);
-	bcdeO <= DI(1);
-	dotsO <= DI(5 downto 2);
+	ELSIF (Address = 65001 AND WE = '1') THEN -- Sevensegdriver control
+		ssreg_config <= DI;
 
-	ELSIF (Address = 65002) THEN -- ButtonDriver Data
-	DO(2 downto 0) <= dbtnI;
+	ELSIF (Address = 65002 AND RE = '1') THEN -- ButtonDriver Data
+		DO <= btnreg_data;
 	
 	Else -- memory 
-	
-	
+		if WE = '1' then
+			memreg_dataI <= DI;
+		elsif RE = '1' then
+			DO <= memreg_dataO;
+		end if;
 	
 	END IF;
 END IF;
