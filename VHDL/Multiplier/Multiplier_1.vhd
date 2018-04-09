@@ -44,14 +44,14 @@ ENTITY Multiplier_1 IS
 	(
 		dataa		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
 		datab		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-		result		: OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+		result		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
 	);
 END Multiplier_1;
 
 
 ARCHITECTURE SYN OF multiplier_1 IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (15 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (31 DOWNTO 0);
 
 
 
@@ -67,12 +67,12 @@ ARCHITECTURE SYN OF multiplier_1 IS
 	PORT (
 			dataa	: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
 			datab	: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-			result	: OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+			result	: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
 	);
 	END COMPONENT;
 
 BEGIN
-	result    <= sub_wire0(15 DOWNTO 0);
+	result    <= sub_wire0(31 DOWNTO 0);
 
 	lpm_mult_component : lpm_mult
 	GENERIC MAP (
@@ -81,7 +81,7 @@ BEGIN
 		lpm_type => "LPM_MULT",
 		lpm_widtha => 16,
 		lpm_widthb => 16,
-		lpm_widthp => 16
+		lpm_widthp => 32
 	)
 	PORT MAP (
 		dataa => dataa,
@@ -96,7 +96,7 @@ END SYN;
 -- ============================================================
 -- CNX file retrieval info
 -- ============================================================
--- Retrieval info: PRIVATE: AutoSizeResult NUMERIC "0"
+-- Retrieval info: PRIVATE: AutoSizeResult NUMERIC "1"
 -- Retrieval info: PRIVATE: B_isConstant NUMERIC "0"
 -- Retrieval info: PRIVATE: ConstantB NUMERIC "0"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone III"
@@ -108,7 +108,7 @@ END SYN;
 -- Retrieval info: PRIVATE: ValidConstant NUMERIC "0"
 -- Retrieval info: PRIVATE: WidthA NUMERIC "16"
 -- Retrieval info: PRIVATE: WidthB NUMERIC "16"
--- Retrieval info: PRIVATE: WidthP NUMERIC "16"
+-- Retrieval info: PRIVATE: WidthP NUMERIC "32"
 -- Retrieval info: PRIVATE: aclr NUMERIC "0"
 -- Retrieval info: PRIVATE: clken NUMERIC "0"
 -- Retrieval info: PRIVATE: new_diagram STRING "1"
@@ -119,16 +119,16 @@ END SYN;
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_MULT"
 -- Retrieval info: CONSTANT: LPM_WIDTHA NUMERIC "16"
 -- Retrieval info: CONSTANT: LPM_WIDTHB NUMERIC "16"
--- Retrieval info: CONSTANT: LPM_WIDTHP NUMERIC "16"
+-- Retrieval info: CONSTANT: LPM_WIDTHP NUMERIC "32"
 -- Retrieval info: USED_PORT: dataa 0 0 16 0 INPUT NODEFVAL "dataa[15..0]"
 -- Retrieval info: USED_PORT: datab 0 0 16 0 INPUT NODEFVAL "datab[15..0]"
--- Retrieval info: USED_PORT: result 0 0 16 0 OUTPUT NODEFVAL "result[15..0]"
+-- Retrieval info: USED_PORT: result 0 0 32 0 OUTPUT NODEFVAL "result[31..0]"
 -- Retrieval info: CONNECT: @dataa 0 0 16 0 dataa 0 0 16 0
 -- Retrieval info: CONNECT: @datab 0 0 16 0 datab 0 0 16 0
--- Retrieval info: CONNECT: result 0 0 16 0 @result 0 0 16 0
+-- Retrieval info: CONNECT: result 0 0 32 0 @result 0 0 32 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL Multiplier_1.vhd TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL Multiplier_1.inc FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL Multiplier_1.inc TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL Multiplier_1.cmp TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL Multiplier_1.bsf FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL Multiplier_1_inst.vhd FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL Multiplier_1.bsf TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL Multiplier_1_inst.vhd TRUE
 -- Retrieval info: LIB_FILE: lpm

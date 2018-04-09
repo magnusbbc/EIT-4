@@ -23,6 +23,11 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 USE ieee.numeric_std.ALL;
+
+LIBRARY lpm; 
+USE lpm.lpm_components.all;
+USE lpm.all;
+
 -- This is a simple ALU.
 -- It has:
 -- OPERATIONS:
@@ -92,8 +97,17 @@ END ENTITY My_first_ALU;
 ARCHITECTURE Behavioral OF My_first_ALU IS
 
 	SIGNAL Temp : std_logic_vector(16 DOWNTO 0); -- Used to store results when adding. Has room for the carry
- 
+	Signal Mult_Temp : std_LOGIC_VECTOR(31 downto 0); 
+	
 BEGIN
+
+ multiplier : entity work.Multiplier_1
+	PORT MAP (
+		dataa => operand1,
+		datab => operand2,
+		result => Mult_Temp
+	);				
+ 
 	PROCESS (Operand1, Operand2, Operation, temp) IS
 	VARIABLE Parity : std_logic;
 	BEGIN
@@ -124,9 +138,9 @@ BEGIN
 					Temp   <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
 					Result <= Temp(15 DOWNTO 0);
 				
---				When MUL => -- Returns Operand1 * Operand2
---					Temp <= std_logic_vector("0" & (signed(Operand1)* to_integer(signed(Operand2))));
---					Result <= Temp(15 DOWNTO 0);
+				When MUL => -- Returns Operand1 * Operand2
+					Temp <= ("0" & (Mult_Temp(15 downto 0)));
+					Result <= Temp(15 DOWNTO 0);
 					
 				WHEN OGG => -- Returns Operand1 AND Operand2
 					Temp   <= ("0" & (Operand1 AND Operand2));
@@ -203,7 +217,12 @@ BEGIN
 			ELSIF (to_integer(unsigned(Operation)) = ICA ) THEN
 				Overflow_flag <= ((NOT Operand1(15)) AND Temp(15));
 			ELSIF (to_integer(unsigned(Operation)) = ICB ) THEN
-					Overflow_flag <= ((NOT Operand2(15)) AND Temp(15));
+				Overflow_flag <= ((NOT Operand2(15)) AND Temp(15));
+			ELSIF (to_integer(unsigned(Operation)) = MUL ) THEN
+				
+				IF (to_integer(unsigned(mult_Temp(31 downto 16)))> 0 ) theN
+					Overflow_flag <= '1';
+				end if;						
 			END IF;
  
 			Signed_Flag <= Temp(15);
