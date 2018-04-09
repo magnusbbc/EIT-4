@@ -16,9 +16,9 @@ ARCHITECTURE Behavioral OF btndriver IS
 	SIGNAL Q0, Q1, Q2 : std_logic_vector (2 DOWNTO 0); -- Debounce registers
 
 BEGIN
-
 	PROCESS (clk)
 	BEGIN
+	
 		IF (clk'event AND clk = '1') THEN
 			IF (clr = '1') THEN							--Clear 
 				Q0 <= (OTHERS => '0');
