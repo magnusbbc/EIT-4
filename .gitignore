@@ -91,6 +91,13 @@ vsim.dbg
 # Project Settings
 *.cywrk.*
 *.cyprj.*
+*.arh
+*~
+*.cydsn/Cortex*/*
+*.cydsn/Export/*
+*.cydsn/Generated_Source
+*.cydsn/codegentemp
+*.cydsn/BUILD.log
 
 # Generated Assets and Resources
 Debug/
