@@ -61,7 +61,7 @@ ARCHITECTURE Behavioral OF Master IS
 	
 	--Peripheral Signals
 	SIGNAL clr : std_logic := '0';
-	SIGNAL bcdenable : std_logic := '1';
+	SIGNAL bcdenable : std_logic := '0';
 	SIGNAL SsDAT : std_logic_vector(15 downto 0) := (others => '0');
 	SIGNAL SsDOT : std_logic_vector(3 downto 0) := (others => '1');
 	SIGNAL DBtn : std_logic_vector(2 downto 0);
@@ -255,9 +255,9 @@ BEGIN
 	LED(0) <= DIVIDER(25);
 	LED(1) <= PLL_LOCK;
 	
-	LED(9) <= FLAGS(3);
-	LED(8) <= FLAGS(2);
-	LED(7) <= FLAGS(1);
-	LED(6) <= FLAGS(0);
+	LED(9) <= FLAGS(3); --Zero_Flag
+	LED(8) <= FLAGS(2); -- Overflow
+	LED(7) <= FLAGS(1); -- Signed Flas
+	LED(6) <= FLAGS(0); -- Parity
  
 END ARCHITECTURE Behavioral;
