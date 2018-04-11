@@ -15,7 +15,7 @@ ARCHITECTURE Behavioral OF ALU_TB IS
 		signal Signed_Flag        :  std_logic; -- Flag that does something?
 		signal Overflow_Flag      :  std_logic; -- Flag raised when overflow is present
 		signal Zero_Flag          :  std_logic; -- Flag raised when operands are equal?
-		
+		signal Carry_Flag			  :  std_logic; -- Flag raised when operands are carry
 		signal Result             :  std_logic_vector(15 DOWNTO 0);
 	
 	
@@ -23,7 +23,7 @@ ARCHITECTURE Behavioral OF ALU_TB IS
 	constant TbPeriod : time := 10 ns;
    signal TbClock : std_logic := '0';
    signal TbSimEnded : std_logic := '0';
-	signal cnt : integer := 0;
+	signal cnt : integer := 1;
 
 BEGIN
 	ALU : ENTITY work.My_first_ALU(Behavioral) 
@@ -35,6 +35,7 @@ BEGIN
 	signed_Flag => signed_Flag,
 	overflow_Flag => overflow_Flag,
 	zero_Flag => zero_Flag,
+	Carry_Flag => Carry_Flag,
 	result => result
 	
 	);
@@ -46,9 +47,9 @@ BEGIN
 stim_proc:process(TbClock)
 		begin
 			IF(rising_edge(TbClock)) THEN
-			cnt<=4;
-			operand1 <= "0100000000100010";
-			operand2 <= "0001000000000010";
+			cnt<= cnt+1;
+			operand1 <= x"00F1";
+			operand2 <= x"7FFF";
 			operation <= std_logic_vector(to_unsigned(cnt,operation'length));
 				IF(cnt = 4) THEN
 						TbSimEnded <= '1';
