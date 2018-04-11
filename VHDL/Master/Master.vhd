@@ -39,7 +39,7 @@ END ENTITY Master;
 ARCHITECTURE Behavioral OF Master IS
 
 	--Control and instruction registers
-	SIGNAL CONTROL : STD_logic_vector(17 DOWNTO 0);
+	SIGNAL CONTROL : STD_logic_vector(15 DOWNTO 0);
 	SIGNAL INSTRUCTION : std_logic_vector(31 DOWNTO 0);
 	
 	--Wires
@@ -59,19 +59,20 @@ ARCHITECTURE Behavioral OF Master IS
 	--Reg Signals
 	SIGNAL R2O : STD_logic_vector(15 downto 0);
 	
-	--Peripheral Signals
-	SIGNAL clr : std_logic := '0';
-	SIGNAL bcdenable : std_logic := '0';
-	SIGNAL SsDAT : std_logic_vector(15 downto 0) := (others => '0');
-	SIGNAL SsDOT : std_logic_vector(3 downto 0) := (others => '1');
-	SIGNAL DBtn : std_logic_vector(2 downto 0);
+  --Peripheral Signals
+--  SIGNAL clr : std_logic := '0';
+--  SIGNAL bcdenable : std_logic := '0';
+--  SIGNAL SsDAT : std_logic_vector(15 downto 0) := (others => '0');
+--  SIGNAL SsDOT : std_logic_vector(3 downto 0) := (others => '1');
+--  SIGNAL DBtn : std_logic_vector(2 downto 0);
+	
 	
 	SIGNAL subClock : std_logic;
 	SIGNAL PLL_CLOCK : std_logic;
 	SIGNAL PLL_LOCK : std_logic;
 	SIGNAL PLL_CLOCK_TEMP : Std_logic;
-	
 	SIGNAL DIVIDER : std_logic_vector(25 downto 0);
+	SIGNAL JMP_SELECT : std_logic := '0';
 BEGIN
 	
 	PLL : ENTITY work.PLL(SYN)
@@ -81,24 +82,60 @@ BEGIN
 		locked => PLL_LOCK
 		);
 		
+	
+	MEMCNT : ENTITY work.MemoryController
+		GENERIC MAP(
+		WORD_SIZE => 15,
+		ADDR_SIZE => 15,
+		WORD_COUNT => 1023
+		)
+		PORT MAP(
+		WE => CONTROL(6),
+		RE => CONTROL(7),
+		Address => ALU_OUTPUT,
+		DI => R2O,
+		DO => dDataOut,
+		CLK => subClock,
+		btn => btn,
+		ss	=> sseg
+		);
+		
 
-	SEVENSEG : ENTITY work.ssgddriver(Behavioral)
-		PORT MAP(
-		clr => clr,     
-		bcdenable => bcdenable,
-		dat => SsDAT,
-		dots => SsDOT,
-		sseg => sseg    
-		);
-		
-	BUTTON : ENTITY work.btnDriver(Behavioral)
-		PORT MAP(
-		clk => clk,								--Clock used for debouncing
-		clr => clr,								--Clear
-		btn => btn,	--Button inputs
-		dbtn => DBtn	--Debounced button output
-		);
-		
+--	SEVENSEG : ENTITY work.ssgddriver(Behavioral)
+--		PORT MAP(
+--		clr => clr,     
+--		bcdenable => bcdenable,
+--		dat => SsDAT,
+--		dots => SsDOT,
+--		sseg => sseg    
+--		);
+--		
+--	BUTTON : ENTITY work.btnDriver(Behavioral)
+--		PORT MAP(
+--		clk => clk,								--Clock used for debouncing
+--		clr => clr,								--Clear
+--		btn => btn,	--Button inputs
+--		dbtn => DBtn	--Debounced button output
+--		);
+--
+--
+--
+--	DRAM : ENTITY work.Memory(falling)
+--		GENERIC MAP(
+--		WORD_SIZE => 15,
+--		ADDR_SIZE => 15,
+--		WORD_COUNT => 1023
+--		)
+--		PORT MAP(
+--		DI => R2O,
+--		DO => dDataOut,
+--		Address => ALU_OUTPUT,
+--		WE => CONTROL(6),
+--		RE => CONTROL(7),
+--		CLK => subClock
+--		);
+
+
 	CONTROLLER : ENTITY work.Control(Behavioral)
 		GENERIC MAP(
 		ADD => ADD,
@@ -151,7 +188,7 @@ BEGIN
 		NAA => NAA
 		)
 		PORT MAP(
-		Operation => CONTROL(17 DOWNTO 12), 
+		Operation => CONTROL(15 DOWNTO 10), 
 		Operand1 => OP1, 
 		Operand2 => OP2, 
 		Result => ALU_OUTPUT,
@@ -172,20 +209,6 @@ BEGIN
 		clock => subClock
 		);
 		
-	DRAM : ENTITY work.Memory(falling)
-		GENERIC MAP(
-		WORD_SIZE => 15,
-		ADDR_SIZE => 15,
-		WORD_COUNT => 1023
-		)
-		PORT MAP(
-		DI => R2O,
-		DO => dDataOut,
-		Address => ALU_OUTPUT,
-		WE => CONTROL(6),
-		RE => CONTROL(7),
-		CLK => subClock
-		);
 
 	REGS : ENTITY work.RegistryInternal(Behavioral)
 		PORT MAP(
@@ -218,26 +241,31 @@ BEGIN
 		INSTRUCTION(20 downto 16) WHEN  '1',
 		INSTRUCTION(15 downto 11) when OTHERS;
 		
+	
+	WITH to_integer(unsigned(CONTROL(9 downto 8))) SELECT JMP_SELECT <=
+		'0' WHEN 0,
+		'1' WHEN 1,
+		FLAGS(3) WHEN 2,
+		FLAGS(2) WHEN 3,
+		'0' WHEN others;
+		
+	
 	RUN: process (subClock)
 		BEGIN
 		IF(rising_edge(subClock)) THEN --clk
-		PC <= std_logic_vector(unsigned(PC)+1);
-		END IF;
-	END PROCESS;
-
-	SS: process(subClock) --clk
-		BEGIN
-		IF(rising_edge(subClock)) THEN
-			IF (CONTROL(6) = '1' AND ALU_OUTPUT = "0000000000101101") THEN
-				SsDAT <= R2O;
+			IF(JMP_SELECT /= '1') THEN
+				PC <= std_logic_vector(unsigned(PC)+1);
+			ELSE
+				PC <= ALU_OUTPUT(9 downto 0);
+				LED(5) <= '1';
 			END IF;
 		END IF;
 	END PROCESS;
 	
 	WITH CONTROL(0) SELECT subClock <=
 		--PLL_CLOCK_TEMP when '0',
-		DBtn(2) when '0',
-		--clk when '0',
+		--DBtn(2) when '0',
+		clk when '0',
 		'0' when others;
 	
 	WITH PLL_LOCK SELECT PLL_CLOCK_TEMP <=
@@ -248,16 +276,18 @@ BEGIN
 	process(PLL_CLOCK)
 		Begin
 		IF(rising_edge(PLL_CLOCK)) THEN
-		DIVIDER <= std_logic_vector(unsigned(DIVIDER)+1);
+			DIVIDER <= std_logic_vector(unsigned(DIVIDER)+1);
 		END IF;
 		END PROCESS;
-		
-	LED(0) <= DIVIDER(25);
-	LED(1) <= PLL_LOCK;
+	
+	--SsDAT <= "000000"&PC;
 	
 	LED(9) <= FLAGS(3); --Zero_Flag
 	LED(8) <= FLAGS(2); -- Overflow
 	LED(7) <= FLAGS(1); -- Signed Flas
 	LED(6) <= FLAGS(0); -- Parity
+		
+	LED(0) <= DIVIDER(25);
+	LED(1) <= PLL_LOCK;
  
 END ARCHITECTURE Behavioral;

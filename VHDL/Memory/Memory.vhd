@@ -7,7 +7,7 @@ use IEEE.std_logic_arith.all;
 entity Memory is
 	 generic (
 			WORD_SIZE : integer := 15; -- this is Word Size minus 1
-			ADDR_SIZE : integer := 9; -- this is Address minus 1
+			ADDR_SIZE : integer := 15; -- this is Address minus 1
 			WORD_COUNT : integer := 1023 -- this is the Word count minus 1
 	 );
     Port ( DI : in  STD_LOGIC_VECTOR (WORD_SIZE downto 0); --Data in

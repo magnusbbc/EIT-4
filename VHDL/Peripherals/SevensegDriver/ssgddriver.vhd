@@ -62,7 +62,8 @@ BEGIN
 		"1000110" WHEN "1100", 
 		"0100001" WHEN "1101", 
 		"0000110" WHEN "1110", 
-		"0001110" WHEN "1111";
+		"0001110" WHEN "1111",
+		"0000000" WHEN others;
 		
 		sseg(15) <= dots(1);
 		WITH display(7 DOWNTO 4) SELECT sseg(14 DOWNTO 8) <=
@@ -81,7 +82,8 @@ BEGIN
 		"1000110" WHEN "1100", 
 		"0100001" WHEN "1101", 
 		"0000110" WHEN "1110", 
-		"0001110" WHEN "1111";
+		"0001110" WHEN "1111",
+		"0000000" WHEN others;
 
 		sseg(23) <= dots(2);
 		WITH display(11 DOWNTO 8) SELECT sseg(22 DOWNTO 16) <=
@@ -100,7 +102,8 @@ BEGIN
 		"1000110" WHEN "1100", 
 		"0100001" WHEN "1101", 
 		"0000110" WHEN "1110", 
-		"0001110" WHEN "1111";
+		"0001110" WHEN "1111",
+		"0000000" WHEN others;
 		
 		sseg(31) <= dots(3);
 		WITH display(15 DOWNTO 12) SELECT sseg(30 DOWNTO 24) <=
@@ -119,6 +122,7 @@ BEGIN
 		"1000110" WHEN "1100", 
 		"0100001" WHEN "1101", 
 		"0000110" WHEN "1110", 
-		"0001110" WHEN "1111";
+		"0001110" WHEN "1111",
+		"0000000" WHEN others;
 
 END Behavioral;
