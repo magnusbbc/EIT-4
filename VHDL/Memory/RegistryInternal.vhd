@@ -30,7 +30,7 @@ end RegistryInternal;
 
 architecture Behavioral of RegistryInternal is
 
-type register_type is array (31 downto 0) of std_logic_vector(15 downto 0);
+type register_type is array (30 downto 0) of std_logic_vector(15 downto 0);
 signal REG: register_type := (others => x"0000");
 
 
@@ -39,13 +39,13 @@ begin
 RegProc: process (readOne, readTwo, writeOne, writeTwo, pcIn, REG) is
 
 begin
-		if conv_integer(readOne) = 32 then --pc to outOne
+		if conv_integer(readOne) = 31 then --pc to outOne
 			dataOutOne <= pcIn;
 		else
 			dataOutOne <= REG(conv_integer(readOne));
 		end if;
 
-		if conv_integer(readTwo) = 32 then --pc to outTwo
+		if conv_integer(readTwo) = 31 then --pc to outTwo
 			dataOutTwo <= pcIn;
 		else
 			dataOutTwo <= REG(conv_integer(readTwo));

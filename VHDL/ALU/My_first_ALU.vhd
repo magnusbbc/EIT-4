@@ -89,7 +89,7 @@ ENTITY My_first_ALU IS
 		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
 		Zero_Flag          : OUT std_logic; -- Flag raised when operands are equal?
  
-		Flags              : OUT std_logic_vector(3 DOWNTO 0);
+		--Flags              : OUT std_logic_vector(3 DOWNTO 0);
 		Result             : OUT std_logic_vector(15 DOWNTO 0)
 	);
 END ENTITY My_first_ALU;

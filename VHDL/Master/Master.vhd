@@ -39,15 +39,14 @@ END ENTITY Master;
 ARCHITECTURE Behavioral OF Master IS
 
 	--Control and instruction registers
-	SIGNAL CONTROL : STD_logic_vector(15 DOWNTO 0);
+	SIGNAL CONTROL : STD_logic_vector(17 DOWNTO 0);
 	SIGNAL INSTRUCTION : std_logic_vector(31 DOWNTO 0);
 	
 	--Wires
 	SIGNAL OP1, OP2, ALU_OUTPUT   : std_logic_vector(15 DOWNTO 0);
 	SIGNAL RWSWITCH : std_logic_vector(4 DOWNTO 0);
-	SIGNAL FLAGS : std_LOGIC_vector(3 downto 0);
 	--PRAM Signals
-	SIGNAL PC : std_logic_vector(9 DOWNTO 0) := (others => '0') ;
+	SIGNAL PC, ADDR : std_logic_vector(9 DOWNTO 0) := (others => '0') ;
 	SIGNAL pDataIn : std_logic_vector(31 DOWNTO 0);
 	SIGNAL pDataOut : std_logic_vector(31 DOWNTO 0);
 	SIGNAL PWE : std_logic := '0';
@@ -73,6 +72,19 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL PLL_CLOCK_TEMP : Std_logic;
 	SIGNAL DIVIDER : std_logic_vector(25 downto 0);
 	SIGNAL JMP_SELECT : std_logic := '0';
+	SIGNAL ADDR_SELECT : std_logic := '0';
+	SIGNAL PC_OVERWRITE : std_logic := '0';
+	
+	SIGNAL Parity_Flag    : std_logic := '0';
+	SIGNAL Signed_Flag    : std_logic := '0';
+	SIGNAL Overflow_Flag  : std_logic := '0';
+	SIGNAL Zero_Flag      : std_logic := '0';
+	
+	SIGNAL Parity_Flag_Latch    : std_logic := '0';
+	SIGNAL Signed_Flag_Latch     : std_logic := '0';
+	SIGNAL Overflow_Flag_Latch  : std_logic := '0';
+	SIGNAL Zero_Flag_Latch      : std_logic := '0';
+	
 BEGIN
 	
 	PLL : ENTITY work.PLL(SYN)
@@ -90,8 +102,8 @@ BEGIN
 		WORD_COUNT => 1023
 		)
 		PORT MAP(
-		WE => CONTROL(6),
-		RE => CONTROL(7),
+		WE => CONTROL(7),
+		RE => CONTROL(8),
 		Address => ALU_OUTPUT,
 		DI => R2O,
 		DO => dDataOut,
@@ -188,14 +200,14 @@ BEGIN
 		NAA => NAA
 		)
 		PORT MAP(
-		Operation => CONTROL(15 DOWNTO 10), 
+		Operation => CONTROL(17 DOWNTO 12), 
 		Operand1 => OP1, 
 		Operand2 => OP2, 
 		Result => ALU_OUTPUT,
-		Parity_Flag => FLAGS(0),
-		Signed_Flag => FLAGS(1),
-		Overflow_Flag => FLAGS(2),
-		Zero_Flag => FLAGS(3)
+		Parity_Flag => Parity_Flag,
+		Signed_Flag => Signed_Flag,
+		Overflow_Flag => Overflow_Flag,
+		Zero_Flag => Zero_Flag
 		);
 		
 		
@@ -203,7 +215,7 @@ BEGIN
 		PORT MAP(
 		data => pDataIn,
 		q => INSTRUCTION,
-		address => PC,
+		address => ADDR,
 		wren => PWE,
 		rden => PRE,
 		clock => subClock
@@ -223,49 +235,67 @@ BEGIN
 		dataOutOne => OP1,
 		dataOutTwo => R2O,
 		
-		pcIn => x"0000",
+		pcIn => "000000"&std_logic_vector(unsigned(PC)+1),
 		
-		WR1_E => CONTROL(5), 
-		WR2_E => CONTROL(4),
+		WR1_E => CONTROL(6), 
+		WR2_E => CONTROL(5),
 		
 		clk => subClock
 		);
 		
-	WITH CONTROL(3) SELECT OP2 <=
+	WITH CONTROL(4) SELECT OP2 <=
 		R2O 							 WHEN '0',
 		INSTRUCTION(15 downto 0) WHEN '1',
 		R2O WHEN OTHERS;
 	
-	WITH CONTROL(1) SELECT RWSWITCH <=
+	WITH CONTROL(2) SELECT RWSWITCH <=
 		INSTRUCTION(15 downto 11) when '0',
 		INSTRUCTION(20 downto 16) WHEN  '1',
 		INSTRUCTION(15 downto 11) when OTHERS;
 		
-	
-	WITH to_integer(unsigned(CONTROL(9 downto 8))) SELECT JMP_SELECT <=
-		'0' WHEN 0,
-		'1' WHEN 1,
-		FLAGS(3) WHEN 2,
-		FLAGS(2) WHEN 3,
+	WITH to_integer(unsigned(INSTRUCTION(20 downto 16))) SELECT PC_OVERWRITE <=
+		'1' WHEN 31,
 		'0' WHEN others;
 		
+	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(11 downto 9))) SELECT JMP_SELECT <=
+		'0' WHEN 0,
+		'1' WHEN 1,
+		Zero_Flag_Latch WHEN 2,
+		Overflow_Flag_Latch WHEN 3,
+		not Zero_Flag_Latch WHEN 4,
+		'1' WHEN 8, --WHEN PC_OVERWRITE is set
+		'0' WHEN others;
 	
+	WITH JMP_SELECT SELECT ADDR <=
+		ALU_OUTPUT(9 downto 0) WHEN '1',
+		PC WHEN OTHERS; 
+
 	RUN: process (subClock)
 		BEGIN
 		IF(rising_edge(subClock)) THEN --clk
 			IF(JMP_SELECT /= '1') THEN
 				PC <= std_logic_vector(unsigned(PC)+1);
 			ELSE
-				PC <= ALU_OUTPUT(9 downto 0);
+				PC <= std_logic_vector(unsigned(ALU_OUTPUT(9 downto 0))+1);
 				LED(5) <= '1';
 			END IF;
 		END IF;
 	END PROCESS;
 	
+	LATCH : process(subClock)
+		BEGIN
+		IF(rising_edge(subClock)) THEN
+			Zero_Flag_Latch <= Zero_Flag;
+			Overflow_Flag_Latch <= Overflow_Flag;
+			Signed_Flag_Latch <= Signed_Flag;
+			Parity_Flag_Latch <= Parity_Flag;
+		END IF;
+	END PROCESS;
+	
 	WITH CONTROL(0) SELECT subClock <=
-		--PLL_CLOCK_TEMP when '0',
+		PLL_CLOCK_TEMP when '0',
 		--DBtn(2) when '0',
-		clk when '0',
+		--clk when '0',
 		'0' when others;
 	
 	WITH PLL_LOCK SELECT PLL_CLOCK_TEMP <=
@@ -280,14 +310,13 @@ BEGIN
 		END IF;
 		END PROCESS;
 	
-	--SsDAT <= "000000"&PC;
 	
-	LED(9) <= FLAGS(3); --Zero_Flag
-	LED(8) <= FLAGS(2); -- Overflow
-	LED(7) <= FLAGS(1); -- Signed Flas
-	LED(6) <= FLAGS(0); -- Parity
+	LED(9) <= Zero_Flag;  --Latch not needed
+	LED(8) <= Overflow_Flag;
+	LED(7) <= Signed_Flag;
+	LED(6) <= Parity_Flag;
 		
 	LED(0) <= DIVIDER(25);
-	LED(1) <= PLL_LOCK;
+	LED(1) <= CONTROL(0);
  
 END ARCHITECTURE Behavioral;

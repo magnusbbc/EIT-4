@@ -24,12 +24,14 @@ add wave -noupdate -color Yellow -label OP1 -radix unsigned /cpu_v1_tb/MAIN/ALU/
 add wave -noupdate -color Yellow -label OP2 -radix unsigned /cpu_v1_tb/MAIN/ALU/Operand2
 add wave -noupdate -color Yellow -label Operation -radix unsigned /cpu_v1_tb/MAIN/ALU/Operation
 add wave -noupdate -color Yellow -label {ALU Output} -radix unsigned /cpu_v1_tb/MAIN/ALU/Result
-add wave -noupdate -color Yellow -label Flags /cpu_v1_tb/MAIN/ALU/Flags
 add wave -noupdate -divider Jump
 add wave -noupdate -color Magenta -label {Jump Select} /cpu_v1_tb/MAIN/JMP_SELECT
-add wave -noupdate -color Magenta -label Jump -subitemconfig {/cpu_v1_tb/MAIN/CONTROL(9) {-color Magenta} /cpu_v1_tb/MAIN/CONTROL(8) {-color Magenta}} /cpu_v1_tb/MAIN/Jump
+add wave -noupdate -color Magenta -label Jump /cpu_v1_tb/MAIN/Jump
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/ADDR
+add wave -noupdate /cpu_v1_tb/MAIN/Zero_Flag
+add wave -noupdate /cpu_v1_tb/MAIN/Zero_Flag_Latch
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {10899 ps} 0}
+WaveRestoreCursors {{Cursor 1} {35000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 225
 configure wave -valuecolwidth 104
