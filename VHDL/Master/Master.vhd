@@ -1,34 +1,33 @@
+#include "Config.hvhd"
+
+--Definition of control lines
+#define ALU_CONTROL 17 DOWNTO 12
+#define JUMP_CONTROL 11 DOWNTO 9
+#define MEMORY_READ 8
+#define MEMORY_WRITE 7
+#define REGISTER_TO_REGISTER_WRITE 6
+#define MEMORY_TO_REGISTER_WRITE 5
+#define IMMEDIATE_SELECT 4
+#define DECREMENT_REGISTER 3
+#define SWITCH_READ_WRITE 2
+#define MEMORY_TO_PC 1
+#define HALT 0
+
+--definition of instruction lines
+#define OPCODE 31 DOWNTO 26
+#define REGISTER_READ_INDEX_1 25 DOWNTO 21
+#define REGISTER_READ_INDEX_2 15 DOWNTO 11
+#define REGISTER_WRITE_INDEX_1 20 DOWNTO 16
+#define REGISTER_WRITE_INDEX_2 10 DOWNTO 6
+#define IMMEDIATE 15 DOWNTO 0
+
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_unsigned.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
-LIBRARY work;
-USE work.Constants.all;
 
 ENTITY Master IS
-	GENERIC (
-		ADD : INTEGER := ADDVAL; -- Adds two operands
-		ADC : INTEGER := 2;-- Adds two operands, and the prevous overflow flag
-		SUB : INTEGER := 3;-- Subtracts two operands
-		MUL : INTEGER := 4;-- Multiplies two operands
-		OGG : INTEGER := 5;-- ANDs two operands
-		ELL : INTEGER := 6;-- ORs two operands
-		XEL : INTEGER := 7;-- XORs two operands
-		IKA : INTEGER := 8;-- NEGATES operand A
-		IKB : INTEGER := 9; -- NEGATES operand B
-		NOA : INTEGER := 10; -- NOT operand A
-		NOB : INTEGER := 11; -- NOT operand B
-		LSL : INTEGER := 12; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
-		LSR : INTEGER := 13; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
-		ASL : INTEGER := 14; -- Arithmetic Shift Left Operand A by Operand B number of bits. Fill with right bit
-		ASR : INTEGER := 15; -- Arithmetic Shift ri Operand A by Operand B number of bits. Fill with left bit
-		PAS : INTEGER := 16;-- Passes operand A
-		PBS : INTEGER := 17; -- Passes operand B
-		ICA : INTEGER := 18; -- Increments operand A
-		ICB : INTEGER := 19; -- Increments operand B
-		NAA : INTEGER := 20-- Does nothing, does not change flags
-	);
 	PORT (
 		clk : IN std_logic;
 		btn : IN std_logic_vector(2 DOWNTO 0);
@@ -40,31 +39,26 @@ END ENTITY Master;
 ARCHITECTURE Behavioral OF Master IS
 
 	--Control and instruction registers
-	SIGNAL CONTROL : STD_logic_vector(17 DOWNTO 0);
-	SIGNAL INSTRUCTION : std_logic_vector(31 DOWNTO 0);
+	SIGNAL CONTROL : Std_logic_vector(CONTROL_SIZE DOWNTO 0);
+	SIGNAL INSTRUCTION : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 
 	--Wires
-	SIGNAL OP1, OP2, ALU_OUTPUT, ALU_OUTPUT_MODIFIED : std_logic_vector(15 DOWNTO 0);
+	SIGNAL OP1, OP2, ALU_OUTPUT, ALU_OUTPUT_MODIFIED : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL RWSWITCH : std_logic_vector(4 DOWNTO 0);
 	--PRAM Signals
 	SIGNAL PC, ADDR, PC_ALT : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0');
-	SIGNAL pDataIn : std_logic_vector(31 DOWNTO 0);
-	SIGNAL pDataOut : std_logic_vector(31 DOWNTO 0);
+	SIGNAL pDataIn : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
+	SIGNAL pDataOut : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 	SIGNAL PWE : std_logic := '0';
 	SIGNAL PRE : std_logic := '1';
 	--DRAM Signals
 	SIGNAL DADDRS : std_logic_vector(9 DOWNTO 0);
-	SIGNAL dDataOut : std_logic_vector(15 DOWNTO 0);
+	SIGNAL dDataOut : std_logic_vector(WORD_SIZE DOWNTO 0);
 
 	--Reg Signals
-	SIGNAL R2O : STD_logic_vector(15 DOWNTO 0);
+	SIGNAL R2O : STD_logic_vector(WORD_SIZE DOWNTO 0);
 
-	--Peripheral Signals
-	--  SIGNAL clr : std_logic := '0';
-	--  SIGNAL bcdenable : std_logic := '0';
-	--  SIGNAL SsDAT : std_logic_vector(15 downto 0) := (others => '0');
-	--  SIGNAL SsDOT : std_logic_vector(3 downto 0) := (others => '1');
-	--  SIGNAL DBtn : std_logic_vector(2 downto 0);
+
 	SIGNAL subClock : std_logic;
 	SIGNAL PLL_CLOCK : std_logic;
 	SIGNAL PLL_LOCK : std_logic;
@@ -93,14 +87,9 @@ BEGIN
 			locked => PLL_LOCK
 		);
 	MEMCNT : ENTITY work.MemoryController
-		GENERIC MAP(
-			WORD_SIZE => 15,
-			ADDR_SIZE => 15,
-			WORD_COUNT => 1023
-		)
 		PORT MAP(
-			WE => CONTROL(7),
-			RE => CONTROL(8),
+			WE => CONTROL(MEMORY_WRITE),
+			RE => CONTROL(MEMORY_READ),
 			Address => ALU_OUTPUT,
 			DI => R2O,
 			DO => dDataOut,
@@ -108,92 +97,16 @@ BEGIN
 			btn => btn,
 			ss => sseg
 		);
-	--	SEVENSEG : ENTITY work.ssgddriver(Behavioral)
-	--		PORT MAP(
-	--		clr => clr,     
-	--		bcdenable => bcdenable,
-	--		dat => SsDAT,
-	--		dots => SsDOT,
-	--		sseg => sseg    
-	--		);
-	--		
-	--	BUTTON : ENTITY work.btnDriver(Behavioral)
-	--		PORT MAP(
-	--		clk => clk,								--Clock used for debouncing
-	--		clr => clr,								--Clear
-	--		btn => btn,	--Button inputs
-	--		dbtn => DBtn	--Debounced button output
-	--		);
-	--
-	--
-	--
-	--	DRAM : ENTITY work.Memory(falling)
-	--		GENERIC MAP(
-	--		WORD_SIZE => 15,
-	--		ADDR_SIZE => 15,
-	--		WORD_COUNT => 1023
-	--		)
-	--		PORT MAP(
-	--		DI => R2O,
-	--		DO => dDataOut,
-	--		Address => ALU_OUTPUT,
-	--		WE => CONTROL(6),
-	--		RE => CONTROL(7),
-	--		CLK => subClock
-	--		);
+
 	CONTROLLER : ENTITY work.Control(Behavioral)
-		GENERIC MAP(
-			ADD => ADD,
-			ADC => ADC,
-			SUB => SUB,
-			MUL => MUL,
-			OGG => OGG,
-			ELL => ELL,
-			XEL => XEL,
-			IKA => IKA,
-			IKB => IKB,
-			NOA => NOA,
-			NOB => NOB,
-			LSL => LSL,
-			LSR => LSR,
-			ASL => ASL,
-			ASR => ASR,
-			PAS => PAS,
-			PBS => PBS,
-			ICA => ICA,
-			ICB => ICB,
-			NAA => NAA
-		)
 		PORT MAP(
-			opcode => INSTRUCTION(31 DOWNTO 26),
+			opcode => INSTRUCTION(OPCODE),
 			cntSignal => CONTROL
 		);
 
 	ALU : ENTITY work.My_first_ALU(Behavioral)
-		GENERIC MAP(
-			ADD => ADD,
-			ADC => ADC,
-			SUB => SUB,
-			MUL => MUL,
-			OGG => OGG,
-			ELL => ELL,
-			XEL => XEL,
-			IKA => IKA,
-			IKB => IKB,
-			NOA => NOA,
-			NOB => NOB,
-			LSL => LSL,
-			LSR => LSR,
-			ASL => ASL,
-			ASR => ASR,
-			PAS => PAS,
-			PBS => PBS,
-			ICA => ICA,
-			ICB => ICB,
-			NAA => NAA
-		)
 		PORT MAP(
-			Operation => CONTROL(17 DOWNTO 12),
+			Operation => CONTROL(ALU_CONTROL),
 			Operand1 => OP1,
 			Operand2 => OP2,
 			Result => ALU_OUTPUT,
@@ -213,10 +126,10 @@ BEGIN
 		);
 	REGS : ENTITY work.RegistryInternal(Behavioral)
 		PORT MAP(
-			readOne => INSTRUCTION(25 DOWNTO 21),
-			WriteOne => INSTRUCTION(20 DOWNTO 16),
+			readOne => INSTRUCTION(REGISTER_READ_INDEX_1),
+			WriteOne => INSTRUCTION(REGISTER_WRITE_INDEX_1),
 			readTwo => RWSWITCH,
-			WriteTwo => INSTRUCTION(10 DOWNTO 6),
+			WriteTwo => INSTRUCTION(REGISTER_WRITE_INDEX_2),
 
 			dataInOne => ALU_OUTPUT_MODIFIED,
 			dataInTwo => dDataOut,
@@ -226,27 +139,26 @@ BEGIN
 
 			pcIn => "000000" & std_logic_vector(unsigned(PC) + 1),
 
-			WR1_E => CONTROL(6),
-			WR2_E => CONTROL(5),
+			WR1_E => CONTROL(REGISTER_TO_REGISTER_WRITE),
+			WR2_E => CONTROL(MEMORY_TO_REGISTER_WRITE),
 
 			clk => subClock
 		);
 
-	WITH CONTROL(4) SELECT OP2 <=
+	WITH CONTROL(IMMEDIATE_SELECT) SELECT OP2 <=
 	R2O WHEN '0',
-	INSTRUCTION(15 DOWNTO 0) WHEN '1',
+	INSTRUCTION(IMMEDIATE) WHEN '1',
 	R2O WHEN OTHERS;
 
-	WITH CONTROL(2) SELECT RWSWITCH <=
-	INSTRUCTION(15 DOWNTO 11) WHEN '0',
-	INSTRUCTION(20 DOWNTO 16) WHEN '1',
-	INSTRUCTION(15 DOWNTO 11) WHEN OTHERS;
+	WITH CONTROL(SWITCH_READ_WRITE) SELECT RWSWITCH <=
+	INSTRUCTION(REGISTER_WRITE_INDEX_1) WHEN '1',
+	INSTRUCTION(REGISTER_READ_INDEX_2) WHEN OTHERS;
 
-	WITH to_integer(unsigned(INSTRUCTION(20 DOWNTO 16))) SELECT PC_OVERWRITE <=
+	WITH to_integer(unsigned(INSTRUCTION(REGISTER_WRITE_INDEX_1))) SELECT PC_OVERWRITE <=
 	'1' WHEN 31,
 	'0' WHEN OTHERS;
 
-	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(11 DOWNTO 9))) SELECT JMP_SELECT <=
+	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <=
 	'0' WHEN 0,
 	'1' WHEN 1,
 	Zero_Flag_Latch WHEN 2,
@@ -255,7 +167,7 @@ BEGIN
 	'1' WHEN 8, --WHEN PC_OVERWRITE is set
 	'0' WHEN OTHERS;
 
-	WITH CONTROL(1) SELECT PC_ALT <=
+	WITH CONTROL(MEMORY_TO_PC) SELECT PC_ALT <=
 	dDataOut(9 DOWNTO 0) WHEN '1',
 	ALU_OUTPUT(9 DOWNTO 0) WHEN OTHERS;
 
@@ -263,7 +175,7 @@ BEGIN
 		PC_ALT WHEN '1',
 		PC WHEN OTHERS;
 
-	WITH CONTROL(3) SELECT ALU_OUTPUT_MODIFIED <=
+	WITH CONTROL(DECREMENT_REGISTER) SELECT ALU_OUTPUT_MODIFIED <=
 	std_logic_vector(unsigned(ALU_OUTPUT) - 1) WHEN '1',
 	ALU_OUTPUT WHEN OTHERS;
 	RUN : PROCESS (subClock)
@@ -288,7 +200,7 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	WITH CONTROL(0) SELECT subClock <=
+	WITH CONTROL(HALT) SELECT subClock <=
 	PLL_CLOCK_TEMP WHEN '0',
 	--DBtn(2) when '0',
 	--clk when '0',
@@ -309,6 +221,6 @@ BEGIN
 	LED(6) <= Parity_Flag;
 
 	LED(0) <= DIVIDER(25);
-	LED(1) <= CONTROL(0);
+	LED(1) <= CONTROL(HALT);
 
 END ARCHITECTURE Behavioral;

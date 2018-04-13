@@ -1,3 +1,4 @@
+#include "Config.hvhd"
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
@@ -12,13 +13,13 @@ ENTITY RegistryInternal IS
 		WriteOne : IN std_logic_vector(4 DOWNTO 0);
 		WriteTwo : IN std_logic_vector(4 DOWNTO 0);
 
-		dataInOne : IN std_logic_vector(15 DOWNTO 0);
-		dataInTwo : IN std_logic_vector(15 DOWNTO 0);
+		dataInOne : IN std_logic_vector(WORD_SIZE DOWNTO 0);
+		dataInTwo : IN std_logic_vector(WORD_SIZE DOWNTO 0);
 
-		dataOutOne : OUT std_logic_vector(15 DOWNTO 0);
-		dataOutTwo : OUT std_logic_vector(15 DOWNTO 0);
+		dataOutOne : OUT std_logic_vector(WORD_SIZE DOWNTO 0);
+		dataOutTwo : OUT std_logic_vector(WORD_SIZE DOWNTO 0);
 
-		pcIn : IN std_logic_vector(15 DOWNTO 0);
+		pcIn : IN std_logic_vector(WORD_SIZE DOWNTO 0);
 
 		WR1_E : IN std_logic;
 		WR2_E : IN std_logic;
@@ -30,7 +31,7 @@ END RegistryInternal;
 
 ARCHITECTURE Behavioral OF RegistryInternal IS
 
-	TYPE register_type IS ARRAY (30 DOWNTO 0) OF std_logic_vector(15 DOWNTO 0);
+	TYPE register_type IS ARRAY (30 DOWNTO 0) OF std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL REG : register_type := (OTHERS => x"0000");
 BEGIN
 

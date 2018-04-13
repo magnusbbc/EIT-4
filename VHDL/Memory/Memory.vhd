@@ -1,3 +1,4 @@
+#include "Config.hvhd"
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
@@ -5,15 +6,10 @@ USE ieee.numeric_std.ALL;
 USE IEEE.std_logic_arith.ALL;
 
 ENTITY Memory IS
-	GENERIC (
-		WORD_SIZE : INTEGER := 15; -- this is Word Size minus 1
-		ADDR_SIZE : INTEGER := 15; -- this is Address minus 1
-		WORD_COUNT : INTEGER := 1023 -- this is the Word count minus 1
-	);
 	PORT (
 		DI : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Data in
 		DO : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Data Out
-		Address : IN STD_LOGIC_VECTOR (ADDR_SIZE DOWNTO 0); --Address bus
+		Address : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Address bus
 		WE : IN STD_LOGIC; -- Write Enable
 		RE : IN STD_LOGIC; -- Read Enable
 		CLK : IN STD_LOGIC -- Clock
