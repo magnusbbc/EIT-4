@@ -1,68 +1,66 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.numeric_std.all;
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.std_logic_unsigned.ALL;
+USE ieee.numeric_std.ALL;
 --use IEEE.std_logic_arith.all;
 
-entity RegistryInternal is
-	port (
-		readOne : in std_logic_vector(4 downto 0);
-		readTwo : in std_logic_vector(4 downto 0);
-		
-		WriteOne : in std_logic_vector(4 downto 0);
-		WriteTwo : in std_logic_vector(4 downto 0);
-		
-		dataInOne : in std_logic_vector(15 downto 0);
-		dataInTwo : in std_logic_vector(15 downto 0);
-		
-		dataOutOne : out std_logic_vector(15 downto 0);
-		dataOutTwo : out std_logic_vector(15 downto 0);
-		
-		pcIn : in std_logic_vector(15 downto 0);
-		
-		WR1_E : in std_logic;
-		WR2_E : in std_logic;
-		
-		clk : in std_logic
+ENTITY RegistryInternal IS
+	PORT (
+		readOne : IN std_logic_vector(4 DOWNTO 0);
+		readTwo : IN std_logic_vector(4 DOWNTO 0);
+
+		WriteOne : IN std_logic_vector(4 DOWNTO 0);
+		WriteTwo : IN std_logic_vector(4 DOWNTO 0);
+
+		dataInOne : IN std_logic_vector(15 DOWNTO 0);
+		dataInTwo : IN std_logic_vector(15 DOWNTO 0);
+
+		dataOutOne : OUT std_logic_vector(15 DOWNTO 0);
+		dataOutTwo : OUT std_logic_vector(15 DOWNTO 0);
+
+		pcIn : IN std_logic_vector(15 DOWNTO 0);
+
+		WR1_E : IN std_logic;
+		WR2_E : IN std_logic;
+
+		clk : IN std_logic
 	);
 
-end RegistryInternal;
+END RegistryInternal;
 
-architecture Behavioral of RegistryInternal is
+ARCHITECTURE Behavioral OF RegistryInternal IS
 
-type register_type is array (30 downto 0) of std_logic_vector(15 downto 0);
-signal REG: register_type := (others => x"0000");
+	TYPE register_type IS ARRAY (30 DOWNTO 0) OF std_logic_vector(15 DOWNTO 0);
+	SIGNAL REG : register_type := (OTHERS => x"0000");
+BEGIN
 
+	RegProc : PROCESS (readOne, readTwo, writeOne, writeTwo, pcIn, REG) IS
 
-begin
-
-RegProc: process (readOne, readTwo, writeOne, writeTwo, pcIn, REG) is
-
-begin
-		if conv_integer(readOne) = 31 then --pc to outOne
+	BEGIN
+		IF conv_integer(readOne) = 31 THEN --pc to outOne
 			dataOutOne <= pcIn;
-		else
+		ELSE
 			dataOutOne <= REG(conv_integer(readOne));
-		end if;
+		END IF;
 
-		if conv_integer(readTwo) = 31 then --pc to outTwo
+		IF conv_integer(readTwo) = 31 THEN --pc to outTwo
 			dataOutTwo <= pcIn;
-		else
+		ELSE
 			dataOutTwo <= REG(conv_integer(readTwo));
-		end if;		
-end process;
-
-WriteProc: process (clk) is
-begin
-	if(falling_edge(clk)) then
-		if(WR1_E = '1') THEN
-		REG(conv_integer(writeOne)) <= dataInOne;
 		END IF;
-		
-		if(WR2_E = '1') THEN
-		REG(conv_integer(writeTwo)) <= dataInTwo;
-		END IF;
-	end if;
-end process;
+	END PROCESS;
 
-end Behavioral;
+	WriteProc : PROCESS (clk) IS
+	BEGIN
+		IF (falling_edge(clk)) THEN
+			IF (WR1_E = '1') THEN
+				REG(conv_integer(writeOne)) <= dataInOne;
+			END IF;
+
+			IF (WR2_E = '1') THEN
+				REG(conv_integer(writeTwo)) <= dataInTwo;
+			END IF;
+		END IF;
+	END PROCESS;
+
+END Behavioral;
