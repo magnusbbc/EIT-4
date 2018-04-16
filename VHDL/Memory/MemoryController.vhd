@@ -1,9 +1,7 @@
 #include "Config.hvhd"
 LIBRARY IEEE;
-USE IEEE.std_logic_arith.ALL;
-USE IEEE.numeric_std.ALL;
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_unsigned.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY MemoryController IS
 
@@ -22,7 +20,7 @@ END MemoryController;
 ARCHITECTURE Behavioral OF MemoryController IS
 	--	type ram_type is array (0 downto 0) of std_logic_vector(5 downto 0);
 	--	signal Buff: RAM_type;
-	SIGNAL ssreg_data, ssreg_config, btnreg_data, memreg_dataI, memreg_dataO : std_LOGIC_vector(WORD_SIZE DOWNTO 0);
+	SIGNAL ssreg_data, ssreg_config, btnreg_data : std_LOGIC_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL SevenSegOut : std_logic_vector(31 DOWNTO 0);
 	SIGNAL dAddress : std_logic_vector(WORD_SIZE DOWNTO 0);
 BEGIN
@@ -44,10 +42,10 @@ BEGIN
 			btn => btn
 		);
 
-	MemoryDriver : ENTITY work.Memory
+	MemoryDriver : ENTITY work.Memory(falling)
 		PORT MAP(
-			DI => memreg_dataI,
-			DO => memreg_dataO,
+			DI => DI,
+			DO => DO,
 			clk => clk,
 			WE => WE,
 			RE => RE,
@@ -56,29 +54,30 @@ BEGIN
 
 	PROCESS (CLK) IS
 	BEGIN
-		IF (falling_edge(CLK)) THEN
-			IF (Address = 65000 AND WE = '1') THEN -- sevensegdriver data
-				ssreg_data <= DI;
-
-			ELSIF (Address = 65001 AND WE = '1') THEN -- Sevensegdriver control
-				ssreg_config <= DI;
-
-			ELSIF (Address = 65002 AND RE = '1') THEN -- ButtonDriver Data
-				DO <= btnreg_data;
-
-			ELSE -- memory 
-				IF (WE = '1' AND Address < 1023) THEN
-					memreg_dataI <= DI;
-					dAddress <= Address;
-				ELSIF (RE = '1' AND Address < 1023) THEN
-					DO <= memreg_dataO;
-					dAddress <= Address;
+			IF (to_integer(unsigned(Address)) = 65000 AND WE = '1') THEN -- sevensegdriver data
+				IF (falling_edge(CLK)) THEN
+					ssreg_data <= DI;
 				END IF;
 
+			ELSIF (to_integer(unsigned(Address)) = 65001 AND WE = '1') THEN -- Sevensegdriver control
+				IF (falling_edge(CLK)) THEN
+					ssreg_config <= DI;
+				END IF;
+
+			ELSIF (to_integer(unsigned(Address)) = 65002 AND RE = '1') THEN -- ButtonDriver Data
+				IF (falling_edge(CLK)) THEN
+				--DO <= btnreg_data;
+				END IF;
 			END IF;
-		END IF;
-
-		ss <= SevenSegOut;
-
 	END PROCESS;
+
+	PROCESS(Address)
+	BEGIN
+		IF(to_integer(unsigned(Address)) <= 1023) THEN
+			dAddress <= Address;
+		END IF;
+	END PROCESS;
+
+	ss <= SevenSegOut;
+
 END Behavioral;

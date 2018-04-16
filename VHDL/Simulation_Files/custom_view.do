@@ -1,2 +1,2 @@
-do wave_jump_analysis.do
+do wave.do
 run -all

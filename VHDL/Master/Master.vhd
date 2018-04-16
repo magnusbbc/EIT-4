@@ -5,10 +5,10 @@
 #define JUMP_CONTROL 11 DOWNTO 9
 #define MEMORY_READ 8
 #define MEMORY_WRITE 7
-#define REGISTER_TO_REGISTER_WRITE 6
-#define MEMORY_TO_REGISTER_WRITE 5
+#define REGISTER_WRITE 6
+#define MEMORY_WRITE_BACK 5
 #define IMMEDIATE_SELECT 4
-#define DECREMENT_REGISTER 3
+#define STACK_OPERATION 3
 #define SWITCH_READ_WRITE 2
 #define MEMORY_TO_PC 1
 #define HALT 0
@@ -18,7 +18,6 @@
 #define REGISTER_READ_INDEX_1 25 DOWNTO 21
 #define REGISTER_READ_INDEX_2 15 DOWNTO 11
 #define REGISTER_WRITE_INDEX_1 20 DOWNTO 16
-#define REGISTER_WRITE_INDEX_2 10 DOWNTO 6
 #define IMMEDIATE 15 DOWNTO 0
 
 LIBRARY IEEE;
@@ -43,7 +42,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL INSTRUCTION : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 
 	--Wires
-	SIGNAL OP1, OP2, ALU_OUTPUT, ALU_OUTPUT_MODIFIED : std_logic_vector(WORD_SIZE DOWNTO 0);
+	SIGNAL OP1, OP2, ALU_OUTPUT, REGISTER_WRITEBACK : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL RWSWITCH : std_logic_vector(4 DOWNTO 0);
 	--PRAM Signals
 	SIGNAL PC, ADDR, PC_ALT : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0');
@@ -77,6 +76,8 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL Signed_Flag_Latch : std_logic := '0';
 	SIGNAL Overflow_Flag_Latch : std_logic := '0';
 	SIGNAL Zero_Flag_Latch : std_logic := '0';
+
+	SIGNAL PC_REG_IN : std_logic_vector(WORD_SIZE DOWNTO 0);
 
 BEGIN
 
@@ -129,28 +130,25 @@ BEGIN
 			readOne => INSTRUCTION(REGISTER_READ_INDEX_1),
 			WriteOne => INSTRUCTION(REGISTER_WRITE_INDEX_1),
 			readTwo => RWSWITCH,
-			WriteTwo => INSTRUCTION(REGISTER_WRITE_INDEX_2),
 
-			dataInOne => ALU_OUTPUT_MODIFIED,
-			dataInTwo => dDataOut,
+			dataInOne => REGISTER_WRITEBACK,
 
 			dataOutOne => OP1,
 			dataOutTwo => R2O,
 
-			pcIn => "000000" & std_logic_vector(unsigned(PC) + 1),
+			pcIn => PC_REG_IN,
 
-			WR1_E => CONTROL(REGISTER_TO_REGISTER_WRITE),
-			WR2_E => CONTROL(MEMORY_TO_REGISTER_WRITE),
+			WR1_E => CONTROL(REGISTER_WRITE),
 
 			clk => subClock
 		);
 
-	WITH CONTROL(IMMEDIATE_SELECT) SELECT OP2 <=
+	WITH CONTROL(IMMEDIATE_SELECT) SELECT OP2 <= -- Selects Register output 2 or Immediate
 	R2O WHEN '0',
 	INSTRUCTION(IMMEDIATE) WHEN '1',
 	R2O WHEN OTHERS;
 
-	WITH CONTROL(SWITCH_READ_WRITE) SELECT RWSWITCH <=
+	WITH CONTROL(SWITCH_READ_WRITE) SELECT RWSWITCH <= --if SWITCH_READ_WRITE, Read 2 index will be write 1 index
 	INSTRUCTION(REGISTER_WRITE_INDEX_1) WHEN '1',
 	INSTRUCTION(REGISTER_READ_INDEX_2) WHEN OTHERS;
 
@@ -158,7 +156,7 @@ BEGIN
 	'1' WHEN 31,
 	'0' WHEN OTHERS;
 
-	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <=
+	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <= --Controls branching/changing PC
 	'0' WHEN 0,
 	'1' WHEN 1,
 	Zero_Flag_Latch WHEN 2,
@@ -167,18 +165,19 @@ BEGIN
 	'1' WHEN 8, --WHEN PC_OVERWRITE is set
 	'0' WHEN OTHERS;
 
-	WITH CONTROL(MEMORY_TO_PC) SELECT PC_ALT <=
+	WITH CONTROL(MEMORY_TO_PC) SELECT PC_ALT <= --Selects PC alternative, either Memory or ALU output
 	dDataOut(9 DOWNTO 0) WHEN '1',
 	ALU_OUTPUT(9 DOWNTO 0) WHEN OTHERS;
 
-	WITH JMP_SELECT SELECT ADDR <=
+	WITH JMP_SELECT SELECT ADDR <= --Choses instruction to be loaded based on branching
 		PC_ALT WHEN '1',
 		PC WHEN OTHERS;
 
-	WITH CONTROL(DECREMENT_REGISTER) SELECT ALU_OUTPUT_MODIFIED <=
-	std_logic_vector(unsigned(ALU_OUTPUT) - 1) WHEN '1',
+	WITH CONTROL(MEMORY_WRITE_BACK) SELECT REGISTER_WRITEBACK <=
+	dDataOut WHEN '1',
 	ALU_OUTPUT WHEN OTHERS;
-	RUN : PROCESS (subClock)
+
+	RUN : PROCESS (subClock) --Chose new value of PC based on branching
 	BEGIN
 		IF (rising_edge(subClock)) THEN --clk
 			IF (JMP_SELECT /= '1') THEN
@@ -190,7 +189,7 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	LATCH : PROCESS (subClock)
+	LATCH : PROCESS (subClock) --Latches Flags in tempo register, neccesarry due to clock timing
 	BEGIN
 		IF (rising_edge(subClock)) THEN
 			Zero_Flag_Latch <= Zero_Flag;
@@ -215,6 +214,9 @@ BEGIN
 			DIVIDER <= std_logic_vector(unsigned(DIVIDER) + 1);
 		END IF;
 	END PROCESS;
+
+	PC_REG_IN <= "000000" & std_logic_vector(unsigned(PC) + 1);
+
 	LED(9) <= Zero_Flag; --Latch not needed
 	LED(8) <= Overflow_Flag;
 	LED(7) <= Signed_Flag;
