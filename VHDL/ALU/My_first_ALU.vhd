@@ -52,7 +52,7 @@ USE lpm.all;
 ENTITY My_first_ALU IS
 	GENERIC 
 	(
-		ADC : INTEGER := 1;  -- Adds two operands, and the prevous overflow flag
+		ADC : INTEGER := 1;  -- Adds two operands, and the previous carry-bit flag
 		ADD : INTEGER := 2;  -- Adds two operands
 		SUB : INTEGER := 3;  -- Subtracts two operands
 		MUL : INTEGER := 4;  -- Multiplies two operands, Signed vector multiplied by signed integer. 
@@ -69,7 +69,7 @@ ENTITY My_first_ALU IS
 		PAS : INTEGER := 15; -- Passes operand A
 		PBS : INTEGER := 16; -- Passes operand B
 		ICA : INTEGER := 17; -- Increments operand A
-		ICB : INTEGER := 18; -- Increments operand B
+		ICB : INTEGER := 18; -- Increments operand B 
 		NAA : INTEGER := 19  -- Does nothing, does not change flags
 		
 	);
@@ -82,7 +82,7 @@ ENTITY My_first_ALU IS
 		Signed_Flag        : OUT std_logic; -- Flag raised when negative result
 		Zero_Flag          : OUT std_logic; -- Flag raised when result is zero
  		Parity_Flag        : OUT std_logic; -- Flag raised when number of 1's in result is odd. 
-		Carry_Flag			 : out std_logic; -- Flag raised when carry is present		
+		Carry_Flag			 : out std_logic; -- Flag raised when carry is present			
 		
 		Flags              : OUT std_logic_vector(4 DOWNTO 0); -- 1. bit: Overflow, 2. bit: Signed, 3. bit: Zero, 4. bit: Parity, 5. bit: Carry
 		Result             : OUT std_logic_vector(15 DOWNTO 0)
@@ -92,7 +92,8 @@ END ENTITY My_first_ALU;
 ARCHITECTURE Behavioral OF My_first_ALU IS
 	
 	Signal Mult_Temp : std_LOGIC_VECTOR(31 downto 0); -- Used to store results from multiplier
-	SIGNAL Temp : std_logic_vector(16 DOWNTO 0); -- Used to store results. 
+	SIGNAL Temp : std_logic_vector(16 DOWNTO 0); -- Used to store signed results. 
+	Signal uTemp : std_logic_vector(16 downto 0); -- used to store unsigned results.
 	
 BEGIN
 
@@ -106,16 +107,13 @@ multiplier : entity work.Multiplier_1
 	PROCESS (Operand1, Operand2, Operation, temp) IS
 	VARIABLE Parity : std_logic;					
 	BEGIN
+	temp <= (others => '0');
+	utemp <= (others => '0');
+	
 		IF (to_integer(unsigned(Operation)) = NAA) THEN
  
 		ELSE
-			Parity 		  := '0';
-			Carry_Flag	  <= '0';
-			Parity_Flag   <= '0';
-			Signed_Flag   <= '0';
-			Overflow_Flag <= '0';
-			Zero_Flag     <= '0'; 
-			CASE to_integer(unsigned(Operation)) IS
+			CASE to_integer(unsigned(Operation)) IS			
 				WHEN ADD => -- Returns Operand1 + Operand2
 					-- Here, you first need to cast your input vectors to signed or unsigned
 					-- (according to your needs). Then, you will be allowed to add them.
@@ -123,13 +121,15 @@ multiplier : entity work.Multiplier_1
 					-- to assign it directly to your output vector. You first need to cast
 					-- the result to std_logic_vector.
  
-					Temp <= std_logic_vector(unsigned("0" & Operand1) + unsigned(Operand2)); -- We append "0" to the first operand before adding the two operands.
-																												-- This is done to make room for the carry bit.
+					Temp <= std_logic_vector(signed("0" & Operand1) + signed(Operand2)); -- We append "0" to the first operand before adding the two operands.
+					uTemp <= std_logic_vector(unsigned("0" & Operand1) + unsigned(Operand2)); -- We use an unsigned result to determine carry-bit if any. 
 					Result <= Temp(15 DOWNTO 0);
 					-- -- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Good source about overflow detection
  
 				WHEN SUB => -- Returns Operand1 - Operand2
 					Temp   <= std_logic_vector(signed("0" & Operand1) - signed(Operand2));
+					uTemp   <= std_logic_vector(unsigned("0" & Operand1) - unsigned(Operand2));
+
 					Result <= Temp(15 DOWNTO 0);
 				
 				When MUL => -- Returns Operand1 * Operand2
@@ -181,8 +181,8 @@ multiplier : entity work.Multiplier_1
 					Result <= Temp(15 DOWNTO 0);
  
 				WHEN ICB => -- Increments Operand2
-					Temp          <= std_logic_vector("0" & (signed(Operand2) + 1));
-					Result        <= Temp(15 DOWNTO 0);
+					Temp   <= std_logic_vector("0" & (signed(Operand2) + 1));
+					Result <= Temp(15 DOWNTO 0);
 
 				WHEN PAS => -- Lets Operand1 pass through the ALU
 					Temp   <= ("0" & Operand1);
@@ -196,6 +196,13 @@ multiplier : entity work.Multiplier_1
  
 			END CASE;
  
+			Parity 		  := '0';
+			Carry_Flag	  <= '0';
+			Parity_Flag   <= '0';
+			Signed_Flag   <= '0';
+			Overflow_Flag <= '0';
+			Zero_Flag     <= '0';
+			
 			IF (to_integer(unsigned(Operation)) = ADD) THEN
 				Overflow_Flag <= ((Operand1(15)) OR (Temp(15))) AND ((NOT (Operand2(15))) OR(NOT (Temp(15)))) AND ((NOT (Operand1(15))) OR ((Operand2(15))));
 			ELSIF (to_integer(unsigned(Operation)) = SUB) THEN
@@ -211,7 +218,7 @@ multiplier : entity work.Multiplier_1
 				end if;						
 			END IF;
 			
-			Carry_Flag <= Temp(16); 
+			Carry_Flag <= uTemp(16); 
 			Signed_Flag <= Temp(15);
  
 			IF (Temp(15 DOWNTO 0) = "0000000000000000") THEN
@@ -221,7 +228,6 @@ multiplier : entity work.Multiplier_1
 			FOR I IN 0 TO 15 LOOP
 				Parity := Parity XOR Temp(I);
 			END LOOP;
- 
 			Parity_Flag <= Parity; 
 		END IF;
  
