@@ -1,14 +1,15 @@
 #include "Config.hvhd"
 
 --Definition of control lines
-#define ALU_CONTROL 17 DOWNTO 12
-#define JUMP_CONTROL 11 DOWNTO 9
-#define MEMORY_READ 8
-#define MEMORY_WRITE 7
-#define REGISTER_WRITE 6
-#define MEMORY_WRITE_BACK 5
-#define IMMEDIATE_SELECT 4
-#define STACK_OPERATION 3
+#define ALU_CONTROL 18 DOWNTO 13
+#define JUMP_CONTROL 12 DOWNTO 10
+#define MEMORY_READ 9
+#define MEMORY_WRITE 8
+#define REGISTER_WRITE 7
+#define MEMORY_WRITE_BACK 6
+#define IMMEDIATE_SELECT 5
+#define PUSH 4
+#define POP 3
 #define SWITCH_READ_WRITE 2
 #define MEMORY_TO_PC 1
 #define HALT 0
@@ -42,7 +43,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL INSTRUCTION : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 
 	--Wires
-	SIGNAL OP1, OP2, ALU_OUTPUT, REGISTER_WRITEBACK : std_logic_vector(WORD_SIZE DOWNTO 0);
+	SIGNAL OP1, OP2, ALU_OUTPUT, SP_OUT, REGISTER_WRITEBACK, MEM_ADDRESS : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL RWSWITCH : std_logic_vector(4 DOWNTO 0);
 	--PRAM Signals
 	SIGNAL PC, ADDR, PC_ALT : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0');
@@ -65,7 +66,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL DIVIDER : std_logic_vector(25 DOWNTO 0);
 	SIGNAL JMP_SELECT : std_logic := '0';
 	SIGNAL ADDR_SELECT : std_logic := '0';
-	SIGNAL PC_OVERWRITE : std_logic := '0';
+	SIGNAL PC_OVERWRITE, SP_OVERWRITE : std_logic := '0';
 
 	SIGNAL Parity_Flag : std_logic := '0';
 	SIGNAL Signed_Flag : std_logic := '0';
@@ -91,7 +92,7 @@ BEGIN
 		PORT MAP(
 			WE => CONTROL(MEMORY_WRITE),
 			RE => CONTROL(MEMORY_READ),
-			Address => ALU_OUTPUT,
+			Address => MEM_ADDRESS,
 			DI => R2O,
 			DO => dDataOut,
 			CLK => subClock,
@@ -103,6 +104,16 @@ BEGIN
 		PORT MAP(
 			opcode => INSTRUCTION(OPCODE),
 			cntSignal => CONTROL
+		);
+	
+	STACK : ENTITY work.Stack(Behavioral)
+		PORT MAP(
+			pop => CONTROL(POP),
+			push => CONTROL(PUSH),
+			clk => clk,
+			addressOut => SP_OUT,
+			addressIn => REGISTER_WRITEBACK,
+			writeBack => SP_OVERWRITE
 		);
 
 	ALU : ENTITY work.My_first_ALU(Behavioral)
@@ -137,6 +148,7 @@ BEGIN
 			dataOutTwo => R2O,
 
 			pcIn => PC_REG_IN,
+			spIN => SP_OUT,
 
 			WR1_E => CONTROL(REGISTER_WRITE),
 
@@ -156,6 +168,10 @@ BEGIN
 	'1' WHEN 31,
 	'0' WHEN OTHERS;
 
+	WITH to_integer(unsigned(INSTRUCTION(REGISTER_WRITE_INDEX_1))) SELECT SP_OVERWRITE <=
+	'1' WHEN 30,
+	'0' WHEN OTHERS;
+
 	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <= --Controls branching/changing PC
 	'0' WHEN 0,
 	'1' WHEN 1,
@@ -168,6 +184,17 @@ BEGIN
 	WITH CONTROL(MEMORY_TO_PC) SELECT PC_ALT <= --Selects PC alternative, either Memory or ALU output
 	dDataOut(9 DOWNTO 0) WHEN '1',
 	ALU_OUTPUT(9 DOWNTO 0) WHEN OTHERS;
+
+	PROCESS(CONTROL(POP),CONTROL(PUSH),SP_OUT,ALU_OUTPUT)
+		VARIABLE TMP : std_logic_vector(1 downto 0);
+	BEGIN
+		TMP := CONTROL(POP) & CONTROL(PUSH);
+		IF(to_integer(UNSIGNED(TMP)) > 0) THEN
+			MEM_ADDRESS <= SP_OUT;
+		ELSE
+			MEM_ADDRESS <= ALU_OUTPUT;
+		END IF;
+	END PROCESS;
 
 	WITH JMP_SELECT SELECT ADDR <= --Choses instruction to be loaded based on branching
 		PC_ALT WHEN '1',
@@ -200,9 +227,9 @@ BEGIN
 	END PROCESS;
 
 	WITH CONTROL(HALT) SELECT subClock <=
-	PLL_CLOCK_TEMP WHEN '0',
+	--PLL_CLOCK_TEMP WHEN '0',
 	--DBtn(2) when '0',
-	--clk when '0',
+	clk when '0',
 	'0' WHEN OTHERS;
 
 	WITH PLL_LOCK SELECT PLL_CLOCK_TEMP <=

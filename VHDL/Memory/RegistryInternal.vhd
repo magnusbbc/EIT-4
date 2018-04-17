@@ -18,6 +18,8 @@ ENTITY RegistryInternal IS
 		dataOutTwo : OUT std_logic_vector(WORD_SIZE DOWNTO 0);
 
 		pcIn : IN std_logic_vector(WORD_SIZE DOWNTO 0);
+		
+		spIN : IN std_logic_vector(WORD_SIZE DOWNTO 0);
 
 		WR1_E : IN std_logic;
 
@@ -28,7 +30,7 @@ END RegistryInternal;
 
 ARCHITECTURE Behavioral OF RegistryInternal IS
 
-	TYPE register_type IS ARRAY (30 DOWNTO 0) OF std_logic_vector(WORD_SIZE DOWNTO 0);
+	TYPE register_type IS ARRAY (29 DOWNTO 0) OF std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL REG : register_type := (OTHERS => x"0000");
 BEGIN
 
@@ -37,12 +39,16 @@ BEGIN
 	BEGIN
 		IF conv_integer(readOne) = 31 THEN --pc to outOne
 			dataOutOne <= pcIn;
+		ELSIF conv_integer(readOne) = 30 THEN
+			dataOutOne <= spIn;
 		ELSE
 			dataOutOne <= REG(conv_integer(readOne));
 		END IF;
 
 		IF conv_integer(readTwo) = 31 THEN --pc to outTwo
 			dataOutTwo <= pcIn;
+		ELSIF conv_integer(readOne) = 30 THEN
+			dataOutOne <= spIn;
 		ELSE
 			dataOutTwo <= REG(conv_integer(readTwo));
 		END IF;
@@ -52,7 +58,9 @@ BEGIN
 	BEGIN
 		IF (rising_edge(clk)) THEN
 			IF (WR1_E = '1') THEN
-				REG(conv_integer(writeOne)) <= dataInOne;
+				IF(to_integer(unsigned(writeOne)) <= 29) THEN
+					REG(conv_integer(writeOne)) <= dataInOne;
+				END IF;
 			END IF;
 		END IF;
 	END PROCESS;
