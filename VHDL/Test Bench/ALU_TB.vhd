@@ -16,7 +16,7 @@ ARCHITECTURE Behavioral OF ALU_TB IS
 		signal Overflow_Flag      :  std_logic; -- Flag raised when overflow is present
 		signal Zero_Flag          :  std_logic; -- Flag raised when operands are equal?
 		signal Carry_Flag			  :  std_logic; -- Flag raised when operands are carry
-		signal flags				  :  std_logic_vector(4 downto 0);
+--		signal flags				  :  std_logic_vector(4 downto 0);
 		signal Result             :  std_logic_vector(15 DOWNTO 0);
 	
 	
@@ -32,13 +32,13 @@ BEGIN
 	operand1 => operand1,
 	operand2 => operand2,
 	operation => operation,
---	parity_Flag => parity_Flag,
---	signed_Flag => signed_Flag,
---	overflow_Flag => overflow_Flag,
---	zero_Flag => zero_Flag,
---	Carry_Flag => Carry_Flag,
-	result => result,
-	flags => flags
+	parity_Flag => parity_Flag,
+	signed_Flag => signed_Flag,
+	overflow_Flag => overflow_Flag,
+	zero_Flag => zero_Flag,
+	Carry_Flag => Carry_Flag,
+	result => result
+--	flags => flags
 	);
 	
 	-- Clock generation
@@ -47,7 +47,7 @@ BEGIN
 	
 stim_proc:process(TbClock)
 		begin
-			operation <= x"0002"; 
+			operation <= "000010"; 
 			IF(rising_edge(TbClock)) THEN
 				CASE cnt is 
 					when 1 => 
@@ -56,27 +56,27 @@ stim_proc:process(TbClock)
 						cnt<= cnt+1;					
 					when 2 =>
 						operand1 <= x"0000";
-						operand2 <= x"0002";
+						operand2 <= x"2000";
 						cnt<= cnt+1;					
 					when 3 =>
-						operand1 <= x"ffff";
-						operand2 <= x"0001";
+						operand1 <= x"f000";
+						operand2 <= x"1000";
 						cnt<= cnt+1;					
 					when 4 =>
-						operand1 <= x"7fff";
-						operand2 <= x"5FFF";
+						operand1 <= x"7000";
+						operand2 <= x"5000";
 						cnt<= cnt+1;					
 					when 5 =>
-						operand1 <= x"efff";
-						operand2 <= x"bFFF";
+						operand1 <= x"e000";
+						operand2 <= x"b000";
 						cnt<= cnt+1;					
 					when 6 =>
-						operand1 <= x"ffff";
-						operand2 <= x"fFFF";
+						operand1 <= x"f000";
+						operand2 <= x"f000";
 						cnt<= cnt+1;
 					when 7 =>
-						operand1 <= x"ffff";
-						operand2 <= x"8fff";
+						operand1 <= x"f000";
+						operand2 <= x"8000";
 						cnt<= cnt+1;
 					when 8 =>
 						operand1 <= x"00F1";

@@ -65,7 +65,7 @@ ENTITY My_first_ALU IS
 		NOB : INTEGER := 11; -- NOT operand B
 		LSL : INTEGER := 12; -- Logic Shift Left Operand A by Operand B number of bits. Fill with "0"
 		LSR : INTEGER := 13; -- Logic Shift Right Operand A by Operand B number of bits. Fill with "0"
-		ASR : INTEGER := 14; -- Arithmetic Shift right Operand A by Operand B number of bits. Fill with 1
+		ASR : INTEGER := 14; -- Arithmetic Shift right Operand A by Operand B number of bits. Fill with MSB
 		PAS : INTEGER := 15; -- Passes operand A
 		PBS : INTEGER := 16; -- Passes operand B
 		ICA : INTEGER := 17; -- Increments operand A
@@ -77,12 +77,14 @@ ENTITY My_first_ALU IS
 	(
 		Operand1, Operand2 : IN std_logic_vector(15 DOWNTO 0); -- Operands 1 and 2
 		Operation          : IN std_logic_vector(5 DOWNTO 0);
-		
---		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
---		Signed_Flag        : OUT std_logic; -- Flag raised when negative result
---		Zero_Flag          : OUT std_logic; -- Flag raised when result is zero
--- 		Parity_Flag        : OUT std_logic; -- Flag raised when number of 1's in result is odd. 
---		Carry_Flag			 : out std_logic; -- Flag raised when carry is present			
+--		Carry_in 			 : IN std_logic; 						-- Skal vi have et input til vores carry flag, så kan vi sætte flaget lavt men porten 
+																			-- latcher fast. 
+
+		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
+		Signed_Flag        : OUT std_logic; -- Flag raised when negative result
+		Zero_Flag          : OUT std_logic; -- Flag raised when result is zero
+ 		Parity_Flag        : OUT std_logic; -- Flag raised when number of 1's in result is odd. 
+		Carry_Flag			 : out std_logic; -- Flag raised when carry is present			
 		
 		Flags              : OUT std_logic_vector(4 DOWNTO 0); -- 1. bit: Overflow, 2. bit: Signed, 3. bit: Zero, 4. bit: Parity, 5. bit: Carry
 		Result             : OUT std_logic_vector(15 DOWNTO 0)
@@ -95,12 +97,12 @@ ARCHITECTURE Behavioral OF My_first_ALU IS
 	SIGNAL Temp : std_logic_vector(16 DOWNTO 0); -- Used to store signed results. 
 	Signal uTemp : std_logic_vector(16 downto 0); -- used to store unsigned results.
 	
-	Signal 	 	Overflow_Flag      : std_logic; -- Flag raised when overflow is present
-	Signal		Signed_Flag        : std_logic; -- Flag raised when negative result
-	Signal		Zero_Flag          : std_logic; -- Flag raised when result is zero
-	Signal		Parity_Flag        : std_logic; -- Flag raised when number of 1's in result is odd. 
-	Signal		Carry_Flag			 : std_logic; -- Flag raised when carry is present
-	
+--	Signal 	 	Overflow_Flag      : std_logic; -- Flag raised when overflow is present
+--	Signal		Signed_Flag        : std_logic; -- Flag raised when negative result
+--	Signal		Zero_Flag          : std_logic; -- Flag raised when result is zero
+--	Signal		Parity_Flag        : std_logic; -- Flag raised when number of 1's in result is odd. 
+--	Signal		Carry_Flag			 : std_logic; -- Flag raised when carry is present
+--	
 BEGIN
 
 multiplier : entity work.Multiplier_1
@@ -155,11 +157,11 @@ multiplier : entity work.Multiplier_1
 					Result <= Temp(15 DOWNTO 0);
  
 				When IKA => -- Negates operand A
-					Temp <= std_logic_vector("0" &((NOT signed(Operand1))+1));
+					Temp <= std_logic_vector("0" &((NOT signed(Operand1))+"0000000000000001"));
 					Result <= Temp(15 downto 0);
  
 				When IKB => -- Negates operand A
-					Temp <= std_logic_vector("0" &((NOT signed(Operand2))+1));
+					Temp <= std_logic_vector("0" &((NOT signed(Operand2))+"0000000000000001"));
 					Result <= Temp(15 downto 0); 
  
 				WHEN NOA => -- Returns NOT Operand1
@@ -236,11 +238,11 @@ multiplier : entity work.Multiplier_1
 			END LOOP;
 			Parity_Flag <= Parity; 
 			
-			Flags(0)<= overflow_Flag;
-			Flags(1)<= signed_Flag;
-			Flags(2)<= zero_Flag;
-			Flags(3)<= parity_Flag;
-			Flags(4)<= carry_Flag; 
+--			Flags(0)<= overflow_Flag;
+--			Flags(1)<= signed_Flag;
+--			Flags(2)<= zero_Flag;
+--			Flags(3)<= parity_Flag;
+--			Flags(4)<= carry_Flag; 
 		END IF;
  
 	END PROCESS;
