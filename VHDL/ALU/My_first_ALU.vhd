@@ -78,11 +78,11 @@ ENTITY My_first_ALU IS
 		Operand1, Operand2 : IN std_logic_vector(15 DOWNTO 0); -- Operands 1 and 2
 		Operation          : IN std_logic_vector(5 DOWNTO 0);
 		
-		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
-		Signed_Flag        : OUT std_logic; -- Flag raised when negative result
-		Zero_Flag          : OUT std_logic; -- Flag raised when result is zero
- 		Parity_Flag        : OUT std_logic; -- Flag raised when number of 1's in result is odd. 
-		Carry_Flag			 : out std_logic; -- Flag raised when carry is present			
+--		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
+--		Signed_Flag        : OUT std_logic; -- Flag raised when negative result
+--		Zero_Flag          : OUT std_logic; -- Flag raised when result is zero
+-- 		Parity_Flag        : OUT std_logic; -- Flag raised when number of 1's in result is odd. 
+--		Carry_Flag			 : out std_logic; -- Flag raised when carry is present			
 		
 		Flags              : OUT std_logic_vector(4 DOWNTO 0); -- 1. bit: Overflow, 2. bit: Signed, 3. bit: Zero, 4. bit: Parity, 5. bit: Carry
 		Result             : OUT std_logic_vector(15 DOWNTO 0)
@@ -94,6 +94,12 @@ ARCHITECTURE Behavioral OF My_first_ALU IS
 	Signal Mult_Temp : std_LOGIC_VECTOR(31 downto 0); -- Used to store results from multiplier
 	SIGNAL Temp : std_logic_vector(16 DOWNTO 0); -- Used to store signed results. 
 	Signal uTemp : std_logic_vector(16 downto 0); -- used to store unsigned results.
+	
+	Signal 	 	Overflow_Flag      : std_logic; -- Flag raised when overflow is present
+	Signal		Signed_Flag        : std_logic; -- Flag raised when negative result
+	Signal		Zero_Flag          : std_logic; -- Flag raised when result is zero
+	Signal		Parity_Flag        : std_logic; -- Flag raised when number of 1's in result is odd. 
+	Signal		Carry_Flag			 : std_logic; -- Flag raised when carry is present
 	
 BEGIN
 
@@ -229,6 +235,12 @@ multiplier : entity work.Multiplier_1
 				Parity := Parity XOR Temp(I);
 			END LOOP;
 			Parity_Flag <= Parity; 
+			
+			Flags(0)<= overflow_Flag;
+			Flags(1)<= signed_Flag;
+			Flags(2)<= zero_Flag;
+			Flags(3)<= parity_Flag;
+			Flags(4)<= carry_Flag; 
 		END IF;
  
 	END PROCESS;
