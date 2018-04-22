@@ -1,4 +1,3 @@
---NOTE instruction size must also be changed in MEGAWIZARD
 #define INSTRUCTION_SIZE 31
 #define CONTROL_SIZE 18
 #define WORD_SIZE 15

@@ -21,6 +21,8 @@
 #define REGISTER_WRITE_INDEX_1 20 DOWNTO 16
 #define IMMEDIATE 15 DOWNTO 0
 
+#define PUSH_PC "10000100000000001111100000000000"
+
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_unsigned.ALL;
@@ -40,13 +42,13 @@ ARCHITECTURE Behavioral OF Master IS
 
 	--Control and instruction registers
 	SIGNAL CONTROL : Std_logic_vector(CONTROL_SIZE DOWNTO 0);
-	SIGNAL INSTRUCTION : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
+	SIGNAL INSTRUCTION, INSTRUCTION_PRAM : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 
 	--Wires
 	SIGNAL OP1, OP2, ALU_OUTPUT, SP_OUT, REGISTER_WRITEBACK, MEM_ADDRESS : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL RWSWITCH : std_logic_vector(4 DOWNTO 0);
 	--PRAM Signals
-	SIGNAL PC, ADDR, PC_ALT : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL PC, ADDR, PC_ALT, Interrupt_addr : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL pDataIn : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 	SIGNAL pDataOut : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 	SIGNAL PWE : std_logic := '0';
@@ -80,6 +82,9 @@ ARCHITECTURE Behavioral OF Master IS
 
 	SIGNAL PC_REG_IN : std_logic_vector(WORD_SIZE DOWNTO 0);
 
+	SIGNAL Interrupt_CPU : std_logic := '0';
+	SIGNAL Interrupt_latch : std_logic := '0';
+
 BEGIN
 
 	PLL : ENTITY work.PLL(SYN)
@@ -97,7 +102,9 @@ BEGIN
 			DO => dDataOut,
 			CLK => subClock,
 			btn => btn,
-			ss => sseg
+			ss => sseg,
+			control => Interrupt_addr,
+			interrupt_cpu => Interrupt_CPU
 		);
 
 	CONTROLLER : ENTITY work.Control(Behavioral)
@@ -130,7 +137,7 @@ BEGIN
 	PRAM : ENTITY work.MemAuto(SYN)
 		PORT MAP(
 			data => pDataIn,
-			q => INSTRUCTION,
+			q => INSTRUCTION_PRAM,
 			address => ADDR,
 			wren => PWE,
 			rden => PRE,
@@ -172,18 +179,27 @@ BEGIN
 	'1' WHEN 30,
 	'0' WHEN OTHERS;
 
-	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <= --Controls branching/changing PC
+	WITH to_integer(unsigned(Interrupt_latch & PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <= --Controls branching/changing PC
 	'0' WHEN 0,
 	'1' WHEN 1,
 	Zero_Flag_Latch WHEN 2,
 	Overflow_Flag_Latch WHEN 3,
 	NOT Zero_Flag_Latch WHEN 4,
 	'1' WHEN 8, --WHEN PC_OVERWRITE is set
+	'1' WHEN 16, --When interrupt
 	'0' WHEN OTHERS;
 
-	WITH CONTROL(MEMORY_TO_PC) SELECT PC_ALT <= --Selects PC alternative, either Memory or ALU output
-	dDataOut(9 DOWNTO 0) WHEN '1',
-	ALU_OUTPUT(9 DOWNTO 0) WHEN OTHERS;
+	PROCESS(CONTROL(MEMORY_TO_PC), Interrupt_latch)
+	BEGIN
+		IF(Interrupt_latch = '1') THEN
+			PC_ALT <= Interrupt_addr;
+		ELSIF(CONTROL(MEMORY_TO_PC) = '1') THEN
+			PC_ALT <= dDataOut(9 DOWNTO 0);
+		ELSE
+			PC_ALT <= ALU_OUTPUT(9 DOWNTO 0);
+		END IF;
+	END PROCESS;
+
 
 	PROCESS(CONTROL(POP),CONTROL(PUSH),SP_OUT,ALU_OUTPUT)
 		VARIABLE TMP : std_logic_vector(1 downto 0);
@@ -200,6 +216,15 @@ BEGIN
 		PC_ALT WHEN '1',
 		PC WHEN OTHERS;
 
+	PROCESS  (Interrupt_latch, INSTRUCTION_PRAM)--Changes instruction if interrupt is detected
+	BEGIN
+		IF(Interrupt_latch = '1') THEN
+			INSTRUCTION <= PUSH_PC;
+		ELSE
+			INSTRUCTION <= INSTRUCTION_PRAM;
+		END IF;
+	END PROCESS;
+
 	WITH CONTROL(MEMORY_WRITE_BACK) SELECT REGISTER_WRITEBACK <=
 	dDataOut WHEN '1',
 	ALU_OUTPUT WHEN OTHERS;
@@ -207,7 +232,11 @@ BEGIN
 	RUN : PROCESS (subClock) --Chose new value of PC based on branching
 	BEGIN
 		IF (rising_edge(subClock)) THEN --clk
-			IF (JMP_SELECT /= '1') THEN
+			IF (Interrupt_CPU = '1' AND JMP_SELECT /= '1') THEN
+				PC <= PC;
+			ELSIF (Interrupt_CPU = '1' AND JMP_SELECT = '1') THEN
+				PC <= std_logic_vector(unsigned(PC_ALT) - 1);
+			ELSIF (JMP_SELECT /= '1') THEN
 				PC <= std_logic_vector(unsigned(PC) + 1);
 			ELSE
 				PC <= std_logic_vector(unsigned(PC_ALT) + 1);
@@ -232,6 +261,16 @@ BEGIN
 	clk when '0',
 	'0' WHEN OTHERS;
 
+	PROCESS(subClock)
+	BEGIN
+		IF(falling_edge(subClock)) THEN
+			IF(Interrupt_CPU = '1') THEN
+				Interrupt_latch <= '1';
+			ELSIF(Interrupt_latch = '1') THEN
+				Interrupt_latch <= '0';
+			END IF;
+		END IF;
+	END PROCESS;
 	WITH PLL_LOCK SELECT PLL_CLOCK_TEMP <=
 		PLL_CLOCK WHEN '1',
 		'0' WHEN OTHERS;
