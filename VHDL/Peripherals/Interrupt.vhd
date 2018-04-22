@@ -46,11 +46,9 @@ BEGIN
 
     WriteProc : PROCESS (clk) IS
 	BEGIN
-		IF (falling_edge(clk)) THEN
 			IF (Write_enable = '1') THEN
 				REG(to_integer(unsigned(Address))) <= Data(9 downto 0);
 			END IF;
-		END IF;
 	END PROCESS;
 
 

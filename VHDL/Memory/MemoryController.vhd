@@ -29,6 +29,7 @@ ARCHITECTURE Behavioral OF MemoryController IS
 	SIGNAL Interrupt_btn_off_sig : STD_LOGIC;
 	SIGNAL dataOutMem :std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL btn_interrupt : std_logic := '0';
+	SIGNAL Write_enable_mem : std_logic := '0';
 BEGIN
 
 	Sevensegdriver : ENTITY work.ssgddriver
@@ -55,14 +56,14 @@ BEGIN
 			DI => DI,
 			DO => dataOutMem,
 			clk => clk,
-			WE => WE,
+			WE => Write_enable_mem,
 			RE => RE,
 			Address => dAddress
 		);
 
 	InterruptDriver : ENTITY work.Interrupt(Behavioral)
 		PORT MAP(
-			Interrupt_btn => '0',
+			Interrupt_btn => btn_interrupt,
 			Interrupt_btn_off =>  Interrupt_btn_off_sig,
         	Write_enable => WE,
         	clk => clk,
@@ -84,9 +85,12 @@ BEGIN
 					ssreg_config <= DI;
 				END IF;
 
-			ELSIF (65100 <= to_integer(unsigned(Address)) AND to_integer(unsigned(Address)) <= 6101 AND WE = '1') THEN
-				Int_address <= std_logic_vector(to_unsigned(to_integer(unsigned(Address) - 65100),Int_address'length));
-				int_data <= DI;
+--AND to_integer(unsigned(Address)) <= 6101 
+			ELSIF (65100 <= to_integer(unsigned(Address)) AND WE = '1') THEN
+				IF (falling_edge(clk)) THEN
+					Int_address <= std_logic_vector(to_unsigned(to_integer(unsigned(Address) - 65100),Int_address'length));
+					int_data <= DI;
+				END IF;
 			
 			ELSIF (to_integer(unsigned(Address)) = 65002 AND RE = '1') THEN -- ButtonDriver Data
 				IF (falling_edge(CLK)) THEN
@@ -97,10 +101,13 @@ BEGIN
 			END IF;
 	END PROCESS;
 
-	PROCESS(Address)
+	PROCESS(Address, WE)
 	BEGIN
-		IF(to_integer(unsigned(Address)) <= 1023) THEN
+		IF(to_integer(unsigned(Address)) <= 1023 AND WE = '1') THEN
 			dAddress <= Address;
+			Write_enable_mem <= '1';
+		Else
+			Write_enable_mem <= '0';
 		END IF;
 	END PROCESS;
 

@@ -179,26 +179,40 @@ BEGIN
 	'1' WHEN 30,
 	'0' WHEN OTHERS;
 
-	WITH to_integer(unsigned(Interrupt_latch & PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <= --Controls branching/changing PC
+	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <= --Controls branching/changing PC
 	'0' WHEN 0,
 	'1' WHEN 1,
 	Zero_Flag_Latch WHEN 2,
 	Overflow_Flag_Latch WHEN 3,
 	NOT Zero_Flag_Latch WHEN 4,
 	'1' WHEN 8, --WHEN PC_OVERWRITE is set
-	'1' WHEN 16, --When interrupt
+	'1' WHEN 16,
 	'0' WHEN OTHERS;
 
-	PROCESS(CONTROL(MEMORY_TO_PC), Interrupt_latch)
+
+	PROCESS(subClock)
 	BEGIN
-		IF(Interrupt_latch = '1') THEN
-			PC_ALT <= Interrupt_addr;
-		ELSIF(CONTROL(MEMORY_TO_PC) = '1') THEN
-			PC_ALT <= dDataOut(9 DOWNTO 0);
-		ELSE
-			PC_ALT <= ALU_OUTPUT(9 DOWNTO 0);
+		IF(falling_edge(subClock)) THEN
+			IF(Interrupt_latch = '1') THEN
+				PC_ALT <= Interrupt_addr;
+			ELSIF(CONTROL(MEMORY_TO_PC) = '1') THEN
+				PC_ALT <= dDataOut(9 DOWNTO 0);
+			ELSE
+				PC_ALT <= ALU_OUTPUT(9 DOWNTO 0);
+			END IF;
 		END IF;
 	END PROCESS;
+
+--	PROCESS(CONTROL(MEMORY_TO_PC), Interrupt_latch)
+--	BEGIN
+--		IF(Interrupt_latch = '1') THEN
+--			PC_ALT <= Interrupt_addr;
+--		ELSIF(CONTROL(MEMORY_TO_PC) = '1') THEN
+--			PC_ALT <= dDataOut(9 DOWNTO 0);
+--		ELSE
+--			PC_ALT <= ALU_OUTPUT(9 DOWNTO 0);
+--		END IF;
+--	END PROCESS;
 
 
 	PROCESS(CONTROL(POP),CONTROL(PUSH),SP_OUT,ALU_OUTPUT)
@@ -232,9 +246,9 @@ BEGIN
 	RUN : PROCESS (subClock) --Chose new value of PC based on branching
 	BEGIN
 		IF (rising_edge(subClock)) THEN --clk
-			IF (Interrupt_CPU = '1' AND JMP_SELECT /= '1') THEN
+			IF (Interrupt_latch = '1' AND JMP_SELECT /= '1') THEN
 				PC <= PC;
-			ELSIF (Interrupt_CPU = '1' AND JMP_SELECT = '1') THEN
+			ELSIF (Interrupt_latch = '1' AND JMP_SELECT = '1') THEN
 				PC <= std_logic_vector(unsigned(PC_ALT) - 1);
 			ELSIF (JMP_SELECT /= '1') THEN
 				PC <= std_logic_vector(unsigned(PC) + 1);

@@ -22,7 +22,7 @@ BEGIN
 		-- Clock generation
 		TbClock <= NOT TbClock AFTER TbPeriod/2 WHEN TbSimEnded /= '1' ELSE '0';
 
- 
+
 		stim_proc : PROCESS (TbClock)
 		BEGIN
 			IF (rising_edge(TbClock)) THEN -- start when Test bench clock goes 1
@@ -30,6 +30,27 @@ BEGIN
 				IF (cnt = 512) THEN
 					TbSimEnded <= '1';
 				END IF;
+			END IF;
+		END PROCESS;
+
+		PROCESS
+		BEGIN
+			WAIT FOR 750 ns;
+			btn <= "111";
+			WAIT FOR 750 ns;
+			btn <= "000";
+			WAIT FOR 750 ns;
+			btn <= "111";
+			WAIT FOR 750 ns;
+			btn <= "000";
+		END PROCESS;
+
+		PROCESS (TbSimEnded)
+		BEGIN
+			IF(TbSimEnded = '1') THEN
+				ASSERT false
+					REPORT "I've finished"
+					SEVERITY failure;
 			END IF;
 		END PROCESS;
 END Behavioral;

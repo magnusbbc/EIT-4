@@ -14,8 +14,8 @@ ENTITY btndriver IS
 END btndriver;
 
 ARCHITECTURE Behavioral OF btndriver IS
-	SIGNAL Q0, Q1, Q2 : std_logic_vector (2 DOWNTO 0); -- Debounce registers
-	SIGNAL dbtn_buffer : std_logic_vector(2 downto 0);
+	SIGNAL Q0, Q1, Q2 : std_logic_vector (2 DOWNTO 0) := "000"; -- Debounce registers
+	SIGNAL dbtn_buffer : std_logic_vector(2 downto 0) := "000";
 	SIGNAL int_toggle : std_logic := '0';
 BEGIN
 	PROCESS (clk)
@@ -43,7 +43,7 @@ BEGIN
 
 	PROCESS(dbtn_buffer,int_toggle)
 	BEGIN
-		IF(dbtn_buffer = "000" OR int_toggle = '1') THEN
+		IF(dbtn_buffer = "000" OR dbtn_buffer = "ZZZ" OR dbtn_buffer = "UUU" OR int_toggle = '1') THEN
 			interrupt_on <= '0';
 		ELSE
 			interrupt_on <= '1';
