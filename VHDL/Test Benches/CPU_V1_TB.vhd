@@ -35,13 +35,13 @@ BEGIN
 
 		PROCESS
 		BEGIN
-			WAIT FOR 750 ns;
+			WAIT FOR 250 ns;
 			btn <= "111";
-			WAIT FOR 750 ns;
+			WAIT FOR 250 ns;
 			btn <= "000";
-			WAIT FOR 750 ns;
+			WAIT FOR 250 ns;
 			btn <= "111";
-			WAIT FOR 750 ns;
+			WAIT FOR 250 ns;
 			btn <= "000";
 		END PROCESS;
 

@@ -179,7 +179,7 @@ BEGIN
 	'1' WHEN 30,
 	'0' WHEN OTHERS;
 
-	WITH to_integer(unsigned(PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <= --Controls branching/changing PC
+	WITH to_integer(unsigned(Interrupt_latch & PC_OVERWRITE & CONTROL(JUMP_CONTROL))) SELECT JMP_SELECT <= --Controls branching/changing PC
 	'0' WHEN 0,
 	'1' WHEN 1,
 	Zero_Flag_Latch WHEN 2,
@@ -193,7 +193,7 @@ BEGIN
 	PROCESS(subClock)
 	BEGIN
 		IF(falling_edge(subClock)) THEN
-			IF(Interrupt_latch = '1') THEN
+			IF(Interrupt_CPU = '1') THEN
 				PC_ALT <= Interrupt_addr;
 			ELSIF(CONTROL(MEMORY_TO_PC) = '1') THEN
 				PC_ALT <= dDataOut(9 DOWNTO 0);
