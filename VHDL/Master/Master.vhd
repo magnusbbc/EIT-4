@@ -127,7 +127,7 @@ BEGIN
 			led => led,
 			pop => CONTROL(POP),
 			push => CONTROL(PUSH),
-			clk => clk,
+			clk => subClock,
 			addressOut => SP_OUT,
 			addressIn => REGISTER_WRITEBACK,
 			writeBack => SP_OVERWRITE
@@ -299,9 +299,9 @@ BEGIN
 --Below controls Clock---
 
 	WITH CONTROL(HALT) SELECT subClock <=
-	--PLL_CLOCK_TEMP WHEN '0',
+	PLL_CLOCK_TEMP WHEN '0',
 	--DBtn(2) when '0',
-	clk when '0',
+	--clk when '0',
 	'0' WHEN OTHERS;
 
 	WITH PLL_LOCK SELECT PLL_CLOCK_TEMP <=
@@ -315,7 +315,7 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	btn_inverted <= btn;
+	btn_inverted <= not btn;
 
 	--LED(9) <= Zero_Flag; --Latch not needed
 	--LED(8) <= Overflow_Flag;
