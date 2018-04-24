@@ -5,6 +5,7 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY Stack IS
 	PORT (
+		led : OUT std_logic_vector(9 DOWNTO 0);
 		addressOut : OUT std_logic_vector(WORD_SIZE DOWNTO 0);
 		addressIn : IN std_logic_vector(WORD_SIZE DOWNTO 0);
 		writeBack : IN std_logic := '0';
@@ -37,4 +38,6 @@ Begin
 	WITH push SELECT addressOut <=
 	std_logic_vector(unsigned(SP) + 1) WHEN '1',
 	SP WHEN OTHERS;
+
+	LED <= SP(9 downto 0);
 END Behavioral;

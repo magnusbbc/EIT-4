@@ -33,17 +33,17 @@ BEGIN
 			END IF;
 		END PROCESS;
 
-		PROCESS
-		BEGIN
-			WAIT FOR 250 ns;
-			btn <= "111";
-			WAIT FOR 250 ns;
-			btn <= "000";
-			WAIT FOR 250 ns;
-			btn <= "111";
-			WAIT FOR 250 ns;
-			btn <= "000";
-		END PROCESS;
+	PROCESS
+	BEGIN
+		WAIT FOR 250 ns;
+		btn <= "001";
+		WAIT FOR 250 ns;
+		btn <= "000";
+		WAIT FOR 250 ns;
+		btn <= "001";
+		WAIT FOR 250 ns;
+		btn <= "000";
+	END PROCESS;
 
 		PROCESS (TbSimEnded)
 		BEGIN

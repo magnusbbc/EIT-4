@@ -23,9 +23,10 @@ add wave -noupdate -label {M1
 } -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(1)
 add wave -noupdate -label {M0
 } -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(0)
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/REGS/REG(5)
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/REGS/REG(2)
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/Sevensegdriver/dat
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/DO
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/Address
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/WE
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RE
 add wave -noupdate -divider MemController
 add wave -noupdate -label Address -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/Address
 add wave -noupdate -label WE /cpu_v1_tb/MAIN/MEMCNT/WE
@@ -44,8 +45,9 @@ add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/ButtonDriver/dbtn
 add wave -noupdate /cpu_v1_tb/MAIN/Interrupt_latch
 add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/PC_ALT
 add wave -noupdate /cpu_v1_tb/MAIN/JMP_SELECT
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/STACK/SP
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {303758 ps} 0}
+WaveRestoreCursors {{Cursor 1} {197543 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 323
 configure wave -valuecolwidth 104
@@ -61,4 +63,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {267301 ps} {333933 ps}
+WaveRestoreZoom {168848 ps} {235480 ps}

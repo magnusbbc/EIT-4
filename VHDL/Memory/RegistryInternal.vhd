@@ -47,8 +47,8 @@ BEGIN
 
 		IF conv_integer(readTwo) = 31 THEN --pc to outTwo
 			dataOutTwo <= pcIn;
-		ELSIF conv_integer(readOne) = 30 THEN
-			dataOutOne <= spIn;
+		ELSIF conv_integer(readTwo) = 30 THEN
+			dataOutTwo <= spIn;
 		ELSE
 			dataOutTwo <= REG(conv_integer(readTwo));
 		END IF;

@@ -8,7 +8,7 @@ USE IEEE.std_logic_arith.ALL;
 ENTITY Memory IS
 	PORT (
 		DI : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Data in
-		DO : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Data Out
+		DO : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0) := x"0000"; --Data Out
 		Address : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Address bus
 		WE : IN STD_LOGIC; -- Write Enable
 		RE : IN STD_LOGIC; -- Read Enable

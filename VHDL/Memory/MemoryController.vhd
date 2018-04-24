@@ -10,7 +10,7 @@ ENTITY MemoryController IS
 		RE : IN STD_LOGIC;
 		Address : IN STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
 		DI : IN STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
-		DO : BUFFER STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
+		DO : BUFFER STD_LOGIC_vector (WORD_SIZE DOWNTO 0) := x"0000";
 		CLK : IN STD_LOGIC;
 		btn : IN std_LOGIC_vector(2 DOWNTO 0);
 		ss : OUT std_LOGIC_vector(31 DOWNTO 0);
@@ -27,9 +27,10 @@ ARCHITECTURE Behavioral OF MemoryController IS
 	SIGNAL dAddress : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL Int_address : std_logic_vector(1 downto 0);
 	SIGNAL Interrupt_btn_off_sig : STD_LOGIC;
-	SIGNAL dataOutMem :std_logic_vector(WORD_SIZE DOWNTO 0);
+	SIGNAL dataOutMem :std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
 	SIGNAL btn_interrupt : std_logic := '0';
 	SIGNAL Write_enable_mem : std_logic := '0';
+	SIGNAL Read_enable_mem : std_logic := '0';
 BEGIN
 
 	Sevensegdriver : ENTITY work.ssgddriver
@@ -57,7 +58,7 @@ BEGIN
 			DO => dataOutMem,
 			clk => clk,
 			WE => Write_enable_mem,
-			RE => RE,
+			RE => Read_enable_mem,
 			Address => dAddress
 		);
 
@@ -73,7 +74,7 @@ BEGIN
         	Interrupt_cpu => interrupt_cpu
 		);
 
-	PROCESS (CLK) IS
+	PROCESS (CLK,btnreg_data,dataOutMem)
 	BEGIN
 			IF (to_integer(unsigned(Address)) = 65000 AND WE = '1') THEN -- sevensegdriver data
 				IF (falling_edge(CLK)) THEN
@@ -96,21 +97,35 @@ BEGIN
 				IF (falling_edge(CLK)) THEN
 				DO <= btnreg_data;
 				END IF;
-			ElSE
+			ElSIF(RE = '1') THEN
 				DO <= dataOutMem;
+			ELSE
+				DO <= x"0000";
 			END IF;
 	END PROCESS;
 
-	PROCESS(Address, WE)
+	PROCESS(Address, WE, RE)
 	BEGIN
-		IF(to_integer(unsigned(Address)) <= 1023 AND WE = '1') THEN
-			dAddress <= Address;
-			Write_enable_mem <= '1';
-		Else
+		IF(to_integer(unsigned(Address)) <= 1023) THEN
+			IF(WE = '1') THEN
+				dAddress <= Address;
+				Write_enable_mem <= '1';
+			ELSE
+				Write_enable_mem <= '0';
+			END IF;
+
+			IF(RE = '1') THEN
+				dAddress <= Address;
+				Read_enable_mem <= '1';
+			ELSE
+				Read_enable_mem <= '0';
+			END IF;
+		ELSE
 			Write_enable_mem <= '0';
+			Read_enable_mem <= '0';
+
 		END IF;
 	END PROCESS;
-
 	ss <= SevenSegOut;
 
 END Behavioral;
