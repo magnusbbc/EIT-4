@@ -26,7 +26,7 @@ ARCHITECTURE Behavioral OF MemoryController IS
 	SIGNAL SevenSegOut : std_logic_vector(31 DOWNTO 0);
 	SIGNAL dAddress : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL Int_address : std_logic_vector(1 downto 0);
-	SIGNAL Interrupt_btn_off_sig : STD_LOGIC;
+	SIGNAL Interrupt_btn_reset_sig : STD_LOGIC;
 	SIGNAL dataOutMem :std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
 	SIGNAL btn_interrupt : std_logic := '0';
 	SIGNAL Write_enable_mem : std_logic := '0';
@@ -49,7 +49,7 @@ BEGIN
 			clr => '0',
 			btn => btn,
 			interrupt_on => btn_interrupt,
-			interrupt_off => Interrupt_btn_off_sig
+			interrupt_reset => Interrupt_btn_reset_sig
 		);
 
 	MemoryDriver : ENTITY work.Memory(falling)
@@ -65,7 +65,7 @@ BEGIN
 	InterruptDriver : ENTITY work.Interrupt(Behavioral)
 		PORT MAP(
 			Interrupt_btn => btn_interrupt,
-			Interrupt_btn_off =>  Interrupt_btn_off_sig,
+			Interrupt_btn_reset =>  Interrupt_btn_reset_sig,
         	Write_enable => WE,
         	clk => clk,
         	Address => Int_address,
@@ -73,6 +73,8 @@ BEGIN
         	Control => control,
         	Interrupt_cpu => interrupt_cpu
 		);
+
+	
 
 	PROCESS (CLK,btnreg_data,dataOutMem)
 	BEGIN

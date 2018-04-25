@@ -9,7 +9,7 @@ ENTITY btndriver IS
 		btn : IN STD_LOGIC_vector (2 DOWNTO 0); --Button inputs
 		dbtn : OUT STD_LOGIC_vector (2 DOWNTO 0); --Debounced button output
 		interrupt_on : OUT std_logic := '0';
-		interrupt_off: IN std_logic := '0'
+		interrupt_reset: IN std_logic := '0'
 	);
 END btndriver;
 
@@ -50,9 +50,9 @@ BEGIN
 		END IF;	
 	END PROCESS;
 
-	PROCESS(interrupt_off,dbtn_buffer)
+	PROCESS(interrupt_reset,dbtn_buffer)
 	BEGIN
-		IF(interrupt_off = '1') THEN
+		IF(interrupt_reset = '1') THEN
 			int_toggle <= '1';
 		ELSIF(dbtn_buffer = "000") THEN
 			int_toggle <= '0';

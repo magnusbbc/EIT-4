@@ -34,7 +34,15 @@ ENTITY Master IS
 		clk : IN std_logic;
 		btn : IN std_logic_vector(2 DOWNTO 0);
 		sseg : OUT std_logic_vector(31 DOWNTO 0);
-		led : OUT std_logic_vector(9 DOWNTO 0)
+		led : OUT std_logic_vector(9 DOWNTO 0);
+		
+		bclk   : IN std_logic := '0';
+		ws     : IN std_logic := '0';
+		Din    : IN std_logic := '0';
+		
+		bclkO     : out std_logic := '0';
+		wsO       : out std_logic := '0';
+		DOut : out std_logic := '0'
 	);
 END ENTITY Master;
 
