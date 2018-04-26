@@ -11,7 +11,7 @@ ENTITY i2sMonoOut IS
 		
 		int  : in std_logic;	-- interupt telling this driver that new data is stable at DIn.
 		intr : out std_logic;	-- Interupt reset. This is set high when the data at DIn has been read
-		clk		: in std_logic;	;-- Clock that will be used for logic and will be directly used as output bitclock. Can be directly connected to a syncronized bitclock input from the i2s input signal.
+		clk		: in std_logic;	-- Clock that will be used for logic and will be directly used as output bitclock. Can be directly connected to a syncronized bitclock input from the i2s input signal.
 		DIn	: in std_logic_vector(DATA_WIDTH - 1 DOWNTO 0);-- The data input. The word that should be loaded into the buffers should be loaded to these inputs when the interupts are set to high, and will be loaded at next falling_edge.
 		bclkO     : out std_logic;	-- Output bitclock for the output i2s signal.
 		wsO       : out std_logic; --Output wordselect for the output i2s signal.
