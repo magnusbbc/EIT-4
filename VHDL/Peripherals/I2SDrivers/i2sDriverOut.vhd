@@ -16,9 +16,9 @@ entity i2sDriverOut is
 		intr_R : out std_logic := '0';
 		DIn_L  : in std_logic_vector(DATA_WIDTH - 1 downto 0);-- The data input buses. The word that should be loaded into the buffer should be loaded to these inputs when the interupts are set to high.
 		DIn_R  : in std_logic_vector(DATA_WIDTH - 1 downto 0);
-		bclk   : out std_logic;-- Output bitclock for the output i2s signal.
+		bclk   : out std_logic;-- Output bitclock for the output i2s signal. 
 		ws     : out std_logic;--Output wordselect for the output i2s signal.
-		DOut   : out std_logic-- Output serial data for the i2s signal.
+		DOut   : out std_logic -- Output serial data for the i2s signal.     
 
 	);
 end i2sDriverOut;
@@ -69,7 +69,8 @@ begin
 			if (int_L = '1') and(cnt = datA_WIDTH - 1) then --Update the word that is ready
 				buff_In_L <= DIn_L;
 				intr_L    <= '1';
-			elsif (int_R = '1') and(cnt = datA_WIDTH - 1) then
+			end if;
+			if (int_R = '1') and(cnt = datA_WIDTH - 1) then
 				buff_In_R <= DIn_R;
 				intr_R    <= '1';
 			end if;
