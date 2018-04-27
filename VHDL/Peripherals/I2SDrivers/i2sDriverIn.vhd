@@ -43,7 +43,7 @@ begin
 			end if;
 			if vcnt < DATA_WIDTH then
 
-				voutBuff(DATA_WIDTH - vcnt - 1) := Din;
+				voutBuff(vcnt) := Din;
 
 				vcnt                            := vcnt + 1;
 
