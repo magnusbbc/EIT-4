@@ -10,18 +10,32 @@ ARCHITECTURE Behavioral OF CPU_V1_TB IS
 	SIGNAL btn : std_logic_vector(2 DOWNTO 0);
 	SIGNAL sseg : std_logic_vector(31 DOWNTO 0);
 	SIGNAL led : std_logic_vector(9 DOWNTO 0);
+	SIGNAL wsIn : std_logic;
+	SIGNAL I2SDataIn : std_logic;
 	--Clock Constants
 	CONSTANT TbPeriod : TIME := 10 ns;
 	SIGNAL TbClock : std_logic := '0';
 	SIGNAL TbSimEnded : std_logic := '0';
 	SIGNAL cnt : INTEGER := 0;
+
+	CONSTANT TbPeriodI2S : TIME := 100 ns;
+	SIGNAL TbClockI2S : std_logic := '0';
+	SIGNAL I2SCnt : INTEGER := 0;
 BEGIN
 	MAIN : ENTITY work.MASTER(Behavioral)
-		PORT MAP(clk => TbClock, btn => btn, sseg => sseg, led => led); -- Map all signals to the original code
+		PORT MAP(
+		clk => TbClock,
+		btn => btn,
+		sseg => sseg,
+		led => led,
+		bclk => TbClockI2S,
+		ws => wsIn, 
+		Din => I2SDataIn
+		); -- Map all signals to the original code
  
 		-- Clock generation
 		TbClock <= NOT TbClock AFTER TbPeriod/2 WHEN TbSimEnded /= '1' ELSE '0';
-
+		TbClockI2S <= NOT TbClockI2S AFTER TbPeriodI2S/2 WHEN TbSimEnded /= '1' ELSE '0';
 
 		stim_proc : PROCESS (TbClock)
 		BEGIN
@@ -33,17 +47,31 @@ BEGIN
 			END IF;
 		END PROCESS;
 
-	PROCESS
-	BEGIN
-		WAIT FOR 250 ns;
-		btn <= "001";
-		WAIT FOR 250 ns;
-		btn <= "000";
-		WAIT FOR 250 ns;
-		btn <= "001";
-		WAIT FOR 250 ns;
-		btn <= "000";
-	END PROCESS;
+		Process (TbClockI2S)
+		Begin
+			IF(rising_edge(TbClockI2S)) THEN
+				IF ((I2SCnt/16) MOD 2 = 1) THEN
+					I2SDataIn <= '0';
+					wsIn <= '0';
+				ELSE
+					I2SDataIn <= '1';
+					wsIn <= '1';
+				END IF;
+				I2SCnt <= I2SCnt+1;
+			END IF;
+		END PROCESS;
+
+		PROCESS
+		BEGIN
+			WAIT FOR 250 ns;
+			btn <= "110";
+			WAIT FOR 250 ns;
+			btn <= "111";
+			WAIT FOR 250 ns;
+			btn <= "110";
+			WAIT FOR 250 ns;
+			btn <= "111";
+		END PROCESS;
 
 		PROCESS (TbSimEnded)
 		BEGIN

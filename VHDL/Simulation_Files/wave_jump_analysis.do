@@ -3,37 +3,40 @@ quietly virtual signal -install /cpu_v1_tb/MAIN { /cpu_v1_tb/MAIN/CONTROL(9 down
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -label Clock /cpu_v1_tb/TbClock
 add wave -noupdate -label PC -radix unsigned /cpu_v1_tb/MAIN/PC
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/ADDR
 add wave -noupdate -divider {Instruction and Control}
-add wave -noupdate -label Instruction /cpu_v1_tb/MAIN/INSTRUCTION
+add wave -noupdate -label Instruction -radix hexadecimal /cpu_v1_tb/MAIN/INSTRUCTION
 add wave -noupdate -label Clock /cpu_v1_tb/MAIN/CONTROL
-add wave -noupdate -divider Reg
-add wave -noupdate -color Blue -label {Read 1 Index} -radix unsigned /cpu_v1_tb/MAIN/REGS/readOne
-add wave -noupdate -color Blue -label {Read 2 Index} -radix unsigned /cpu_v1_tb/MAIN/REGS/readTwo
-add wave -noupdate -color Blue -label {Write 1 Index} -radix unsigned /cpu_v1_tb/MAIN/REGS/WriteOne
-add wave -noupdate -color Blue -label {Write 2 Index} -radix unsigned /cpu_v1_tb/MAIN/REGS/WriteTwo
-add wave -noupdate -color Blue -label {Data in 1} -radix unsigned /cpu_v1_tb/MAIN/REGS/dataInOne
-add wave -noupdate -color Blue -label {Data in 2} -radix unsigned /cpu_v1_tb/MAIN/REGS/dataInTwo
-add wave -noupdate -color Blue -label {Data out 1} -radix unsigned /cpu_v1_tb/MAIN/REGS/dataOutOne
-add wave -noupdate -color Blue -label {Data out 2} -radix unsigned /cpu_v1_tb/MAIN/REGS/dataOutTwo
-add wave -noupdate -color Blue -label {PC In} -radix unsigned /cpu_v1_tb/MAIN/REGS/pcIn
-add wave -noupdate -color Blue -label {Write Enable 1} /cpu_v1_tb/MAIN/REGS/WR1_E
-add wave -noupdate -color Blue -label {Write Enable 2} /cpu_v1_tb/MAIN/REGS/WR2_E
-add wave -noupdate -color Blue -label R25 /cpu_v1_tb/MAIN/REGS/REG(25)
 add wave -noupdate -divider ALU
 add wave -noupdate -color Yellow -label OP1 -radix unsigned /cpu_v1_tb/MAIN/ALU/Operand1
 add wave -noupdate -color Yellow -label OP2 -radix unsigned /cpu_v1_tb/MAIN/ALU/Operand2
 add wave -noupdate -color Yellow -label Operation -radix unsigned /cpu_v1_tb/MAIN/ALU/Operation
 add wave -noupdate -color Yellow -label {ALU Output} -radix unsigned /cpu_v1_tb/MAIN/ALU/Result
-add wave -noupdate -divider Jump
-add wave -noupdate -color Magenta -label {Jump Select} /cpu_v1_tb/MAIN/JMP_SELECT
-add wave -noupdate -color Magenta -label Jump /cpu_v1_tb/MAIN/Jump
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/ADDR
-add wave -noupdate /cpu_v1_tb/MAIN/Zero_Flag
-add wave -noupdate /cpu_v1_tb/MAIN/Zero_Flag_Latch
+add wave -noupdate -divider Memory
+add wave -noupdate -divider MemController
+add wave -noupdate -label Address -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/Address
+add wave -noupdate -label WE /cpu_v1_tb/MAIN/MEMCNT/WE
+add wave -noupdate -label RE /cpu_v1_tb/MAIN/MEMCNT/RE
+add wave -noupdate -label DI -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/DI
+add wave -noupdate -label DO -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/DO
+add wave -noupdate -divider Button
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/Interrupt_btn
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/Control
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/Interrupt_cpu
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/ButtonDriver/interrupt_on
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/ButtonDriver/int_toggle
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/ButtonDriver/dbtn
+add wave -noupdate /cpu_v1_tb/MAIN/Interrupt_latch
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/PC_ALT
+add wave -noupdate /cpu_v1_tb/MAIN/JMP_SELECT
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/STACK/SP
+add wave -noupdate /cpu_v1_tb/MAIN/REGS/REG(2)
+add wave -noupdate /cpu_v1_tb/MAIN/REGS/REG(1)
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/RAM(20)
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {35000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {16830 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 225
+configure wave -namecolwidth 323
 configure wave -valuecolwidth 104
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
@@ -47,4 +50,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {142275 ps}
+WaveRestoreZoom {0 ps} {66632 ps}

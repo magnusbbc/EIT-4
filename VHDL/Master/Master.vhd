@@ -22,6 +22,7 @@
 #define IMMEDIATE 15 DOWNTO 0
 
 #define PUSH_PC "10000100000000001111100000000000"
+#define POP_PC "10000000000111110000000000000000"
 
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
@@ -83,18 +84,24 @@ ARCHITECTURE Behavioral OF Master IS
 
 	SIGNAL Interrupt_CPU : std_logic := '0'; --Interrupt signal for the CPU
 	SIGNAL Interrupt_latch : std_logic := '0'; --Latch for the interrupt signal, ensures signal stays on for an additional clock cycle
+	SIGNAl Interrupt_enable : std_logic := '1';
+	SIGNAL Interrupt_nest_enable : std_logic := '1';
+	SIGNAL Interrupt_nest_enable_latch : std_logic := '1';
 
+	SIGNAL PC_INT_TMP : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0');
 	--FLAGS
 	SIGNAL Parity_Flag : std_logic := '0';
 	SIGNAL Signed_Flag : std_logic := '0';
 	SIGNAL Overflow_Flag : std_logic := '0';
 	SIGNAL Zero_Flag : std_logic := '0';
+	SIGNAL Carry_Flag : std_logic := '0';
 
 	--FLAG LATCHES
 	SIGNAL Parity_Flag_Latch : std_logic := '0';
 	SIGNAL Signed_Flag_Latch : std_logic := '0';
 	SIGNAL Overflow_Flag_Latch : std_logic := '0';
 	SIGNAL Zero_Flag_Latch : std_logic := '0';
+	SIGNAL Carry_Flag_Latch : std_logic := '0';
 	
 	SIGNAL subClock : std_logic; --Clock that controls the system, can either be assigned to the normal clock (for simulation), or PLL_CLOCK_TEMP
 	SIGNAL PLL_CLOCK : std_logic; --PLL Clock
@@ -121,7 +128,15 @@ BEGIN
 			btn => btn_inverted,
 			ss => sseg,
 			control => Interrupt_addr,
-			interrupt_cpu => Interrupt_CPU
+			interrupt_cpu => Interrupt_CPU,
+			Interrupt_enable => Interrupt_enable,
+			Interrupt_nest_enable => Interrupt_nest_enable,
+			bclk => bclk,
+			ws => ws,
+			Din => Din,
+			bclkO => bclkO,
+			wsO => wsO,
+			DOut => DOut
 		);
 
 	CONTROLLER : ENTITY work.Control(Behavioral)
@@ -132,7 +147,6 @@ BEGIN
 	
 	STACK : ENTITY work.Stack(Behavioral)
 		PORT MAP(
-			led => led,
 			pop => CONTROL(POP),
 			push => CONTROL(PUSH),
 			clk => subClock,
@@ -141,7 +155,7 @@ BEGIN
 			writeBack => SP_OVERWRITE
 		);
 
-	ALU : ENTITY work.My_first_ALU(Behavioral)
+	ALU : ENTITY work.ALU(Behavioral)
 		PORT MAP(
 			Operation => CONTROL(ALU_CONTROL),
 			Operand1 => OP1,
@@ -150,7 +164,8 @@ BEGIN
 			Parity_Flag => Parity_Flag,
 			Signed_Flag => Signed_Flag,
 			Overflow_Flag => Overflow_Flag,
-			Zero_Flag => Zero_Flag
+			Zero_Flag => Zero_Flag,
+			Carry_Flag => Carry_Flag
 		);
 	PRAM : ENTITY work.MemAuto(SYN)
 		PORT MAP(
@@ -182,8 +197,9 @@ BEGIN
 
 
 	WITH Interrupt_latch SELECT dDataIn <=
-	std_logic_vector(unsigned(R2O) - 2) WHEN '1',
+	std_logic_vector(to_unsigned(to_integer(unsigned(PC_INT_TMP)),dDataIn'length))  WHEN '1',
 	R2O WHEN OTHERS;
+
 
 	WITH CONTROL(IMMEDIATE_SELECT) SELECT OP2 <= -- Selects Register output 2 or Immediate
 	R2O WHEN '0',
@@ -211,10 +227,6 @@ BEGIN
 	END IF;
 	END PROCESS;
 
-	--WITH to_integer(unsigned(INSTRUCTION(REGISTER_WRITE_INDEX_1))) SELECT SP_OVERWRITE <=
-	--'1' WHEN 30,
-	--'0' WHEN OTHERS;
-
 
 	PROCESS(CONTROL(POP),CONTROL(PUSH),SP_OUT,ALU_OUTPUT)
 		VARIABLE TMP : std_logic_vector(1 downto 0);
@@ -231,7 +243,7 @@ BEGIN
 	'0' WHEN 0,
 	'1' WHEN 1,
 	Zero_Flag_Latch WHEN 2,
-	Overflow_Flag_Latch WHEN 3,
+	Carry_Flag_Latch WHEN 3,
 	NOT Zero_Flag_Latch WHEN 4,
 	'1' WHEN 8, --WHEN PC_OVERWRITE is set
 	'1' WHEN 16,
@@ -279,12 +291,27 @@ BEGIN
 		END IF;
 	END PROCESS;
 
+	PROCESS(INSTRUCTION, Interrupt_nest_enable)
+	BEGIN
+		IF(Interrupt_nest_enable = '0' AND Interrupt_nest_enable_latch = '0') THEN
+			Interrupt_enable <= '0';
+			Interrupt_nest_enable_latch <= '1';
+		ELSIF(INSTRUCTION = POP_PC) THEN
+			Interrupt_enable <= '1';
+			Interrupt_nest_enable_latch <= '0';
+		END IF;
+	END PROCESS;
 
 	PROCESS(subClock)
 	BEGIN
 		IF(rising_edge(subClock)) THEN
 			IF(Interrupt_CPU = '1') THEN
 				Interrupt_latch <= '1';
+				IF(JMP_SELECT = '1') THEN
+					PC_INT_TMP <= std_logic_vector(unsigned(PC) - 1);
+				ELSE
+					PC_INT_TMP <= PC;
+				END IF;
 			ELSIF(Interrupt_latch = '1') THEN
 				Interrupt_latch <= '0';
 			END IF;
@@ -299,6 +326,7 @@ BEGIN
 			Overflow_Flag_Latch <= Overflow_Flag;
 			Signed_Flag_Latch <= Signed_Flag;
 			Parity_Flag_Latch <= Parity_Flag;
+			Carry_Flag_Latch <= Carry_Flag;
 		END IF;
 	END PROCESS;
 
@@ -307,9 +335,9 @@ BEGIN
 --Below controls Clock---
 
 	WITH CONTROL(HALT) SELECT subClock <=
-	PLL_CLOCK_TEMP WHEN '0',
+	--PLL_CLOCK_TEMP WHEN '0',
 	--DBtn(2) when '0',
-	--clk when '0',
+	clk when '0',
 	'0' WHEN OTHERS;
 
 	WITH PLL_LOCK SELECT PLL_CLOCK_TEMP <=
@@ -325,13 +353,13 @@ BEGIN
 
 	btn_inverted <= not btn;
 
-	--LED(9) <= Zero_Flag; --Latch not needed
-	--LED(8) <= Overflow_Flag;
-	--LED(7) <= Signed_Flag;
-	--LED(6) <= Parity_Flag;
-	--LED(5) <= btn_inverted(0);
+	LED(9) <= Zero_Flag; --Latch not needed
+	LED(8) <= Overflow_Flag;
+	LED(7) <= Signed_Flag;
+	LED(6) <= Parity_Flag;
+	LED(5) <= btn_inverted(0);
 
-	--LED(0) <= DIVIDER(25);
-	--LED(1) <= CONTROL(HALT);
+	LED(0) <= DIVIDER(25);
+	LED(1) <= CONTROL(HALT);
 
 END ARCHITECTURE Behavioral;

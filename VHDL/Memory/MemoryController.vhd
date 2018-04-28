@@ -15,7 +15,17 @@ ENTITY MemoryController IS
 		btn : IN std_LOGIC_vector(2 DOWNTO 0);
 		ss : OUT std_LOGIC_vector(31 DOWNTO 0);
 		control : OUT std_logic_vector(9 downto 0);
-		interrupt_cpu : OUT std_logic
+		interrupt_cpu : OUT std_logic;
+		Interrupt_enable : IN std_logic := '0';
+		Interrupt_nest_enable : OUT std_logic;
+
+		--I2S
+		bclk   : IN std_logic := '0';
+		ws     : IN std_logic := '0';
+		Din    : IN std_logic := '0';
+		bclkO     : out std_logic := '0';
+		wsO  : out std_logic := '0';
+		DOut : out std_logic := '0'
 	);
 END MemoryController;
 
@@ -26,11 +36,15 @@ ARCHITECTURE Behavioral OF MemoryController IS
 	SIGNAL SevenSegOut : std_logic_vector(31 DOWNTO 0);
 	SIGNAL dAddress : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL Int_address : std_logic_vector(1 downto 0);
-	SIGNAL Interrupt_btn_reset_sig : STD_LOGIC;
+	SIGNAL Interrupt_btn_reset_sig, Interrupt_I2S_reset_sig : STD_LOGIC;
 	SIGNAL dataOutMem :std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
-	SIGNAL btn_interrupt : std_logic := '0';
+	SIGNAL btn_interrupt, I2S_interrupt : std_logic := '0';
 	SIGNAL Write_enable_mem : std_logic := '0';
 	SIGNAL Read_enable_mem : std_logic := '0';
+	SIGNAL I2SMonoIn_DataOut :std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
+	SIGNAL I2SMonoOut_DataIn :std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
+	SIGNAL I2SMonoOut_internal_int : std_logic := '0';
+	SIGNAL I2SMonoOut_internal_int_reset : std_logic := '0';
 BEGIN
 
 	Sevensegdriver : ENTITY work.ssgddriver
@@ -62,48 +76,84 @@ BEGIN
 			Address => dAddress
 		);
 
+	I2SMonoIn : Entity work.I2SMonoIn(Behavioral)
+		PORT MAP(
+			bclk => bclk,
+			ws  => ws,
+			Din => Din,
+			DOut => I2SMonoIn_DataOut,
+			Int => I2S_interrupt,
+			Intr => Interrupt_I2S_reset_sig
+		);
+
+	I2SMonoOut : Entity work.I2SMonoOut(Behavioral)
+		PORT MAP(
+			int => I2SMonoOut_internal_int,
+			intr => I2SMonoOut_internal_int_reset,
+			clk => bclk, 
+			DIn => I2SMonoOut_DataIn,
+			bclkO => bclkO,
+			wsO =>  wsO,
+			DOut =>Dout
+		);
 	InterruptDriver : ENTITY work.Interrupt(Behavioral)
 		PORT MAP(
 			Interrupt_btn => btn_interrupt,
 			Interrupt_btn_reset =>  Interrupt_btn_reset_sig,
-        	Write_enable => WE,
+        	Interrupt_I2S => I2S_interrupt,
+			Interrupt_I2S_reset => Interrupt_I2S_reset_sig,
+			Write_enable => WE,
         	clk => clk,
         	Address => Int_address,
         	Data => int_data,
         	Control => control,
-        	Interrupt_cpu => interrupt_cpu
+        	Interrupt_cpu => interrupt_cpu,
+			Interrupt_enable => Interrupt_enable,
+			Interrupt_nest_enable => Interrupt_nest_enable
 		);
 
 	
 
 	PROCESS (CLK,btnreg_data,dataOutMem)
 	BEGIN
-			IF (to_integer(unsigned(Address)) = 65000 AND WE = '1') THEN -- sevensegdriver data
-				IF (falling_edge(CLK)) THEN
-					ssreg_data <= DI;
-				END IF;
+		IF (to_integer(unsigned(Address)) = 65000 AND WE = '1') THEN -- sevensegdriver data
+			IF (falling_edge(CLK)) THEN
+				ssreg_data <= DI;
+			END IF;
+		
+		ELSIF (to_integer(unsigned(Address)) = 65001 AND WE = '1') THEN -- Sevensegdriver control
+			IF (falling_edge(CLK)) THEN	
+				ssreg_config <= DI;
+			END IF;
 
-			ELSIF (to_integer(unsigned(Address)) = 65001 AND WE = '1') THEN -- Sevensegdriver control
-				IF (falling_edge(CLK)) THEN
-					ssreg_config <= DI;
-				END IF;
+		ELSIF (to_integer(unsigned(Address)) = 65010 AND WE = '1') THEN -- Sevensegdriver control
+			IF (falling_edge(CLK)) THEN	
+				I2SMonoOut_DataIn <= DI;
+			END IF;
 
 --AND to_integer(unsigned(Address)) <= 6101 
-			ELSIF (65100 <= to_integer(unsigned(Address)) AND WE = '1') THEN
-				IF (falling_edge(clk)) THEN
-					Int_address <= std_logic_vector(to_unsigned(to_integer(unsigned(Address) - 65100),Int_address'length));
-					int_data <= DI;
-				END IF;
-			
-			ELSIF (to_integer(unsigned(Address)) = 65002 AND RE = '1') THEN -- ButtonDriver Data
-				IF (falling_edge(CLK)) THEN
-				DO <= btnreg_data;
-				END IF;
-			ElSIF(RE = '1') THEN
-				DO <= dataOutMem;
-			ELSE
-				DO <= x"0000";
+		ELSIF (65100 <= to_integer(unsigned(Address)) AND WE = '1') THEN
+			IF (falling_edge(CLK)) THEN	
+				Int_address <= std_logic_vector(to_unsigned(to_integer(unsigned(Address) - 65100),Int_address'length));
+				int_data <= DI;
 			END IF;
+			
+		ELSIF (to_integer(unsigned(Address)) >= 65000 AND RE = '1') THEN -- ButtonDriver Data
+			IF (falling_edge(CLK)) THEN	
+				IF(to_integer(unsigned(Address)) = 65002) THEN
+					DO <= btnreg_data;
+				ELSIF(to_integer(unsigned(Address)) = 65011) THEN
+					DO <= I2SMonoIn_DataOut;
+				END IF;
+			END IF;
+
+		ElSIF (RE = '1') THEN
+				DO <= dataOutMem; --Not sure this works, might need to revert
+
+		ELSE 
+			DO <= (OTHERS => 'Z');
+		END IF;
+
 	END PROCESS;
 
 	PROCESS(Address, WE, RE)

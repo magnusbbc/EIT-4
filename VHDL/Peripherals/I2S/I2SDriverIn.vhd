@@ -69,22 +69,22 @@ begin
 				if ws = '0' then
 
 					int_R <= '1';
-					int_L <= '0';
+				
 
 				else
 
-					int_R <= '0';
+					
 					int_L <= '1';
 				end if;
 			else
 				if ws = '1' then
 
 					int_R <= '1';
-					int_L <= '0';
+					
 
 				else
 
-					int_R <= '0';
+
 					int_L <= '1';
 				end if;
 

@@ -1,2 +1,2 @@
-do wave_interrupt.do
+do wave.do
 run -all
