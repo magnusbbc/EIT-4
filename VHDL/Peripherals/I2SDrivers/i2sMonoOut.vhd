@@ -22,7 +22,7 @@ END i2sMonoOut;
 ARCHITECTURE i2sMonoOut OF i2sMonoOut IS
 signal intr_L,intr_R,notInt :std_logic;
 BEGIN
-notInt<= int;
+
 	dut : entity work.i2sDriverOut
 	generic map( 	
 			DATA_WIDTH 	=> DATA_WIDTH  
@@ -30,7 +30,7 @@ notInt<= int;
 	port map(
 			clk			=> clk 	,
 			int_L			=> int	,
-			int_R			=>  notInt	,
+			int_R			=>  int	,
 			intr_L		=> intr_L,
 			intr_R		=> intr_R,
 			DIn_L 		=> DIn,

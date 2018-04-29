@@ -103,15 +103,20 @@ begin
 		begin
 			clockEvents(('1'),("1111"));
 			clockEvents(('0'),("0000"));
-			clockEvents(('1'),("1010"));
-			clockEvents(('0'),("1010"));
-			clockEvents(('1'),("0101"));
-			clockEvents(('0'),("0101"));
+			
+			clockEvents(('1'),("1111"));
+			clockEvents(('0'),("1101"));
+			
+			clockEvents(('1'),("1111"));
+			clockEvents(('0'),("1101"));
+			
+			clockEvents(('1'),("1111"));
+			clockEvents(('0'),("1001"));
+			
 			clockEvents(('1'),("0000"));
 			clockEvents(('0'),("1111"));
-			clockEvents(('1'),("1111"));
-			clockEvents(('0'),("1111"));
-			clockEvents(('1'),("1111"));
+			
+			clockEvents(('1'),("0000"));
 			clockEvents(('0'),("1111"));
 			
 			

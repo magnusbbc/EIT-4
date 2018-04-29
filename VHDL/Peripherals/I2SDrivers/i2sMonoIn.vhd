@@ -30,7 +30,7 @@ BEGIN
 			bclk 			=> bclk 	,
 			ws				=> ws		,
 			Din			=> Din	,
-			DOut_R 		=> DOut	,
+			DOut_R 		=> DOut	, --the right channel is used for the mono signal.
 			int_R			=> Int	,
 			intr_R		=> Intr
 			--Ports for input

@@ -32,9 +32,11 @@ begin
 		variable voutBuff : std_logic_vector (DATA_WIDTH - 1 downto 0);--variable for the output buffer
 	begin
 		if rising_edge(bclk) then
+		
 		--load variables
 			vcnt     := cnt;		
 			voutBuff := outBuff;
+			
 			--reset interupts
 			if intr_L = '1' then
 				int_L <= '0';
@@ -47,7 +49,7 @@ begin
 
 				voutBuff(vcnt) := Din; -- Read data to buffer
 
-				vcnt     := vcnt + 1;
+				vcnt     := vcnt + 1; --increment counter
 
 			end if;
 
@@ -65,33 +67,22 @@ begin
 
 				
 					
-				lr <= ws; --change the 
+				lr <= ws; --change the internal worselect
 
-				vcnt := 0;
+				vcnt := 0; --reset counter
 
-				if ws = '0' then
-
+				if ws = '0' then -- the buffer is now ready interrupt is set high.
 					int_R <= '1';
+
+				else
+					int_L <= '1';
+				end if;
 				
-
-				else
-
-					
-					int_L <= '1';
-				end if;
 			else
-				if ws = '1' then
-
-					int_R <= '1';
-					
-
-				else
-
-
-					int_L <= '1';
-				end if;
+			
 
 			end if;
+			-- The variables are saved in the signals
 			cnt     <= vcnt;
 			outBuff <= voutBuff;
 		end if;

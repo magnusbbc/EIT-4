@@ -34,7 +34,6 @@ BEGIN
 			ws			=> ws			,
 			Din		=> Din		,
 			DOut		=> DOuts		,
-			
 			Int	=> Int			,
 			Intr	=> Intr	
 			
@@ -49,7 +48,6 @@ BEGIN
 			clk 		=> bclk 		,
 			wsO		=> wsO		,
 			DIn	=> DOuts	,
-			
 			Int	=> Int	,
 			Intr	=> Intr	,
 			bclkO 	=> bclkO 	,
