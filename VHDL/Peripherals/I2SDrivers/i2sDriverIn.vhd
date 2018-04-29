@@ -22,47 +22,50 @@ entity i2sDriverIn is
 end i2sDriverIn;
 
 architecture i2sDriverIn of i2sDriverIn is
-	signal lr      : std_logic := '1';
-	signal cnt     : integer   := 0;
-	signal outBuff : std_logic_vector (DATA_WIDTH - 1 downto 0);
+	signal lr      : std_logic := '1';--Internal wordselect, short for 'left right' left channel is active when '1'
+	signal cnt     : integer   := 0;  -- Bit counter
+	signal outBuff : std_logic_vector (DATA_WIDTH - 1 downto 0);-- The initial buffer for the serial data
 
 begin
-	data_in : process (bclk, ws)
-		variable vcnt     : integer := 0;
-		variable voutBuff : std_logic_vector (DATA_WIDTH - 1 downto 0);
+	data_in : process (bclk, ws)--The main process
+		variable vcnt     : integer := 0; --Variable for the cnt signal
+		variable voutBuff : std_logic_vector (DATA_WIDTH - 1 downto 0);--variable for the output buffer
 	begin
 		if rising_edge(bclk) then
-			vcnt     := cnt;
+		--load variables
+			vcnt     := cnt;		
 			voutBuff := outBuff;
-
+			--reset interupts
 			if intr_L = '1' then
 				int_L <= '0';
 			end if;
 			if intr_R = '1' then
 				int_R <= '0';
 			end if;
+		
 			if vcnt < DATA_WIDTH then
 
-				voutBuff(vcnt) := Din;
+				voutBuff(vcnt) := Din; -- Read data to buffer
 
-				vcnt                            := vcnt + 1;
+				vcnt     := vcnt + 1;
 
 			end if;
 
-			if lr = not ws then
-
-				--IF vcnt < DATA_WIDTH THEN
+			if lr = not ws then -- At this point the data change channel
+		
+				--Loading the buffer the apropiate output 
+					--The logic for truncating the data have been removed because it caused problems, another implementation is possible if needed
 				if lr = '1' then
 					dout_L <= voutbuff;
-					--dout_L(DATA_WIDTH - vcnt - 1 DOWNTO 0) <= (OTHERS => '0');
+				
 				else
 					dout_R <= voutbuff;
-					--dout_R(DATA_WIDTH - vcnt - 1 DOWNTO 0) <= (OTHERS => '0');
+				
 				end if;
 
-				--END IF;
-
-				lr <= ws;
+				
+					
+				lr <= ws; --change the 
 
 				vcnt := 0;
 
