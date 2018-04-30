@@ -1,4 +1,14 @@
 #include "Config.hvhd"
+--------------------------------------------------------------------------------------
+--Engineer: Magnus Christensen
+--Module Name: Master
+--
+--Description:
+--
+--
+--
+--------------------------------------------------------------------------------------
+
 
 --Definition of control lines
 #define ALU_CONTROL 18 DOWNTO 13
@@ -353,7 +363,7 @@ BEGIN
 
 	btn_inverted <= not btn;
 
-	LED(9) <= Zero_Flag; --Latch not needed
+	LED(9) <= Zero_Flag;
 	LED(8) <= Overflow_Flag;
 	LED(7) <= Signed_Flag;
 	LED(6) <= Parity_Flag;

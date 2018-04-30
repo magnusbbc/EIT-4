@@ -1,3 +1,12 @@
+--------------------------------------------------------------------------------------
+--Engineer: Frederik Rasmussen
+--Module Name: Button Peripheral
+--
+--Description:
+--
+--
+--
+--------------------------------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 --Debouncer for 3 buttons

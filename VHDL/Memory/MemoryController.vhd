@@ -1,4 +1,13 @@
 #include "Config.hvhd"
+--------------------------------------------------------------------------------------
+--Engineer: Jakob Thomsen, Mikkel Hardysoe, Magnus Christensen
+--Module Name: Memory Controller
+--
+--Description:
+--
+--
+--
+--------------------------------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;

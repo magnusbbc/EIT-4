@@ -2,11 +2,9 @@
 #include "Config.hvhd"
 ------------------------------------------------------------------------------------
 ---- Engineer: Peter Fisker
----- Create Date: 10:53:18 03/23/2018
----- Module Name: My_first_ALU - Behavioral
----- Project Name: Simple DSP ALU
-
-
+---- Module Name: ALU
+--
+--
 ---- Description:
 -- This is a simple ALU.
 -- It has:
@@ -26,20 +24,16 @@
 -- Pass through
 -- ICA Increments A
 -- ICB Increments B
--- NOP 
-
--- FLAGS
+-- NOP
+--
+--The ALU does not depend on a clock signal
+--
+-- FLAGS:
 -- Zero flag
 -- Overflow flag
 -- Signed flag
 -- Parity flag
----- Dependencies:
-----
----- Revision:
----- Revision 0.01 - File Created
----- Additional Comments:
-----
----- Denne fil ligger i GIT-mappe
+-- Carry flag
 ------------------------------------------------------------------------------------
 
 LIBRARY IEEE;
@@ -56,7 +50,7 @@ ENTITY ALU IS
 	PORT 
 	(
 		Operand1, Operand2 : IN std_logic_vector(15 DOWNTO 0); -- Operands 1 and 2
-		Operation          : IN std_logic_vector(5 DOWNTO 0);
+		Operation          : IN std_logic_vector(5 DOWNTO 0); --Operation to perform
 
 		Overflow_Flag      : OUT std_logic; -- Flag raised when overflow is present
 		Signed_Flag        : OUT std_logic; -- Flag raised when negative result
@@ -64,7 +58,7 @@ ENTITY ALU IS
  		Parity_Flag        : OUT std_logic; -- Flag raised when number of 1's in result is odd. 
 		Carry_Flag			 : out std_logic; -- Flag raised when carry is present			
 
-		Result             : OUT std_logic_vector(15 DOWNTO 0)
+		Result             : OUT std_logic_vector(15 DOWNTO 0) --Output based on the two operands and operation port
 	);
 END ENTITY ALU;
 

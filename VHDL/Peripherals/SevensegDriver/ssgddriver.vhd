@@ -16,6 +16,16 @@
 "0001110" WHEN "1111",\
 "0000000" WHEN OTHERS;
 
+--------------------------------------------------------------------------------------
+--Engineer: Frederik Rasmussen
+--Module Name: 7-Segment Display Peripheral
+--
+--Description:
+--
+--
+--
+--------------------------------------------------------------------------------------
+
 
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;

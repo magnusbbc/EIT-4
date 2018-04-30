@@ -1,3 +1,12 @@
+--------------------------------------------------------------------------------------
+--Engineer: Frederik Rasmussen
+--Module Name: Clock Divider
+--
+--Description:
+--
+--
+--
+--------------------------------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_unsigned.ALL;

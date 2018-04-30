@@ -1,3 +1,13 @@
+--------------------------------------------------------------------------------------
+--Engineer: Frederik Rasmussen, Magnus Christensen
+--Module Name: I2S Output Mono Wrapper
+--
+--Description:
+--
+--
+--
+--------------------------------------------------------------------------------------
+
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 

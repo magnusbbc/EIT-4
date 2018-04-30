@@ -1,3 +1,13 @@
+--------------------------------------------------------------------------------------
+--Engineer: Frederik Rasmussen
+--Module Name: Binary to Binary Coded Decimal
+--
+--Description:
+--
+--
+--
+--------------------------------------------------------------------------------------
+
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
