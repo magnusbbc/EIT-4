@@ -107,7 +107,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL PLL_CLOCK : std_logic; --PLL Clock
 	SIGNAL PLL_LOCK : std_logic; --PLL lock signal
 	SIGNAL PLL_CLOCK_TEMP : Std_logic; --Is assigned the PLL_CLOCK when PLL_LOCK is detected
-	SIGNAL DIVIDER : std_logic_vector(25 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
+	SIGNAL DIVIDER : std_logic_vector(24 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
 
 BEGIN
 
@@ -282,7 +282,7 @@ BEGIN
 			IF (Interrupt_latch = '1' AND JMP_SELECT /= '1') THEN
 				PC <= PC;
 			ELSIF (Interrupt_latch = '1' AND JMP_SELECT = '1') THEN
-				PC <= PC_ALT;
+				PC <= std_logic_vector(unsigned(PC_ALT) + 1);
 			ELSIF (JMP_SELECT /= '1') THEN
 				PC <= std_logic_vector(unsigned(PC) + 1);
 			ELSE
@@ -335,9 +335,9 @@ BEGIN
 --Below controls Clock---
 
 	WITH CONTROL(HALT) SELECT subClock <=
-	--PLL_CLOCK_TEMP WHEN '0',
+	PLL_CLOCK_TEMP WHEN '0',
 	--DBtn(2) when '0',
-	clk when '0',
+	--clk when '0',
 	'0' WHEN OTHERS;
 
 	WITH PLL_LOCK SELECT PLL_CLOCK_TEMP <=
@@ -359,7 +359,7 @@ BEGIN
 	LED(6) <= Parity_Flag;
 	LED(5) <= btn_inverted(0);
 
-	LED(0) <= DIVIDER(25);
+	LED(0) <= DIVIDER(24);
 	LED(1) <= CONTROL(HALT);
 
 END ARCHITECTURE Behavioral;

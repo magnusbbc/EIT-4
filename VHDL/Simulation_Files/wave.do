@@ -2,23 +2,33 @@ onerror {resume}
 quietly virtual signal -install /cpu_v1_tb/MAIN { /cpu_v1_tb/MAIN/CONTROL(9 downto 8)} Jump
 quietly virtual signal -install /cpu_v1_tb/MAIN { /cpu_v1_tb/MAIN/CONTROL(12 downto 10)} Jump001
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /cpu_v1_tb/wsIn
-add wave -noupdate /cpu_v1_tb/I2SDataIn
-add wave -noupdate /cpu_v1_tb/TbClockI2S
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/WE
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/Address
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/DI
-add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/int
-add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/intr
-add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/DIn_temp
-add wave -noupdate /cpu_v1_tb/I2SCnt
-add wave -noupdate /cpu_v1_tb/MAIN/DOut
-add wave -noupdate /cpu_v1_tb/MAIN/wsO
-add wave -noupdate /cpu_v1_tb/MAIN/bclkO
-add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/dut/DIn_L
-add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/dut/DIn_R
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/PC
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/ADDR
+add wave -noupdate -radix hexadecimal /cpu_v1_tb/MAIN/INSTRUCTION
+add wave -noupdate /cpu_v1_tb/MAIN/Interrupt_CPU
+add wave -noupdate /cpu_v1_tb/MAIN/Interrupt_latch
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/Interrupt_btn
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/Interrupt_btn_reset
+add wave -noupdate /cpu_v1_tb/MAIN/clk
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/ButtonDriver/btn
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/ButtonDriver/dbtn
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/ALU/Operand1
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/ALU/Operand2
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/ALU/Operation
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/ALU/Result
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/REGS/REG(6)
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/REGS/REG(5)
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/REGS/REG(4)
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/REGS/REG(3)
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/REGS/REG(2)
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/REGS/REG(1)
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/Sevensegdriver/dat
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(2)
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(1)
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/PC_ALT
+add wave -noupdate /cpu_v1_tb/MAIN/JMP_SELECT
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1183558 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1057154 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 419
 configure wave -valuecolwidth 104
@@ -34,4 +44,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1057655 ps} {1182087 ps}
+WaveRestoreZoom {1022944 ps} {1085162 ps}
