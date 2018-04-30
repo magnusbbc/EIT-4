@@ -43,8 +43,8 @@ ARCHITECTURE Behavioral OF MemoryController IS
 	SIGNAL Read_enable_mem : std_logic := '0';
 	SIGNAL I2SMonoIn_DataOut :std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
 	SIGNAL I2SMonoOut_DataIn :std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
-	SIGNAL I2SMonoOut_internal_int : std_logic := '0';
-	SIGNAL I2SMonoOut_internal_int_reset : std_logic := '0';
+--	SIGNAL I2SMonoOut_internal_int : std_logic := '0';
+--	SIGNAL I2SMonoOut_internal_int_reset : std_logic := '0';
 BEGIN
 
 	Sevensegdriver : ENTITY work.ssgddriver
@@ -88,8 +88,8 @@ BEGIN
 
 	I2SMonoOut : Entity work.I2SMonoOut(Behavioral)
 		PORT MAP(
-			int => I2SMonoOut_internal_int,
-			intr => I2SMonoOut_internal_int_reset,
+--			int => I2SMonoOut_internal_int,
+--			intr => I2SMonoOut_internal_int_reset,
 			clk => bclk, 
 			DIn => I2SMonoOut_DataIn,
 			bclkO => bclkO,

@@ -10,7 +10,7 @@ ARCHITECTURE Behavioral OF CPU_V1_TB IS
 	SIGNAL btn : std_logic_vector(2 DOWNTO 0);
 	SIGNAL sseg : std_logic_vector(31 DOWNTO 0);
 	SIGNAL led : std_logic_vector(9 DOWNTO 0);
-	SIGNAL wsIn : std_logic;
+	SIGNAL wsIn : std_logic := '0';
 	SIGNAL I2SDataIn : std_logic;
 	--Clock Constants
 	CONSTANT TbPeriod : TIME := 10 ns;
@@ -41,7 +41,7 @@ BEGIN
 		BEGIN
 			IF (rising_edge(TbClock)) THEN -- start when Test bench clock goes 1
 				cnt <= cnt + 1;
-				IF (cnt = 512) THEN
+				IF (cnt = 5120) THEN
 					TbSimEnded <= '1';
 				END IF;
 			END IF;
@@ -63,14 +63,14 @@ BEGIN
 
 		PROCESS
 		BEGIN
-			WAIT FOR 250 ns;
-			btn <= "110";
-			WAIT FOR 250 ns;
 			btn <= "111";
-			WAIT FOR 250 ns;
+			WAIT FOR 1000 ns;
 			btn <= "110";
-			WAIT FOR 250 ns;
+			WAIT FOR 1000 ns;
 			btn <= "111";
+			WAIT FOR 1000 ns;
+			btn <= "110";
+			WAIT FOR 100000 ns;
 		END PROCESS;
 
 		PROCESS (TbSimEnded)

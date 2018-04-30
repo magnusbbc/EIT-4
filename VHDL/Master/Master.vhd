@@ -86,7 +86,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL Interrupt_latch : std_logic := '0'; --Latch for the interrupt signal, ensures signal stays on for an additional clock cycle
 	SIGNAl Interrupt_enable : std_logic := '1';
 	SIGNAL Interrupt_nest_enable : std_logic := '1';
-	SIGNAL Interrupt_nest_enable_latch : std_logic := '1';
+	SIGNAL Interrupt_nest_enable_latch : std_logic := '0';
 
 	SIGNAL PC_INT_TMP : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0');
 	--FLAGS

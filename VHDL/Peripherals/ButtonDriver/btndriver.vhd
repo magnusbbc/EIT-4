@@ -6,8 +6,8 @@ ENTITY btndriver IS
 	PORT (
 		clk : IN STD_LOGIC; --Clock used for debouncing
 		clr : IN STD_LOGIC; --Clear
-		btn : IN STD_LOGIC_vector (2 DOWNTO 0); --Button inputs
-		dbtn : OUT STD_LOGIC_vector (2 DOWNTO 0); --Debounced button output
+		btn : IN STD_LOGIC_vector (2 DOWNTO 0) := "000"; --Button inputs
+		dbtn : OUT STD_LOGIC_vector (2 DOWNTO 0) := "000"; --Debounced button output
 		interrupt_on : OUT std_logic := '0';
 		interrupt_reset: IN std_logic := '0'
 	);

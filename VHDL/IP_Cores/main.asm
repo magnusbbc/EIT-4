@@ -1,8 +1,21 @@
-MOVI $r1 65100 //Address for I2S interrupt
-MOVI $r2 #I2SISR
+MOVI $r1 65001
+MOVI $r2 31
+STORE $r2 [$r1]
+MOVI $r3 0
+MOVI $r1 65000
+STORE $r3 [$r1]
+MOVI $r4 65011
+MOVI $r5 65010
+MOVI $r1 65100
+MOVI $r1 65000
+MOVI $r2 #BUTISR
 STORE $r2 [$r1]
 MOVI $r2 512
-STORE $r2 [$r1+1] //Enables Button Interrupts
+STORE $r2 [$r1+1]
+MOVI $r2 #I2SISR
+STORE $r2 [$r1+2]
+MOVI $r2 512
+STORE $r2 [$r1+3]
 LOOP:
 NOP
 NOP
@@ -12,9 +25,12 @@ NOP
 NOP
 JMP #LOOP
 HALT
+BUTISR:
+ADDI $r3 1 $r3
+STORE $r3 [$r1]
+POP $pc
 I2SISR:
-NOP
-NOP
-NOP
-NOP
+LOAD $r6 [$r4]
+SUBR $r6 $r3 $r6
+STORE $r6 [$r5]
 POP $pc

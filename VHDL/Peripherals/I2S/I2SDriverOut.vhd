@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 entity i2sDriverOut is
 	generic
 	(
-		DATA_WIDTH : integer range 4 to 32 := 16
+		DATA_WIDTH : integer range 4 to 32 := 16 --size of the words, bitdepth of the sound
 	);
 	port
 	(
@@ -24,24 +24,23 @@ entity i2sDriverOut is
 end i2sDriverOut;
 
 architecture i2sDriverOut of i2sDriverOut is
-	signal clkb      : std_logic                                 := '1';
-	signal buff_In_L : std_logic_vector(DATA_WIDTH - 1 downto 0) := (1 => '1', others => '1');
+	signal buff_In_L : std_logic_vector(DATA_WIDTH - 1 downto 0) := (1 => '1', others => '1');--buffers for the input, they are loaded when the interupt are set high
 	signal buff_In_R : std_logic_vector(DATA_WIDTH - 1 downto 0) := (1 => '1', others => '1');
-	signal cnt       : integer                                   := 0;
-	signal lr        : std_logic                                 := '0';
+	signal cnt       : integer                                   := 0;		--Counter for the bits
+	signal lr        : std_logic                                 := '0';		--Internal wordselect, short for 'left right' left channel is active when '1'
 begin
 
-	bclk <= clk;
+	bclk <= clk; --bitclock is using the same clock as the logic
 
-	data_out : process (clk)
+	data_out : process (clk) --The main process
 	begin
-		if falling_edge(clk) then
+		if falling_edge(clk) then -- The logic is perfomed at the falling edge so that the signals are stable to read at the rising clock.
 
 			if cnt < DATA_WIDTH then
 				if lr = '1' then --Write from the active buffer 
-					DOut <= buff_In_L(DATA_WIDTH - 1 - cnt);
+					DOut <= buff_In_L(cnt);
 				else
-					DOut <= buff_In_R(DATA_WIDTH - 1 - cnt);
+					DOut <= buff_In_R(cnt);
 				end if;
 
 			end if;
@@ -57,7 +56,7 @@ begin
 
 	data_out_cnt : process (clk)
 	begin
-		if rising_edge(clk) then
+		if rising_edge(clk) then -- The counting and buffering are done on the rising edge as they dont affect the active data out. (This is not necesary but was done to try and fix another problem that wasn't a problem)
 
 			
 			cnt <= cnt + 1;

@@ -5,20 +5,18 @@ quietly WaveActivateNextPane {} 0
 add wave -noupdate /cpu_v1_tb/wsIn
 add wave -noupdate /cpu_v1_tb/I2SDataIn
 add wave -noupdate /cpu_v1_tb/TbClockI2S
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/WE
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/Address
-add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/DI
+add wave -noupdate /cpu_v1_tb/I2SCnt
+add wave -noupdate /cpu_v1_tb/MAIN/bclkO
+add wave -noupdate /cpu_v1_tb/MAIN/wsO
+add wave -noupdate /cpu_v1_tb/MAIN/DOut
 add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/int
 add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/intr
 add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/DIn_temp
-add wave -noupdate /cpu_v1_tb/I2SCnt
-add wave -noupdate /cpu_v1_tb/MAIN/DOut
-add wave -noupdate /cpu_v1_tb/MAIN/wsO
-add wave -noupdate /cpu_v1_tb/MAIN/bclkO
-add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/dut/DIn_L
-add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/I2SMonoOut/dut/DIn_R
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/WE
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/Address
+add wave -noupdate -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/DI
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1183558 ps} 0}
+WaveRestoreCursors {{Cursor 1} {24831 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 419
 configure wave -valuecolwidth 104
@@ -34,4 +32,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1057655 ps} {1182087 ps}
+WaveRestoreZoom {0 ps} {124432 ps}
