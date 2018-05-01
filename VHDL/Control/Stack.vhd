@@ -19,9 +19,9 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY Stack IS
 	PORT (
-		addressOut : OUT std_logic_vector(WORD_SIZE DOWNTO 0); --Stack Pointer output
-		addressIn : IN std_logic_vector(WORD_SIZE DOWNTO 0); --New value of stack pointer (only applicable when "writeback" is set high)
-		writeBack : IN std_logic := '0'; --Control port, set high when performing a manual stack point overwrite
+		address_out : OUT std_logic_vector(WORD_SIZE DOWNTO 0); --Stack Pointer output
+		address_in : IN std_logic_vector(WORD_SIZE DOWNTO 0); --New value of stack pointer (only applicable when "write_back" is set high)
+		write_back : IN std_logic := '0'; --Control port, set high when performing a manual stack point overwrite
 		pop : IN std_logic := '0'; --Control port, set high when a "pop" instruction occours (should be connected to the "pop" control port)
 		push : IN std_logic := '0'; --Control port, set high when a "push" instruction occours (should be connected to the "push" control port)
 		clk : IN std_logic --CPU clock signal (should be connected to the System Clock)
@@ -41,8 +41,8 @@ Begin
 				SP <= std_logic_vector(unsigned(SP) - 1); 	--Decrement when pop
 			ELSIF(push = '1') THEN
 				SP <= std_logic_vector(unsigned(SP) + 1); 	--Increment when push
-			ELSIF(writeBack = '1') THEN
-				SP <= addressIn;							--Manual Overwrite
+			ELSIF(write_back = '1') THEN
+				SP <= address_in;							--Manual Overwrite
 			END IF;
 		END IF;
 
@@ -56,7 +56,7 @@ Begin
 	--If a pop instruction is being executed, the stack controller outputs the current value of the stack pointer
 	--Since this corresponds to the value of the current top. The SP is changed on the next rising edge (see the ChangeSP : Process)
 	--To correspond to the new address of the top of the stack.
-	WITH push SELECT addressOut <=
+	WITH push SELECT address_out <=
 	std_logic_vector(unsigned(SP) + 1) WHEN '1',
 	SP WHEN OTHERS;
 END Behavioral;

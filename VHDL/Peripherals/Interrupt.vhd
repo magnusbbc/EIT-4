@@ -19,20 +19,20 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY Interrupt IS
 	PORT (
-        Interrupt_btn : IN std_logic;
-        Interrupt_btn_reset : INOUT std_logic;
+        interrupt_btn : IN std_logic;
+        interrupt_btn_reset : INOUT std_logic;
 
-        Interrupt_I2S : IN std_logic := '0';
-        Interrupt_I2S_reset : INOUT std_logic := '0';
+        interrupt_i2s : IN std_logic := '0';
+        interrupt_i2s_reset : INOUT std_logic := '0';
 
-        Interrupt_enable : IN std_logic := '1';
-        Interrupt_nest_enable : OUT std_logic := '1' ;
-        Write_enable :IN std_logic;
+        interrupt_enable : IN std_logic := '1';
+        interrupt_nest_enable : OUT std_logic := '1' ;
+        write_enable :IN std_logic;
         clk : IN std_logic;
-        Address : IN std_logic_vector(1 downto 0);
-        Data : IN std_logic_vector(ADDRESS_SIZE downto 0);
-        Control : OUT std_logic_vector(9 downto 0);
-        Interrupt_cpu : OUT std_logic
+        internal_register_address : IN std_logic_vector(1 downto 0);
+        data_in : IN std_logic_vector(ADDRESS_SIZE downto 0);
+        interrupt_address : OUT std_logic_vector(9 downto 0);
+        interrupt_cpu : OUT std_logic
 	);
 END Interrupt;
 
@@ -57,80 +57,80 @@ BEGIN
     Enable_int : process(clk)
     BEGIN
         if(rising_edge(clk)) Then
-            IF(Interrupt_enable = '1') Then
+            IF(interrupt_enable = '1') Then
                 IF(Interrupt_btn_latch = '1') Then
                     IF(Interrupt_btn_enable = '1') THEN
-                        Interrupt_cpu <= '1';
+                        interrupt_cpu <= '1';
                         Interrupt_btn_reset_sig <= '1';
-                        Control <= REG(0);
-                        Interrupt_nest_enable <= Interrupt_btn_nest_enable;
+                        interrupt_address <= REG(0);
+                        interrupt_nest_enable <= Interrupt_btn_nest_enable;
                     ELSE
-                        Interrupt_cpu <= '0';
+                        interrupt_cpu <= '0';
                         Interrupt_btn_reset_sig <= '0';
                         Interrupt_I2S_reset_sig <= '0';
-                        Interrupt_nest_enable <= '1';
+                        interrupt_nest_enable <= '1';
                     END IF;
                ElSIF(Interrupt_I2S_latch = '1') THEN
                     IF(Interrupt_I2S_enable = '1') THEN
-                        Interrupt_cpu <= '1';
+                        interrupt_cpu <= '1';
                         Interrupt_I2S_reset_sig <= '1';
-                        Control <= REG(2);
-                        Interrupt_nest_enable <= Interrupt_I2S_nest_enable;
+                        interrupt_address <= REG(2);
+                        interrupt_nest_enable <= Interrupt_I2S_nest_enable;
                     ELSE
-                        Interrupt_cpu <= '0';
+                        interrupt_cpu <= '0';
                         Interrupt_btn_reset_sig <= '0';
                         Interrupt_I2S_reset_sig <= '0';
-                        Interrupt_nest_enable <= '1';
+                        interrupt_nest_enable <= '1';
                     END IF;
                 ELSE
-                    Interrupt_cpu <= '0';
+                    interrupt_cpu <= '0';
                     Interrupt_btn_reset_sig <= '0';
                     Interrupt_I2S_reset_sig <= '0';
-                    Interrupt_nest_enable <= '1';
+                    interrupt_nest_enable <= '1';
                 END IF;
             ELSE
-                Interrupt_cpu <= '0';
+                interrupt_cpu <= '0';
                 Interrupt_btn_reset_sig <= '0';
                 Interrupt_I2S_reset_sig <= '0';
-                Interrupt_nest_enable <= '1';
+                interrupt_nest_enable <= '1';
             End IF;
         END IF;
     end process;
 
-    BTN : PROCESS(Interrupt_btn, Interrupt_btn_reset_sig,Interrupt_btn_reset)
+    BTN : PROCESS(interrupt_btn, Interrupt_btn_reset_sig,interrupt_btn_reset)
     BEGIN
         IF(Interrupt_btn_reset_sig = '1') THEN
             Interrupt_btn_latch <= '0';
-        ElSIF(Interrupt_btn = '1') THEN
+        ElSIF(interrupt_btn = '1') THEN
             Interrupt_btn_latch <= '1';
         END IF;
         IF (Interrupt_btn_reset_sig = '1') THEN
-            Interrupt_btn_reset <= '1';
-        ELSIF(Interrupt_btn_reset = '1' AND Interrupt_btn = '0') THEN
-            Interrupt_btn_reset <= '0';
+            interrupt_btn_reset <= '1';
+        ELSIF(interrupt_btn_reset = '1' AND interrupt_btn = '0') THEN
+            interrupt_btn_reset <= '0';
         END IF;
 
     END PROCESS;
 
-    I2S : PROCESS(Interrupt_I2S, Interrupt_I2S_reset_sig,Interrupt_I2S_reset)
+    I2S : PROCESS(interrupt_i2s, Interrupt_I2S_reset_sig,interrupt_i2s_reset)
     BEGIN
         IF(Interrupt_I2S_reset_sig = '1') THEN
             Interrupt_I2S_latch <= '0';
-        ElSIF(Interrupt_I2S = '1' AND Interrupt_I2S_reset = '0') THEN
+        ElSIF(interrupt_i2s = '1' AND interrupt_i2s_reset = '0') THEN
             Interrupt_I2S_latch <= '1';
         END IF;
         IF (Interrupt_I2S_reset_sig = '1') THEN
-            Interrupt_I2S_reset <= '1';
-        ELSIF(Interrupt_I2S_reset = '1' AND Interrupt_I2S = '0') THEN
-            Interrupt_I2S_reset <= '0';
+            interrupt_i2s_reset <= '1';
+        ELSIF(interrupt_i2s_reset = '1' AND interrupt_i2s = '0') THEN
+            interrupt_i2s_reset <= '0';
         END IF;
 
     END PROCESS;
 
     WriteProc : PROCESS (clk) IS
 	BEGIN
-			IF (Write_enable = '1') THEN
-				REG(to_integer(unsigned(Address))) <= Data(9 downto 0);
+			IF (write_enable = '1') THEN
+				REG(to_integer(unsigned(internal_register_address))) <= data_in(9 downto 0);
 			END IF;
 	END PROCESS;
 

@@ -38,10 +38,10 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY ssgddriver IS
 	PORT (
 		clr : IN STD_LOGIC; --Clear
-		bcdenable : IN std_LOGIC; --Enable BCD format
-		dat : IN STD_LOGIC_vector (15 DOWNTO 0) := (OTHERS => '0'); --Hex data in 4 nibbles
-		dots : IN STD_LOGIC_vector (3 DOWNTO 0); --Dots data
-		sseg : OUT STD_LOGIC_vector (31 DOWNTO 0) --Segments connections (31| dot4 - 7seg4 - dot3 - 7seg3 - dot2 - 7seg2 - dot1 - 7seg1 |0)
+		bcd_enable : IN std_LOGIC; --Enable BCD format
+		input_data : IN STD_LOGIC_vector (15 DOWNTO 0) := (OTHERS => '0'); --Hex data in 4 nibbles
+		dot_control : IN STD_LOGIC_vector (3 DOWNTO 0); --Dots data
+		seven_seg_control_signals : OUT STD_LOGIC_vector (31 DOWNTO 0) --Segments connections (31| dot4 - 7seg4 - dot3 - 7seg3 - dot2 - 7seg2 - dot1 - 7seg1 |0)
 	);
 END ssgddriver;
 
@@ -63,29 +63,29 @@ BEGIN
 		PORT MAP
 		(
 			clr => clr,
-			binary => dat,
+			binary => input_data,
 			bcd => bcd
 		);
 
 		display <=
-			bcd WHEN bcdenable = '1' ELSE
-			dat;
+			bcd WHEN bcd_enable = '1' ELSE
+			input_data;
 
 		--first display
-		sseg(7) <= dots(0);
-		WITH display(3 DOWNTO 0) SELECT sseg(6 DOWNTO 0) <=
+		seven_seg_control_signals(7) <= dot_control(0);
+		WITH display(3 DOWNTO 0) SELECT seven_seg_control_signals(6 DOWNTO 0) <=
 		SEVEN_SEGMENT_MAP
 
-		sseg(15) <= dots(1);
-		WITH display(7 DOWNTO 4) SELECT sseg(14 DOWNTO 8) <=
+		seven_seg_control_signals(15) <= dot_control(1);
+		WITH display(7 DOWNTO 4) SELECT seven_seg_control_signals(14 DOWNTO 8) <=
 		SEVEN_SEGMENT_MAP
 
-		sseg(23) <= dots(2);
-		WITH display(11 DOWNTO 8) SELECT sseg(22 DOWNTO 16) <=
+		seven_seg_control_signals(23) <= dot_control(2);
+		WITH display(11 DOWNTO 8) SELECT seven_seg_control_signals(22 DOWNTO 16) <=
 		SEVEN_SEGMENT_MAP
 
-		sseg(31) <= dots(3);
-		WITH display(15 DOWNTO 12) SELECT sseg(30 DOWNTO 24) <=
+		seven_seg_control_signals(31) <= dot_control(3);
+		WITH display(15 DOWNTO 12) SELECT seven_seg_control_signals(30 DOWNTO 24) <=
 		SEVEN_SEGMENT_MAP
 
 	END Behavioral;

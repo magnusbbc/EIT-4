@@ -18,15 +18,15 @@ entity i2sDriverIn is
 	);
 	port
 	(
-		bclk   : in std_logic;-- Bitclock in
-		ws     : in std_logic;-- Worselect
-		Din    : in std_logic;-- Data in
-		DOut_L : out std_logic_vector(DATA_WIDTH - 1 downto 0); -- One full word of data out
-		DOut_R : out std_logic_vector(DATA_WIDTH - 1 downto 0);
-		int_L  : out std_logic := '0';-- Interupt out. Is set high when a new word is ready
-		int_R  : out std_logic := '0';
-		intr_L : in std_logic  := '0';-- Interupt reset. Set this high to reset the interupt. Should be high untill intterupt put is low again.
-		intr_R : in std_logic  := '0'
+		bit_clock   : in std_logic;-- Bitclock in
+		word_select     : in std_logic;-- Worselect
+		data_in    : in std_logic;-- Data in
+		data_out_left : out std_logic_vector(DATA_WIDTH - 1 downto 0); -- One full word of data out
+		data_out_right : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+		interrupt_left  : out std_logic := '0';-- Interupt out. Is set high when a new word is ready
+		interrupt_right  : out std_logic := '0';
+		interrupt_reset_left : in std_logic  := '0';-- Interupt reset. Set this high to reset the interupt. Should be high untill intterupt put is low again.
+		interrupt_reset_right : in std_logic  := '0'
 		--Ports for input
 	);
 end i2sDriverIn;
@@ -37,55 +37,55 @@ architecture i2sDriverIn of i2sDriverIn is
 	signal outBuff : std_logic_vector (DATA_WIDTH - 1 downto 0);-- The initial buffer for the serial data
 
 begin
-	data_in : process (bclk, ws)--The main process
+	data_input : process (bit_clock, word_select)--The main process
 		variable vcnt     : integer := 0; --Variable for the cnt signal
 		variable voutBuff : std_logic_vector (DATA_WIDTH - 1 downto 0) := x"0000";--variable for the output buffer
 	begin
-		if rising_edge(bclk) then
+		if rising_edge(bit_clock) then
 		
 		--load variables
 			vcnt     := cnt;		
 			voutBuff := outBuff;
 			
 			--reset interupts
-			if intr_L = '1' then
-				int_L <= '0';
+			if interrupt_reset_left = '1' then
+				interrupt_left <= '0';
 			end if;
-			if intr_R = '1' then
-				int_R <= '0';
+			if interrupt_reset_right = '1' then
+				interrupt_right <= '0';
 			end if;
 		
 			if vcnt < DATA_WIDTH then
 
-				voutBuff(vcnt) := Din; -- Read data to buffer
+				voutBuff(vcnt) := data_in; -- Read data to buffer
 
 				vcnt     := vcnt + 1; --increment counter
 
 			end if;
 
-			if lr = not ws then -- At this point the data change channel
+			if lr = not word_select then -- At this point the data change channel
 		
 				--Loading the buffer the apropiate output 
 					--The logic for truncating the data have been removed because it caused problems, another implementation is possible if needed
 				if lr = '1' then
-					dout_L <= voutbuff;
+					data_out_left <= voutbuff;
 				
 				else
-					dout_R <= voutbuff;
+					data_out_right <= voutbuff;
 				
 				end if;
 
 				
 					
-				lr <= ws; --change the internal worselect
+				lr <= word_select; --change the internal worselect
 
 				vcnt := 0; --reset counter
 
-				if ws = '0' then -- the buffer is now ready interrupt is set high.
-					int_R <= '1';
+				if word_select = '0' then -- the buffer is now ready interrupt is set high.
+					interrupt_right <= '1';
 
 				else
-					int_L <= '1';
+					interrupt_left <= '1';
 				end if;
 				
 			else

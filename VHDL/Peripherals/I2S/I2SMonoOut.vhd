@@ -19,28 +19,26 @@ ENTITY I2SMonoOut IS
 	PORT
 	(
 		
---		int  : in std_logic;	-- interupt telling this driver that new data is stable at DIn.
---		intr : out std_logic;	-- Interupt reset. This is set high when the data at DIn has been read
 		clk		: in std_logic;	-- Clock that will be used for logic and will be directly used as output bitclock. Can be directly connected to a syncronized bitclock input from the i2s input signal.
-		DIn	: in std_logic_vector(DATA_WIDTH - 1 DOWNTO 0);-- The data input. The word that should be loaded into the buffers should be loaded to these inputs when the interupts are set to high, and will be loaded at next falling_edge.
-		bclkO     : out std_logic;	-- Output bitclock for the output i2s signal.
-		wsO       : out std_logic; --Output wordselect for the output i2s signal.
-		DOut     	: out std_logic -- Output serial data for the i2s signal.    
+		data_in	: in std_logic_vector(DATA_WIDTH - 1 DOWNTO 0);-- The data input. The word that should be loaded into the buffers should be loaded to these inputs when the interupts are set to high, and will be loaded at next falling_edge.
+		bit_clk_out     : out std_logic;	-- Output bitclock for the output i2s signal.
+		word_select_out       : out std_logic; --Output wordselect for the output i2s signal.
+		data_out     	: out std_logic -- Output serial data for the i2s signal.    
 	);
 END I2SMonoOut;
 
 ARCHITECTURE Behavioral OF I2SMonoOut IS
-signal intr_L,intr_R, int :std_logic;
-SIGNAL intr :std_logic := '0';
-signal DIn_temp : std_logic_vector(DATA_WIDTH - 1 DOWNTO 0) := x"0000";
+signal interrupt_reset_left,interrupt_reset_right, interrupt :std_logic;
+SIGNAL interrupt_reset :std_logic := '0';
+signal data_in_temp : std_logic_vector(DATA_WIDTH - 1 DOWNTO 0) := x"0000";
 BEGIN
-	process(DIn, intr)
+	process(data_in, interrupt_reset)
 	BEGIN
-	IF (intr = '1') THEN
-		int <= '0';
-	ELSIF(DIn /= DIn_temp) THEN
-		DIn_temp <= DIn;
-		int <= '1';
+	IF (interrupt_reset = '1') THEN
+		interrupt <= '0';
+	ELSIF(data_in /= data_in_temp) THEN
+		data_in_temp <= data_in;
+		interrupt <= '1';
 	END IF;
 	END PROCESS;
 
@@ -50,18 +48,18 @@ BEGIN
 	)
 	port map(
 			clk			=> clk 	,
-			int_L			=> int	,
-			int_R			=> int	,
-			intr_L		=> intr_L,
-			intr_R		=> intr_R,
-			DIn_L 		=> DIn_temp,
-			DIn_R  		=> DIn_temp ,
-			bclk   		=> bclkO ,
-			ws    		=> wsO	,
-			DOut  		=> DOut	
+			interrupt_left			=> interrupt	,
+			interrupt_right			=> interrupt	,
+			interrupt_reset_left		=> interrupt_reset_left,
+			interrupt_reset_right		=> interrupt_reset_right,
+			data_in_left 		=> data_in_temp,
+			data_in_right  		=> data_in_temp ,
+			bit_clock   		=> bit_clk_out ,
+			word_select    		=> word_select_out	,
+			data_out  		=> data_out	
 			--Ports for input
         );
-intr<=intr_L and intr_R;
+interrupt_reset<=interrupt_reset_left and interrupt_reset_right;
 
 	  
 END Behavioral;

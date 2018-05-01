@@ -34,14 +34,14 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY Control IS
 	PORT (
 		opcode : IN std_logic_vector(31 DOWNTO 26); --6 bit opcode (e.g ADDI)
-		cntSignal : OUT std_logic_vector(CONTROL_SIZE DOWNTO 0) --Control Output
+		control_signals : OUT std_logic_vector(CONTROL_SIZE DOWNTO 0) --Control Output
 	);
 END ENTITY Control;
 
 ARCHITECTURE Behavioral OF Control IS
 BEGIN
 	--Basically one massive mux/look up table. Is used since the input is mutually exclusive
-	WITH to_integer(unsigned(opcode)) SELECT cntSignal <=
+	WITH to_integer(unsigned(opcode)) SELECT control_signals <=
 
 	--Register-Register ALU Control
 	std_logic_vector(to_unsigned(ADD, 6)) & std_logic_vector(to_unsigned(NB, 3)) & MEMRD_D & MEMWR_D & REGWR_E & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN ADDR,

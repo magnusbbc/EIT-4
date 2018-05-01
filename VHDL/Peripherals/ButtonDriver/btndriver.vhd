@@ -10,13 +10,13 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 --Debouncer for 3 buttons
---Debounces the buttons 'btn' and debounced output 'dbtn' by checking 'btn' for 3 clock cycles
+--Debounces the buttons 'btn' and debounced output 'debounced_btn_out' by checking 'btn' for 3 clock cycles
 ENTITY btndriver IS
 	PORT (
 		clk : IN STD_LOGIC; --Clock used for debouncing
 		clr : IN STD_LOGIC; --Clear
 		btn : IN STD_LOGIC_vector (2 DOWNTO 0) := "000"; --Button inputs
-		dbtn : OUT STD_LOGIC_vector (2 DOWNTO 0) := "000"; --Debounced button output
+		debounced_btn_out : OUT STD_LOGIC_vector (2 DOWNTO 0) := "000"; --Debounced button output
 		interrupt_on : OUT std_logic := '0';
 		interrupt_reset: IN std_logic := '0'
 	);
@@ -67,5 +67,5 @@ BEGIN
 			int_toggle <= '0';
 		END IF;
 	END PROCESS;
-	dbtn <= dbtn_buffer;
+	debounced_btn_out <= dbtn_buffer;
 END Behavioral;
