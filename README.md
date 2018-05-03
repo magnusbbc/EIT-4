@@ -12,11 +12,62 @@ These instructions will get you a copy of the project up and running on your own
 
 
 **Software requirements:**
-* [PSoC Creator](http://www.cypress.com/products/psoc-creator-integrated-design-environment-ide) (Developed on Version 4.2)
+* [PSoC Creator](http://www.cypress.com/products/psoc-creator-integrated-design-environment-ide) (Only tested and verified on Version 4.2)
 * [Altera Quartus II 13.1, Web Edition, with Cyclone III Device Support](https://dl.altera.com/13.1/)
+* * [Model-Sim Altera](https://dl.altera.com/13.1/) (Optional)
 * C compiler
-* [GPP](https://logological.org/gpp) - [Windows Binaries](https://github.com/makc/gpp.2.24-windows/releases)
+* [GPP](https://logological.org/gpp) - Windows Binaries can be found [here](https://github.com/makc/gpp.2.24-windows/releases)
 ### Installing
+This installation guide only applies for a windows installation.
+**Synthesising VHDL and Uploading to the DE0**
+Before creating a new VHDL project in Quartus, we need to generate our raw source files by running our .vhd files through the Generic Preprocessor (GPP). To make this part easier, a "PreProcessorWindows.bat" script is included in the repository. To use the script, change the output directory to match your own directory of choice, and then execute the script (NOTE: make sure you have added GPP.exe to your Environment Path)
+![alt text](https://i.imgur.com/tedi0QC.png "Pre Processor Script")
+
+Now we are ready to create new VHDL project in Quartus.
+Create a new project using the built in "New Project Wizard". The wizard has four pages of project configuration settings that can be modified. In each settings-page do the following:
+1. Select any project directory of your choice
+2. Add all the source files generated using GPP:
+    * Control.vhd
+    * Stack.vhd
+    * ALU.vhd
+    * Master.vhd
+    * MemoryController.vhd
+    * Memory.vhd
+    * RegistryInternal.vhd
+    * btndriver.vhd
+    * b2bcd.vhd
+    * ssgddriver.vhd
+    * Interrupt.vhd
+    * I2SDriverIn.vhd
+    * I2SDriverOut.vhd
+    * I2SMonoIn.vhd
+    * I2SMonoOut.vhd
+    
+    Additionally add the following files from the Git Repository:
+    * VHDL/IP_Cores/Multiplier_1.qip
+    * VHDL/IP_Cores/PLL.qip
+    * VHDL/IP_Cores/MemAuto.qip
+    * VHDL/IP_Cores/MemInit.mif
+
+    It should look something like this:
+![alt text](https://i.imgur.com/C6RFKE3.png "VHDL Files to ADD")
+3. When selecting device:
+    * Select "Cyclone III" under "device family"
+    * Under "Target Device" select "Specific device selecten in 'Available devices' list"
+    * Then select "EP3C16F484C6 in the "Available Devices" window
+    * For "Package", "Pin count" and "Speed grade", pick "Any"
+    
+    The window should look like this:
+    ![alt text](https://i.imgur.com/wfat18W.png "VHDL Files to ADD")
+4. The final settings tab requires you to select EDA and synthesis tools:
+    * In the "Design Entry/Synthesis" row, select "Custom" in the tool column, and "EDIF in the "Format(s)" column
+    * In the "simulation" row, select "ModelSim-Altera" in the tool column, and "VHDL in the "Format(s)" column
+    * Pick <None> in all other boxes
+
+    Again, make sure you settings match the screenshot below:
+    ![alt text](https://i.imgur.com/9VW5DGv.png "VHDL Files to ADD")
+    
+
 
 ```
 Example
