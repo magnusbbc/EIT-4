@@ -10,7 +10,6 @@
 --------------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-USE ieee.std_logic_unsigned.ALL;
 USE ieee.numeric_std.ALL;
 --use IEEE.std_logic_arith.all;
 
@@ -57,20 +56,20 @@ BEGIN
 	RegIndex : PROCESS (read_register_a_index, read_register_b_index, write_register_index, write_enable, pc_value_input, reg) IS
 
 	BEGIN
-		IF conv_integer(read_register_a_index) = 31 THEN --pc to outOne
+		IF to_integer(unsigned(read_register_a_index)) = 31 THEN --pc to outOne
 			register_file_data_out_a <= pc_value_input;
-		ELSIF conv_integer(read_register_a_index) = 30 THEN
+		ELSIF to_integer(unsigned(read_register_a_index)) = 30 THEN
 			register_file_data_out_a <= sp_value_input;
 		ELSE
-			register_file_data_out_a <= reg(conv_integer(read_register_a_index));
+			register_file_data_out_a <= reg(to_integer(unsigned(read_register_a_index)));
 		END IF;
 
-		IF conv_integer(read_register_b_index) = 31 THEN --pc to outTwo
+		IF to_integer(unsigned(read_register_b_index)) = 31 THEN --pc to outTwo
 			register_file_data_out_b <= pc_value_input;
-		ELSIF conv_integer(read_register_b_index) = 30 THEN
+		ELSIF to_integer(unsigned(read_register_b_index)) = 30 THEN
 			register_file_data_out_b <= sp_value_input;
 		ELSE
-			register_file_data_out_b <= reg(conv_integer(read_register_b_index));
+			register_file_data_out_b <= reg(to_integer(unsigned(read_register_b_index)));
 		END IF;
 	END PROCESS;
 
@@ -84,7 +83,7 @@ BEGIN
 		IF (rising_edge(clk)) THEN
 			IF (write_enable = '1') THEN
 				IF (to_integer(unsigned(write_register_index)) <= 29) THEN
-					reg(conv_integer(write_register_index))        <= register_file_data_in;
+					reg(to_integer(unsigned(write_register_index))) <= register_file_data_in;
 				END IF;
 			END IF;
 		END IF;

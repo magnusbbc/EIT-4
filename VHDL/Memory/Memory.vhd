@@ -10,15 +10,13 @@
 --------------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-USE ieee.std_logic_unsigned.ALL;
 USE ieee.numeric_std.ALL;
-USE IEEE.std_logic_arith.ALL;
 
 ENTITY Memory IS
 	PORT
 	(
 		data_in      : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Data in
-		DO           : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0) := x"0000"; --Data Out
+		DO           : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0) := (OTHERS => '0'); --Data Out
 		address      : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --address bus
 		write_enable : IN STD_LOGIC; -- Write Enable
 		read_enable  : IN STD_LOGIC; -- Read Enable
@@ -41,10 +39,10 @@ BEGIN
 	BEGIN
 		IF (falling_edge(CLK)) THEN -- Start when the clock rises
 			IF write_enable = '1' THEN -- Write enable
-				RAM(conv_integer(address)) <= data_in; --write Data In bus into RAM array at position address
+				RAM(to_integer(unsigned(address))) <= data_in; --write Data In bus into RAM array at position address
 			END IF;
 			IF read_enable = '1' THEN -- Read enable
-				DO <= RAM(conv_integer(address)); -- writes RAM array at the address position into Data Out bus.
+				DO <= RAM(to_integer(unsigned(address))); -- writes RAM array at the address position into Data Out bus.
 			END IF;
 			IF write_enable = '0' AND read_enable = '0' THEN --if not writing or reading set all to high impedance to make sure nothing unintended happens
 				DO <= (OTHERS => 'Z');

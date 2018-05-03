@@ -16,16 +16,16 @@ ENTITY btndriver IS
 	(
 		clk               : IN STD_LOGIC; --Clock used for debouncing
 		clr               : IN STD_LOGIC; --Clear
-		btn               : IN STD_LOGIC_vector (2 DOWNTO 0)  := "000"; --Button inputs
-		debounced_btn_out : OUT STD_LOGIC_vector (2 DOWNTO 0) := "000"; --Debounced button output
+		btn               : IN STD_LOGIC_vector (2 DOWNTO 0)  := (OTHERS => '0'); --Button inputs
+		debounced_btn_out : OUT STD_LOGIC_vector (2 DOWNTO 0) := (OTHERS => '0'); --Debounced button output
 		interrupt_on      : OUT std_logic                     := '0';   --Send interrut signal out 
 		interrupt_reset   : IN std_logic                      := '0'    --Resets interrupt signal when set high
 	);
 END btndriver;
 
 ARCHITECTURE Behavioral OF btndriver IS
-	SIGNAL Q0, Q1, Q2  : std_logic_vector (2 DOWNTO 0) := "000"; -- Debounce registers
-	SIGNAL dbtn_buffer : std_logic_vector(2 DOWNTO 0)  := "000";
+	SIGNAL Q0, Q1, Q2  : std_logic_vector (2 DOWNTO 0) := (OTHERS => '0'); -- Debounce registers
+	SIGNAL dbtn_buffer : std_logic_vector(2 DOWNTO 0)  := (OTHERS => '0');
 	SIGNAL int_toggle  : std_logic                     := '0';
 BEGIN
 

@@ -20,7 +20,7 @@ ENTITY MemoryController IS
 		read_enable               : IN STD_LOGIC;
 		address                   : IN STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
 		data_in                   : IN STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
-		DO                        : BUFFER STD_LOGIC_vector (WORD_SIZE DOWNTO 0) := x"0000";
+		DO                        : BUFFER STD_LOGIC_vector (WORD_SIZE DOWNTO 0) := (OTHERS => '0');
 		clk                       : IN STD_LOGIC;
 		btn                       : IN std_LOGIC_vector(2 DOWNTO 0);
 		seven_seg_control_signals : OUT std_LOGIC_vector(31 DOWNTO 0);
@@ -40,16 +40,16 @@ ENTITY MemoryController IS
 END MemoryController;
 
 ARCHITECTURE Behavioral OF MemoryController IS
-	SIGNAL seven_seg_data, seven_seg_configuration, btn_data, interrupt_data : std_LOGIC_vector(WORD_SIZE DOWNTO 0) := x"0000";
+	SIGNAL seven_seg_data, seven_seg_configuration, btn_data, interrupt_data : std_LOGIC_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
 	SIGNAL dram_address                                                      : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL interrupt_controller_address_index                                : std_logic_vector(1 DOWNTO 0);
 	SIGNAL interrupt_btn_reset_signal, interrupt_i2s_reset_signal            : STD_LOGIC;
-	SIGNAL dram_data_out                                                     : std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
+	SIGNAL dram_data_out                                                     : std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
 	SIGNAL btn_interrupt, i2s_interrupt                                      : std_logic                            := '0';
 	SIGNAL write_enable_dram                                                 : std_logic                            := '0';
 	SIGNAL read_enable_dram                                                  : std_logic                            := '0';
-	SIGNAL i2s_mono_in_data_out                                              : std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
-	SIGNAL i2s_mono_out_data_in                                              : std_logic_vector(WORD_SIZE DOWNTO 0) := x"0000";
+	SIGNAL i2s_mono_in_data_out                                              : std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
+	SIGNAL i2s_mono_out_data_in                                              : std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
 BEGIN
 
 	SevenSegmentDisplayDriver : ENTITY work.ssgddriver
@@ -98,8 +98,6 @@ BEGIN
 	I2SMonoOut : ENTITY work.I2SMonoOut(Behavioral)
 		PORT
 		MAP(
-		--			int => I2SMonoOut_internal_int,
-		--			intr => I2SMonoOut_internal_int_reset,
 		clk             => i2s_bit_clk,
 		data_in         => i2s_mono_out_data_in,
 		bit_clk_out     => i2s_bit_clk_out,
