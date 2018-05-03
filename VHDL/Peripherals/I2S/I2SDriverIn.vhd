@@ -8,93 +8,89 @@
 --
 --------------------------------------------------------------------------------------
 
-library ieee;
-use ieee.std_logic_1164.all;
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
 
-entity i2sDriverIn is
-	generic
+ENTITY i2sDriverIn IS
+	GENERIC
 	(
-		DATA_WIDTH : integer range 4 to 32 := 16
+		DATA_WIDTH : INTEGER RANGE 4 TO 32 := 16
 	);
-	port
+	PORT
 	(
-		bit_clock   : in std_logic;-- Bitclock in
-		word_select     : in std_logic;-- Worselect
-		data_in    : in std_logic;-- Data in
-		data_out_left : out std_logic_vector(DATA_WIDTH - 1 downto 0); -- One full word of data out
-		data_out_right : out std_logic_vector(DATA_WIDTH - 1 downto 0);
-		interrupt_left  : out std_logic := '0';-- Interupt out. Is set high when a new word is ready
-		interrupt_right  : out std_logic := '0';
-		interrupt_reset_left : in std_logic  := '0';-- Interupt reset. Set this high to reset the interupt. Should be high untill intterupt put is low again.
-		interrupt_reset_right : in std_logic  := '0'
+		bit_clock             : IN std_logic;-- Bitclock in
+		word_select           : IN std_logic;-- Worselect
+		data_in               : IN std_logic;-- Data in
+		data_out_left         : OUT std_logic_vector(DATA_WIDTH - 1 DOWNTO 0); -- One full word of data out
+		data_out_right        : OUT std_logic_vector(DATA_WIDTH - 1 DOWNTO 0);
+		interrupt_left        : OUT std_logic := '0';-- Interupt out. Is set high when a new word is ready
+		interrupt_right       : OUT std_logic := '0';
+		interrupt_reset_left  : IN std_logic  := '0';-- Interupt reset. Set this high to reset the interupt. Should be high untill intterupt put is low again.
+		interrupt_reset_right : IN std_logic  := '0'
 		--Ports for input
 	);
-end i2sDriverIn;
+END i2sDriverIn;
 
-architecture i2sDriverIn of i2sDriverIn is
-	signal lr      : std_logic := '1';--Internal wordselect, short for 'left right' left channel is active when '1'
-	signal cnt     : integer   := 0;  -- Bit counter
-	signal outBuff : std_logic_vector (DATA_WIDTH - 1 downto 0);-- The initial buffer for the serial data
+ARCHITECTURE i2sDriverIn OF i2sDriverIn IS
+	SIGNAL lr      : std_logic := '1';--Internal wordselect, short for 'left right' left channel is active when '1'
+	SIGNAL cnt     : INTEGER   := 0; -- Bit counter
+	SIGNAL outBuff : std_logic_vector (DATA_WIDTH - 1 DOWNTO 0);-- The initial buffer for the serial data
 
-begin
-	data_input : process (bit_clock, word_select)--The main process
-		variable vcnt     : integer := 0; --Variable for the cnt signal
-		variable voutBuff : std_logic_vector (DATA_WIDTH - 1 downto 0) := x"0000";--variable for the output buffer
-	begin
-		if rising_edge(bit_clock) then
-		
-		--load variables
-			vcnt     := cnt;		
+BEGIN
+	data_input : PROCESS (bit_clock, word_select)--The main process
+		VARIABLE vcnt     : INTEGER                                    := 0; --Variable for the cnt signal
+		VARIABLE voutBuff : std_logic_vector (DATA_WIDTH - 1 DOWNTO 0) := x"0000";--variable for the output buffer
+	BEGIN
+		IF rising_edge(bit_clock) THEN
+
+			--load variables
+			vcnt     := cnt;
 			voutBuff := outBuff;
-			
+
 			--reset interupts
-			if interrupt_reset_left = '1' then
+			IF interrupt_reset_left = '1' THEN
 				interrupt_left <= '0';
-			end if;
-			if interrupt_reset_right = '1' then
+			END IF;
+			IF interrupt_reset_right = '1' THEN
 				interrupt_right <= '0';
-			end if;
-		
-			if vcnt < DATA_WIDTH then
+			END IF;
+
+			IF vcnt < DATA_WIDTH THEN
 
 				voutBuff(vcnt) := data_in; -- Read data to buffer
 
-				vcnt     := vcnt + 1; --increment counter
+				vcnt           := vcnt + 1; --increment counter
 
-			end if;
+			END IF;
 
-			if lr = not word_select then -- At this point the data change channel
-		
+			IF lr = NOT word_select THEN -- At this point the data change channel
+
 				--Loading the buffer the apropiate output 
-					--The logic for truncating the data have been removed because it caused problems, another implementation is possible if needed
-				if lr = '1' then
+				--The logic for truncating the data have been removed because it caused problems, another implementation is possible if needed
+				IF lr = '1' THEN
 					data_out_left <= voutbuff;
-				
-				else
-					data_out_right <= voutbuff;
-				
-				end if;
 
-				
-					
+				ELSE
+					data_out_right <= voutbuff;
+
+				END IF;
+
 				lr <= word_select; --change the internal worselect
 
 				vcnt := 0; --reset counter
 
-				if word_select = '0' then -- the buffer is now ready interrupt is set high.
+				IF word_select = '0' THEN -- the buffer is now ready interrupt is set high.
 					interrupt_right <= '1';
 
-				else
+				ELSE
 					interrupt_left <= '1';
-				end if;
-				
-			else
-			
+				END IF;
 
-			end if;
+			ELSE
+			END IF;
 			-- The variables are saved in the signals
 			cnt     <= vcnt;
 			outBuff <= voutBuff;
-		end if;
-	end process;
-end i2sDriverIn;
+		END IF;
+	END PROCESS;
+END i2sDriverIn;

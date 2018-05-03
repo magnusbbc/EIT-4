@@ -29,8 +29,6 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
-
-
 ENTITY Control IS
 	PORT (
 		opcode : IN std_logic_vector(31 DOWNTO 26); --6 bit opcode (e.g ADDI)
@@ -40,7 +38,7 @@ END ENTITY Control;
 
 ARCHITECTURE Behavioral OF Control IS
 BEGIN
-	--Basically one massive mux/look up table. Is used since the input is mutually exclusive
+	--One massive mux/look up table. Is used since the input is mutually exclusive
 	WITH to_integer(unsigned(opcode)) SELECT control_signals <=
 
 	--Register-Register ALU Control
@@ -78,7 +76,7 @@ BEGIN
 
 	--Immediate Compare and Move
 	std_logic_vector(to_unsigned(SUB, 6)) & std_logic_vector(to_unsigned(NB, 3)) & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN CMPI,
-	std_logic_vector(to_unsigned(PBS, 6))  & std_logic_vector(to_unsigned(NB, 3)) & MEMRD_D & MEMWR_D & REGWR_E & MEMRB_D & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN MOVI,
+	std_logic_vector(to_unsigned(PBS, 6)) & std_logic_vector(to_unsigned(NB, 3)) & MEMRD_D & MEMWR_D & REGWR_E & MEMRB_D & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN MOVI,
 
 	--Memory Control
 	std_logic_vector(to_unsigned(ADD, 6)) & std_logic_vector(to_unsigned(NB, 3)) & MEMRD_E & MEMWR_D & REGWR_E & MEMRB_E & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_E & HALTP_D WHEN LOAD,

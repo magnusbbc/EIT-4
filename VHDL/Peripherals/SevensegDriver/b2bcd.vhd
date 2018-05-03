@@ -13,18 +13,27 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
 
 ENTITY b2bcd IS
-	GENERIC (
-		bits : INTEGER := 16;
+	GENERIC
+	(
+		bits   : INTEGER := 16;
 		digits : INTEGER := 4
 	);
-	PORT (
-		clr : IN std_logic;
-		binary : IN std_logic_vector (15 DOWNTO 0);
-		bcd : OUT std_logic_vector (15 DOWNTO 0)
+	PORT
+	(
+		clr    : IN std_logic;
+		binary : IN std_logic_vector (15 DOWNTO 0); --Input value
+		bcd    : OUT std_logic_vector (15 DOWNTO 0) --Binary coded decimal representation of that value
 	);
 END b2bcd;
 ARCHITECTURE a OF b2bcd IS
 BEGIN
+	
+	--------------------------------------------
+	-- b2bcd:
+	-- converts a number to binary coded decimal
+	-- Note that it is only possible to represent numbers up to
+	-- 9999 with 16 available output bits
+	--------------------------------------------
 	b2bcd : PROCESS (binary, clr)
 		VARIABLE temp : std_logic_vector(31 DOWNTO 0);
 	BEGIN

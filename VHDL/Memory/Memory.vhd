@@ -15,13 +15,14 @@ USE ieee.numeric_std.ALL;
 USE IEEE.std_logic_arith.ALL;
 
 ENTITY Memory IS
-	PORT (
-		data_in : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Data in
-		DO : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0) := x"0000"; --Data Out
-		address : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --address bus
+	PORT
+	(
+		data_in      : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Data in
+		DO           : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0) := x"0000"; --Data Out
+		address      : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --address bus
 		write_enable : IN STD_LOGIC; -- Write Enable
-		read_enable : IN STD_LOGIC; -- Read Enable
-		CLK : IN STD_LOGIC -- Clock
+		read_enable  : IN STD_LOGIC; -- Read Enable
+		CLK          : IN STD_LOGIC -- Clock
 	);
 
 END Memory;
@@ -31,7 +32,12 @@ ARCHITECTURE falling OF Memory IS
 	TYPE ram_type IS ARRAY (WORD_COUNT DOWNTO 0) OF std_logic_vector(WORD_SIZE DOWNTO 0); -- Total 516k memory bits 8k*32 = 256k we use 50% for DataMemory and 50% for ProgramMemory
 	SIGNAL RAM : ram_type := (OTHERS => x"0000");
 BEGIN
-	PROCESS (CLK) -- Memory only works with a clock...
+	
+	--------------------------------------------
+	-- MemoryReadWrite:
+	-- Reads and writes data from the data RAM
+	--------------------------------------------
+	MemoryReadWrite : PROCESS (CLK)
 	BEGIN
 		IF (falling_edge(CLK)) THEN -- Start when the clock rises
 			IF write_enable = '1' THEN -- Write enable

@@ -65,7 +65,7 @@ BEGIN
 		BEGIN
 			btn <= "111";
 			WAIT FOR 1000 ns;
-			btn <= "110";
+			btn <= "011";
 			WAIT FOR 1000 ns;
 			btn <= "111";
 			WAIT FOR 100000 ns;

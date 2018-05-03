@@ -41,9 +41,6 @@ USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 USE ieee.numeric_std.ALL;
 
-LIBRARY lpm;
-USE lpm.lpm_components.ALL;
-USE lpm.ALL;
 
 ENTITY ALU IS
 
@@ -69,6 +66,7 @@ ARCHITECTURE Behavioral OF ALU IS
 
 BEGIN
 
+	--Altera Multiplier IP Core
 	multiplier : ENTITY work.Multiplier_1
 		PORT MAP(
 			dataa  => operand_a,
@@ -76,7 +74,16 @@ BEGIN
 			result => mult_temp
 		);
 
-	PROCESS (operand_a, operand_b, operation, temp) IS
+	
+	--------------------------------------------
+	-- Arithmetic:
+	-- Performs ALU operations.
+	--
+	-- Uses the two operands in combination
+	-- with the operation signal to calculate
+	-- an output
+	--------------------------------------------
+	Arithmetic : PROCESS (operand_a, operand_b, operation, temp) IS
 		VARIABLE Parity : std_logic;
 	BEGIN
 		temp         <= (OTHERS         => '0');
