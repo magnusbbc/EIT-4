@@ -67,8 +67,9 @@ Create a new project using the built in "New Project Wizard". The wizard has fou
     Again, make sure you settings match the screenshot below:
     ![alt text](https://i.imgur.com/9VW5DGv.png "VHDL Files to ADD")
     
-
-
+Now you are finished creating the project, and all relevant files should be present.
+To compile the project, double click the compile button (note that this may take several minutes):
+![Alt Text](https://i.imgur.com/YCjijzB.gif)
 ```
 Example
 ```
