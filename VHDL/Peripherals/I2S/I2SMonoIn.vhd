@@ -1,3 +1,4 @@
+#include I2S_Config.hvhd
 --------------------------------------------------------------------------------------
 --Engineer: Frederik Rasmussen
 --Module Name: I2S Input Mono Wrapper
@@ -12,16 +13,12 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 
 ENTITY I2SMonoIn IS
-	GENERIC
-	(
-		DATA_WIDTH : INTEGER RANGE 4 TO 32 := 16
-	);
 	PORT
 	(
 		bit_clock       : IN std_logic; --bitclock in
 		word_select     : IN std_logic; --wordselect in 
 		data_in         : IN std_logic; --data in
-		data_out        : OUT std_logic_vector(DATA_WIDTH - 1 DOWNTO 0); -- data recieved from the i2s (little endian)
+		data_out        : OUT std_logic_vector(DATA_CONF DOWNTO 0); -- data recieved from the i2s (little endian)
 		interrupt       : OUT std_logic; --interupt. is set high when data is available at data_out
 		interrupt_reset : IN std_logic --interupt reset. This should be set high when the data has been read from data_out, and will reset interrupt at the next clock.
 	);
@@ -31,11 +28,7 @@ ARCHITECTURE Behavioral OF I2SMonoIn IS
 
 BEGIN
 	Input : ENTITY work.i2sDriverIn
-		GENERIC
-		MAP(
-		DATA_WIDTH => DATA_WIDTH
-		)
-		PORT MAP
+	PORT MAP
 		(
 			bit_clock             => bit_clock,
 			word_select           => word_select,
