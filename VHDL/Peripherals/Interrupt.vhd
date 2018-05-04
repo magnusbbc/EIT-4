@@ -2,9 +2,37 @@
 
 #define DEFAULT_BEHAVIOUR interrupt_cpu <= '0'; \
 Interrupt_btn_reset_latch <= '0';\
-Interrupt_I2S_reset_sig <= '0';\
-interrupt_nest_enable <= '1';
+interrupt_I2S_reset_latch <= '0';\
+interrupt_nest_enable <= '1';\
 --\
+
+#mode string QQQ "$$" "$$"
+#define INTERRUPT_BEHAVIOUR(x,y) ELSIF( $$x$$_latch  = '1') Then \
+IF($$x$$_enable = '1') THEN \
+    interrupt_cpu <= '1'; \
+    $$x$$_reset_latch <= '1'; \
+    interrupt_address <= REG(y); \
+    interrupt_nest_enable <= $$x$$_nest_enable; \
+ELSE \
+    DEFAULT_BEHAVIOUR \
+END IF; \
+--\
+
+#define INTERRUPT_RESET(x) PROCESS($$x$$, $$x$$_reset_latch,$$x$$_reset) \
+    BEGIN \
+        IF($$x$$_reset_latch = '1') THEN \
+            $$x$$_latch <= '0'; \
+        ElSIF($$x$$ = '1') THEN \
+            $$x$$_latch <= '1'; \
+        END IF; \
+        IF ($$x$$_reset_latch = '1') THEN \
+            $$x$$_reset <= '1'; \
+        ELSIF($$x$$_reset = '1' AND $$x$$ = '0') THEN \
+            $$x$$_reset <= '0'; \
+        END IF; \
+    END PROCESS; \
+--\
+
 --------------------------------------------------------------------------------------
 --Engineer: Magnus Christensen
 --Module Name: Interrupt Peripheral
@@ -59,9 +87,9 @@ ARCHITECTURE Behavioral OF Interrupt IS
     SIGNAL Interrupt_I2S_priority : integer := 0;
 
     SIGNAL Interrupt_I2S_latch : std_logic := '0';
-    SIGNAL Interrupt_I2S_reset_sig : std_logic := '0';      --Used to make sure that resat interrupts can not run until their interrupt is set low again 
+    SIGNAL interrupt_I2S_reset_latch : std_logic := '0';      --Used to make sure that resat interrupts can not run until their interrupt is set low again 
                                                             --(so we aren't relying on a peripherals ability to quickly reset its interrupt)
- 
+    SIGNAL false_signal : std_logic := '0';
 BEGIN
 
     --------------------------------------------
@@ -76,29 +104,14 @@ BEGIN
     BEGIN
         if(rising_edge(clk)) Then
             IF(interrupt_enable = '1') Then
-                IF(Interrupt_btn_latch = '1') Then
-                    IF(Interrupt_btn_enable = '1') THEN
-                        interrupt_cpu <= '1';
-                        Interrupt_btn_reset_latch <= '1';
-                        interrupt_address <= REG(0);
-                        interrupt_nest_enable <= Interrupt_btn_nest_enable;
-                    ELSE
-                        DEFAULT_BEHAVIOUR
-                    END IF;
-               ElSIF(Interrupt_I2S_latch = '1') THEN
-                    IF(Interrupt_I2S_enable = '1') THEN
-                        interrupt_cpu <= '1';
-                        Interrupt_I2S_reset_sig <= '1';
-                        interrupt_address <= REG(2);
-                        interrupt_nest_enable <= Interrupt_I2S_nest_enable;
-                    ELSE
-                        DEFAULT_BEHAVIOUR
-                    END IF;
+                IF(false_signal = '1') THEN --Done to force an if statement, so the INTERRUPT _BEHAVIOUR can be used for all interrupts
+
+                INTERRUPT_BEHAVIOUR(Interrupt_btn,0)
+
+                INTERRUPT_BEHAVIOUR(Interrupt_I2S,2)
+
                 ELSE
-                    interrupt_cpu <= '0';
-                    Interrupt_btn_reset_latch <= '0';
-                    Interrupt_I2S_reset_sig <= '0';
-                    interrupt_nest_enable <= '1';
+                    DEFAULT_BEHAVIOUR
                 END IF;
             ELSE
                 DEFAULT_BEHAVIOUR
@@ -115,20 +128,7 @@ BEGIN
     -- from the received interrupt signals. This ensures that the CPU does not rely on a
     -- peripherals ability to quickly reset its interrupt
 	--------------------------------------------
-    BtnResetLatching : PROCESS(interrupt_btn, Interrupt_btn_reset_latch,interrupt_btn_reset)
-    BEGIN
-        IF(Interrupt_btn_reset_latch = '1') THEN
-            Interrupt_btn_latch <= '0';
-        ElSIF(interrupt_btn = '1') THEN
-            Interrupt_btn_latch <= '1';
-        END IF;
-        IF (Interrupt_btn_reset_latch = '1') THEN
-            interrupt_btn_reset <= '1';
-        ELSIF(interrupt_btn_reset = '1' AND interrupt_btn = '0') THEN
-            interrupt_btn_reset <= '0';
-        END IF;
-
-    END PROCESS;
+    BtnResetLatching : INTERRUPT_RESET(interrupt_btn)
 
     --------------------------------------------
 	-- I2sResetLatching:
@@ -139,20 +139,8 @@ BEGIN
     -- from the received interrupt signals. This ensures that the CPU does not rely on a
     -- peripherals ability to quickly reset its interrupt
 	--------------------------------------------
-    I2sResetLatching : PROCESS(interrupt_i2s, Interrupt_I2S_reset_sig,interrupt_i2s_reset)
-    BEGIN
-        IF(Interrupt_I2S_reset_sig = '1') THEN
-            Interrupt_I2S_latch <= '0';
-        ElSIF(interrupt_i2s = '1' AND interrupt_i2s_reset = '0') THEN
-            Interrupt_I2S_latch <= '1';
-        END IF;
-        IF (Interrupt_I2S_reset_sig = '1') THEN
-            interrupt_i2s_reset <= '1';
-        ELSIF(interrupt_i2s_reset = '1' AND interrupt_i2s = '0') THEN
-            interrupt_i2s_reset <= '0';
-        END IF;
+    I2sResetLatching : INTERRUPT_RESET(interrupt_i2s)
 
-    END PROCESS;
 
     --------------------------------------------
 	-- WriteProccess:
