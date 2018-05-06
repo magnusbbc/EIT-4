@@ -68,13 +68,14 @@ Create a new project using the built in "New Project Wizard". The wizard has fou
     ![alt text](https://i.imgur.com/9VW5DGv.png "VHDL Files to ADD")
     
 Now you are finished creating the project, and all relevant files should be present.
+Before compiling the project, make sure to set "Master.vhd" as the top level entity, as shown in the screenshot below:
+![Alt Text](https://i.imgur.com/Ri8cTzm.png)
+
 To compile the project, double click the compile button (note that this may take several minutes):
 ![Alt Text](https://i.imgur.com/YCjijzB.gif)
-```
-Example
-```
 
-### Running an Example
+Finally, to upload the synthesized cpu to the DEO FPGA, double click on "Program Device (Open Programmer)" and then press start:
+![Alt Text](https://i.imgur.com/V1K12Ag.gif)
 
 ## Assembly Programming
 
