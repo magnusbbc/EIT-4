@@ -1,8 +1,8 @@
 #include "Config.hvhd"
 
 #define DEFAULT_BEHAVIOUR interrupt_cpu <= '0'; \
-Interrupt_btn_reset_latch <= '0';\
-interrupt_I2S_reset_latch <= '0';\
+interrupt_btn_reset_latch <= '0';\
+interrupt_i2s_reset_latch <= '0';\
 interrupt_nest_enable <= '1';\
 --\
 
@@ -20,18 +20,20 @@ END IF; \
 
 #define INTERRUPT_RESET(x) PROCESS($$x$$, $$x$$_reset_latch,$$x$$_reset) \
     BEGIN \
-        IF($$x$$_reset_latch = '1') THEN \
-            $$x$$_latch <= '0'; \
-        ElSIF($$x$$ = '1') THEN \
-            $$x$$_latch <= '1'; \
-        END IF; \
-        IF ($$x$$_reset_latch = '1') THEN \
-            $$x$$_reset <= '1'; \
-        ELSIF($$x$$_reset = '1' AND $$x$$ = '0') THEN \
-            $$x$$_reset <= '0'; \
-        END IF; \
-    END PROCESS; \
+        IF($$x$$_reset_latch = '1') THEN\
+            $$x$$_latch <= '0';\
+        ElSIF($$x$$ = '1' AND $$x$$_reset = '0') THEN\
+            $$x$$_latch <= '1';\
+        END IF;\
+        IF ($$x$$_reset_latch = '1') THEN\
+            $$x$$_reset <= '1';\
+        ELSIF($$x$$_reset = '1' AND $$x$$ = '0') THEN\
+            $$x$$_reset <= '0';\
+        END IF;\
+    END PROCESS;\
 --\
+
+--Above macro is WIP, does not work with button interrupts
 
 --------------------------------------------------------------------------------------
 --Engineer: Magnus Christensen
@@ -72,22 +74,22 @@ ARCHITECTURE Behavioral OF Interrupt IS
     SIGNAL REG : register_type := (OTHERS => "0000000000");
 
     --These signals are configurable by the programmer
-    SIGNAL Interrupt_btn_enable : std_logic := '0';         --Enables/Disables Button Interrupts
-    SIGNAL Interrupt_btn_nest_enable : std_logic := '0';    --Enables/Disables nesting of Button Interrupts
-    SIGNAL Interrupt_btn_priority : integer := 0;           --Priority of the Button interrupt (currently not implemented)
+    SIGNAL interrupt_btn_enable : std_logic := '0';         --Enables/Disables Button Interrupts
+    SIGNAL interrupt_btn_nest_enable : std_logic := '0';    --Enables/Disables nesting of Button Interrupts
+    SIGNAL interrupt_btn_priority : integer := 0;           --Priority of the Button interrupt (currently not implemented)
 
-    SIGNAL Interrupt_btn_latch : std_logic := '0';          --Latches Button Interrupts
-    SIGNAL Interrupt_btn_reset_latch : std_logic := '0';    --Used to make sure that resat interrupts can not run until their interrupt is set low again 
+    SIGNAL interrupt_btn_latch : std_logic := '0';          --Latches Button Interrupts
+    SIGNAL interrupt_btn_reset_latch : std_logic := '0';    --Used to make sure that resat interrupts can not run until their interrupt is set low again 
                                                             --(so we aren't relying on a peripherals ability to quickly reset its interrupt)
 
     --Same functionaly as the button signals, just for
     --the i2s peripheral
-    SIGNAL Interrupt_I2S_enable : std_logic := '0';         
-    SIGNAL Interrupt_I2S_nest_enable : std_logic := '0';
-    SIGNAL Interrupt_I2S_priority : integer := 0;
+    SIGNAL interrupt_i2s_enable : std_logic := '0';         
+    SIGNAL interrupt_i2s_nest_enable : std_logic := '0';
+    SIGNAL interrupt_i2s_priority : integer := 0;
 
-    SIGNAL Interrupt_I2S_latch : std_logic := '0';
-    SIGNAL interrupt_I2S_reset_latch : std_logic := '0';      --Used to make sure that resat interrupts can not run until their interrupt is set low again 
+    SIGNAL interrupt_i2s_latch : std_logic := '0';
+    SIGNAL interrupt_i2s_reset_latch : std_logic := '0';      --Used to make sure that resat interrupts can not run until their interrupt is set low again 
                                                             --(so we aren't relying on a peripherals ability to quickly reset its interrupt)
     SIGNAL false_signal : std_logic := '0';
 BEGIN
@@ -108,7 +110,7 @@ BEGIN
 
                 INTERRUPT_BEHAVIOUR(Interrupt_btn,0)
 
-                INTERRUPT_BEHAVIOUR(Interrupt_I2S,2)
+                INTERRUPT_BEHAVIOUR(interrupt_i2s,2)
 
                 ELSE
                     DEFAULT_BEHAVIOUR
@@ -128,7 +130,20 @@ BEGIN
     -- from the received interrupt signals. This ensures that the CPU does not rely on a
     -- peripherals ability to quickly reset its interrupt
 	--------------------------------------------
-    BtnResetLatching : INTERRUPT_RESET(interrupt_btn)
+    --BtnResetLatching : INTERRUPT_ RESET(interrupt_btn)
+    BtnResetLatching : PROCESS(interrupt_btn, interrupt_btn_reset_latch,interrupt_btn_reset)
+    BEGIN
+        IF(interrupt_btn_reset_latch = '1') THEN
+            interrupt_btn_latch <= '0';
+        ElSIF(interrupt_btn = '1') THEN
+            interrupt_btn_latch <= '1';
+        END IF;
+        IF (interrupt_btn_reset_latch = '1') THEN
+            interrupt_btn_reset <= '1';
+        ELSIF(interrupt_btn_reset = '1' AND interrupt_btn = '0') THEN
+            interrupt_btn_reset <= '0';
+        END IF;   
+    END PROCESS;
 
     --------------------------------------------
 	-- I2sResetLatching:
@@ -138,13 +153,29 @@ BEGIN
     -- In practice this means that interrupts are dependent on changes (e.g rising /falling edges)
     -- from the received interrupt signals. This ensures that the CPU does not rely on a
     -- peripherals ability to quickly reset its interrupt
-	--------------------------------------------
+	--------------------------------------------\
+
     I2sResetLatching : INTERRUPT_RESET(interrupt_i2s)
+
+    --I2sResetLatching : PROCESS(interrupt_i2s, interrupt_i2s_reset_latch,interrupt_i2s_reset)
+    --BEGIN
+    --    IF(interrupt_i2s_reset_latch = '1') THEN
+    --        interrupt_i2s_latch <= '0';
+    --    ElSIF(interrupt_i2s = '1' AND interrupt_i2s_reset = '0') THEN
+    --        interrupt_i2s_latch <= '1';
+    --    END IF;
+    --    IF (interrupt_i2s_reset_latch = '1') THEN
+    --        interrupt_i2s_reset <= '1';
+    --    ELSIF(interrupt_i2s_reset = '1' AND interrupt_i2s = '0') THEN
+    --        interrupt_i2s_reset <= '0';
+    --    END IF;
+--
+    --END PROCESS;
 
 
     --------------------------------------------
 	-- WriteProccess:
-	-- Writes data to the configuration regisyers
+	-- Writes data to the configuration registers
 	--------------------------------------------
     WriteProccess : PROCESS (clk) IS
 	BEGIN
@@ -154,13 +185,13 @@ BEGIN
 	END PROCESS;
 
     --Maps registers to control signals
-    Interrupt_btn_enable <= REG(1)(9); 
-    Interrupt_I2S_enable <= REG(3)(9);
+    interrupt_btn_enable <= REG(1)(9); 
+    interrupt_i2s_enable <= REG(3)(9);
     
-    Interrupt_btn_nest_enable <= REG(1)(8);
-    Interrupt_I2S_nest_enable <= REG(3)(8);
+    interrupt_btn_nest_enable <= REG(1)(8);
+    interrupt_i2s_nest_enable <= REG(3)(8);
 
-    Interrupt_btn_priority <= to_integer(unsigned(REG(1)(7 downto 0)));
-    Interrupt_I2S_priority <= to_integer(unsigned(REG(3)(7 downto 0)));
+    interrupt_btn_priority <= to_integer(unsigned(REG(1)(7 downto 0)));
+    interrupt_i2s_priority <= to_integer(unsigned(REG(3)(7 downto 0)));
 
 END Behavioral;

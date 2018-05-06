@@ -16,11 +16,11 @@ ENTITY Memory IS
 	PORT
 	(
 		data_in      : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --Data in
-		DO           : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0) := (OTHERS => '0'); --Data Out
+		data_out           : OUT STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0) := (OTHERS => '0'); --Data Out
 		address      : IN STD_LOGIC_VECTOR (WORD_SIZE DOWNTO 0); --address bus
 		write_enable : IN STD_LOGIC; -- Write Enable
 		read_enable  : IN STD_LOGIC; -- Read Enable
-		CLK          : IN STD_LOGIC -- Clock
+		clk          : IN STD_LOGIC -- Clock
 	);
 
 END Memory;
@@ -35,17 +35,17 @@ BEGIN
 	-- MemoryReadWrite:
 	-- Reads and writes data from the data RAM
 	--------------------------------------------
-	MemoryReadWrite : PROCESS (CLK)
+	MemoryReadWrite : PROCESS (clk)
 	BEGIN
-		IF (falling_edge(CLK)) THEN -- Start when the clock rises
+		IF (falling_edge(clk)) THEN -- Start when the clock rises
 			IF write_enable = '1' THEN -- Write enable
 				RAM(to_integer(unsigned(address))) <= data_in; --write Data In bus into RAM array at position address
 			END IF;
 			IF read_enable = '1' THEN -- Read enable
-				DO <= RAM(to_integer(unsigned(address))); -- writes RAM array at the address position into Data Out bus.
+				data_out <= RAM(to_integer(unsigned(address))); -- writes RAM array at the address position into Data Out bus.
 			END IF;
 			IF write_enable = '0' AND read_enable = '0' THEN --if not writing or reading set all to high impedance to make sure nothing unintended happens
-				DO <= (OTHERS => 'Z');
+				data_out <= (OTHERS => 'Z');
 			END IF;
 		END IF;
 	END PROCESS;

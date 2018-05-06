@@ -20,7 +20,7 @@ ENTITY MemoryController IS
 		read_enable               : IN STD_LOGIC;
 		address                   : IN STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
 		data_in                   : IN STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
-		DO                        : BUFFER STD_LOGIC_vector (WORD_SIZE DOWNTO 0) := (OTHERS => '0');
+		data_out                  : BUFFER STD_LOGIC_vector (WORD_SIZE DOWNTO 0) := (OTHERS => '0');
 		clk                       : IN STD_LOGIC;
 		btn                       : IN std_LOGIC_vector(2 DOWNTO 0);
 		seven_seg_control_signals : OUT std_LOGIC_vector(31 DOWNTO 0);
@@ -77,7 +77,7 @@ BEGIN
 		PORT
 		MAP(
 		data_in      => data_in,
-		DO           => dram_data_out,
+		data_out     => dram_data_out,
 		clk          => clk,
 		write_enable => write_enable_dram,
 		read_enable  => read_enable_dram,
@@ -158,17 +158,17 @@ BEGIN
 		ELSIF (to_integer(unsigned(address)) >= 65000 AND read_enable = '1') THEN -- ButtonDriver Data
 			IF (falling_edge(clk)) THEN
 				IF (to_integer(unsigned(address)) = 65002) THEN
-					DO <= btn_data;
+					data_out <= btn_data;
 				ELSIF (to_integer(unsigned(address)) = 65011) THEN
-					DO <= i2s_mono_in_data_out;
+					data_out <= i2s_mono_in_data_out;
 				END IF;
 			END IF;
 
 		ELSIF (read_enable = '1') THEN
-			DO <= dram_data_out; --Not sure this works, might need to revert
+			data_out <= dram_data_out; --Not sure this works, might need to revert
 
 		ELSE
-			DO <= (OTHERS => 'Z');
+			data_out <= (OTHERS => 'Z');
 		END IF;
 
 	END PROCESS;

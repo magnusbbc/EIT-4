@@ -29,7 +29,7 @@ ENTITY Stack IS
 	);
 END Stack;
 ARCHITECTURE Behavioral OF Stack IS
-	SIGNAL SP : std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
+	SIGNAL sp : std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
 
 BEGIN
 
@@ -37,31 +37,31 @@ BEGIN
 	-- ChangeSP:
 	-- Changes the value of the stack pointer on rising clk
 	-- 
-	-- Decrements SP if "pop" is executing
-	-- Increments SP if "push" is executing
-	-- Sets SP to an arbitrary value if "address_in" is high
+	-- Decrements sp if "pop" is executing
+	-- Increments sp if "push" is executing
+	-- Sets sp to an arbitrary value if "address_in" is high
 	--------------------------------------------
 	ChangeSP : PROCESS (clk) --Process changes the value of the stack pointer
 	BEGIN
 		IF (rising_edge(clk)) THEN
 			IF (pop = '1') THEN
-				SP <= std_logic_vector(unsigned(SP) - 1); --Decrement when pop
+				sp <= std_logic_vector(unsigned(sp) - 1); --Decrement when pop
 			ELSIF (push = '1') THEN
-				SP <= std_logic_vector(unsigned(SP) + 1); --Increment when push
+				sp <= std_logic_vector(unsigned(sp) + 1); --Increment when push
 			ELSIF (write_back = '1') THEN
-				SP <= address_in; --Manual Overwrite
+				sp <= address_in; --Manual Overwrite
 			END IF;
 		END IF;
 
 	END PROCESS;
 	--If a "push" instruction is being executed, the stack controller outputs the "stack pointer + 1" 
 	--to ensure that the pushed value is stored at the new location at the top of the stack.
-	--The SP itself is changed on the next rising edge (see the ChangeSP : Process)
+	--The sp itself is changed on the next rising edge (see the ChangeSP : Process)
 
 	--If a pop instruction is being executed, the stack controller outputs the current value of the stack pointer
-	--Since this corresponds to the value of the current top. The SP is changed on the next rising edge (see the ChangeSP : Process)
+	--Since this corresponds to the value of the current top. The sp is changed on the next rising edge (see the ChangeSP : Process)
 	--To correspond to the new address of the top of the stack.
 	WITH push SELECT address_out <=
-		std_logic_vector(unsigned(SP) + 1) WHEN '1',
-		SP WHEN OTHERS;
+		std_logic_vector(unsigned(sp) + 1) WHEN '1',
+		sp WHEN OTHERS;
 END Behavioral;
