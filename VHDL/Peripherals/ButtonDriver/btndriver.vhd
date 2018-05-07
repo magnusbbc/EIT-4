@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------------
---Engineer: Frederik Rasmussen
+--Engineer: Frederik Rasmussen, Magnus Christensen
 --Module Name: Button Peripheral
 --
 --Description:

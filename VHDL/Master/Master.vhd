@@ -212,6 +212,8 @@ BEGIN
 	-- PC-1("pc_interrupt_push") to the dram input port. 
 	-- This is required to simultaneously push the PC to the stack, 
 	-- and perform a jmp instruction, during the same clock cycle
+
+	-- Otherwise send register two to memory input
 	--------------------------------------------
 	InterruptPcPush : WITH Interrupt_latch SELECT dram_data_in <=
 		std_logic_vector(to_unsigned(to_integer(unsigned(pc_interrupt_push)), dram_data_in'length)) WHEN '1',
@@ -364,8 +366,8 @@ BEGIN
 		IF (rising_edge(sys_clk)) THEN
 			IF (Interrupt_latch = '1' AND jmp_enable /= '1') THEN --Is jump ever not enabled for interrupts???
 				pc <= pc;
-			ELSIF (Interrupt_latch = '1' AND jmp_enable = '1') THEN
-				pc <= std_logic_vector(unsigned(pc_alt) + 1);  --Is this even required? same as the ELSE code??
+--			ELSIF (Interrupt_latch = '1' AND jmp_enable = '1') THEN
+--				pc <= std_logic_vector(unsigned(pc_alt) + 1);  --Is this even required? same as the ELSE code??
 			ELSIF (jmp_enable /= '1') THEN
 				pc <= std_logic_vector(unsigned(pc) + 1); --Most common mode, simply increments PC every clock cycle
 			ELSE
