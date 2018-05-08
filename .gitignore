@@ -183,3 +183,7 @@ _xmsgs/
 
 
 # End of https://www.gitignore.io/api/modelsim,xilinxise,psoccreator,alteraquartusii
+
+VHDL/Peripherals/I2SDrivers/I2S\.ipinfo
+
+VHDL/PreProcessorWindows\.bat
