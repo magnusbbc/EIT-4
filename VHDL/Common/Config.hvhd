@@ -1,5 +1,0 @@
-#define INSTRUCTION_SIZE 31
-#define CONTROL_SIZE 18
-#define WORD_SIZE 15
-#define ADDRESS_SIZE 15
-#define WORD_COUNT 1023
