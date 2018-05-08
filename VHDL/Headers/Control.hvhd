@@ -1,0 +1,89 @@
+//ALU Operations
+#define ADC 1 //ADD Carry
+#define ADD 2 //ADD
+#define SUB 3 //Subtract
+#define MUL 4 //Multiply
+#define OGG 5 //AND
+#define ELL 6 //OR
+#define XEL 7 //XOR
+#define IKA 8 //Negates Operand A
+#define IKB 9 //Negates Operand B
+#define NOA 10 //Not Operand A
+#define NOB 11 //Not Operand B
+#define LSL 12 //Logical Left Shift
+#define LSR 13 //Logical Right Shift
+#define ASR 14 //Arithmetic Right Shift
+#define PAS 15 //Pass Operand A
+#define PBS 16 //Pass Operand B
+#define ICA 17 //Increment Operand A
+#define ICB 18 //Increment Operand B
+#define NAA 19 //NOP
+
+//Types of Branches
+#define NB 0 //No Branching
+#define BR 1 //Branch
+#define EQ 2 //If Equal
+#define LE 3 //If Less Than
+#define NQ 4 //If Not Equal
+
+//Control Signals Enabled
+#define MEMRD_E '1' //Memory Read
+#define MEMWR_E '1' //Memory Write
+#define REGWR_E '1' //Register Write
+#define MEMRB_E '1' //Memory to Register Write
+#define IMSEL_E '1' //Immediate Select
+#define PUSHO_E '1' //PUSH
+#define POP_E '1'   //POP
+#define RWSWI_E '1' //Read/Write Switch
+#define MW2PC_E '1' //Memopry to PC
+#define HALTP_E '1' //HALT CPU Execution
+
+//Control Signals Disabled
+#define MEMRD_D '0'
+#define MEMWR_D '0'
+#define REGWR_D '0'
+#define MEMRB_D '0'
+#define IMSEL_D '0'
+#define PUSHO_D '0'
+#define POP_D '0'
+#define RWSWI_D '0'
+#define MW2PC_D '0'
+#define HALTP_D '0'
+
+//Opcodes
+#define NOP 0 //NOP
+#define ADDR 1 //Add Register_A and Register_B
+#define ADDCR 2 //Add Register_A and Register_B and carry
+#define SUBR 3 //Subtract Register_B from Register_A
+#define NEGR 4 //Negate Register_A
+#define ANDR 5 //AND Register_A and Register_B
+#define ORR 6 //OR Register_A and Register_B
+#define XORR 7 //XOR Register_A and Register_B
+#define MULTR 8 //Multiply Register_A and Register_B
+#define LSLR 9 //Left Logical Shift Register_A, Register_B times
+#define LSRR 10 //Right Logical Shift Register_A, Register_B times
+#define RASR 11 //Right Arithmetic Shift Register_A, Register_B times
+#define ADDI 13 //Add Register_A and an Immediate
+#define ADDCI 14 //Add Register_A and an Immediate and Carry
+#define SUBI 15 //Subtract an Immediate from Register_A
+#define NEGI 16 //Negate an Immediate
+#define ANDI 17 //AND Register_A and an Immediate
+#define ORI 18 //OR Register_A and an Immediate
+#define XORI 19 //XOR Register_A and an Immediate
+#define MULTI 20 //Multiply Register_A and an Immediate
+#define LSLI 21 //Left Logical Shift Register_A, Immediate times
+#define LSRI 22 //Right Logical Shift Register_A, Immediate times
+#define RASI 23 //Right Arithmetic Shift Register_A, Immediate times
+#define CMP 26 //Compare Register_A with Register_B
+#define MOV 27 //Move Register to Register
+#define CMPI 28 //Compare Register_A with an immediate
+#define MOVI 29 //Move an Immediate to a Regster
+#define LOAD 30 //Load the data of a specific memory address into a register
+#define STORE 31 //Store the contents of a register into memory
+#define POP 32 //Pop the Top of the Stack into a Register
+#define PUSH 33 //Push a register to the top of the stack
+#define JMP 34 //Unconditional Jump
+#define JMPEQ 35 //Jump if equal
+#define JMPLE 36 //Jump if less than
+#define JMPNQ 37 //Jump if not equal
+#define HALT 38 //HALT CPU
