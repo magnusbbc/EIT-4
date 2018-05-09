@@ -2,8 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+
 //array size for input buffer
 #define bufferSize 100
+
 //opcode types for operand identification
 #define IMMEDIATE 1
 #define REGISTER 2
@@ -101,7 +104,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		getchar();
 		return(0);
 	}
-	
+
 #pragma region LabelFinder
 	//Finds all labels before actual assembly occurs which allows for jumps in the actual assembly
 	while (1)
@@ -165,7 +168,6 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		printf("Write file does not exist. Create write file? Y/N: ");
 		if (getchar() == 'y' || getchar() == 'Y') //create file
 		{
-			//fclose(fpOut);
 			fpOut = fopen(buffer[1], "w");
 		}
 		else //exit program
@@ -281,6 +283,10 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 			else if (lineCount < 1000)
 			{
 				fprintf(fpOut, "%d :   ", lineCount);
+			}
+			else if (lineCount < 10000)
+			{
+				fprintf(fpOut, "%d:   ", lineCount);
 			}
 		}
 #pragma endregion
@@ -517,7 +523,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 
 						for (int j = 0; j < spaceDist; j++) //saves operand from the current space location +1 to the next space location -1
 						{
-							opTemp[j] = temp[spaces[i] + 1 + j]; 
+							opTemp[j] = temp[spaces[i] + 1 + j];
 						}
 
 						//checks what kind of operand is present in the current opTemp
@@ -533,37 +539,37 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 								}
 							}
 						}
-						else if (strstr(opTemp,"#")) //label immediate. Allows for manipulation of labels in immediate opcodes
+						else if (strstr(opTemp, "#")) //label immediate. Allows for manipulation of labels in immediate opcodes
 						{
 							for (int i = 0; i < 100; i++)
 							{
 								opTemp[i] = opTemp[i + 1]; //shifts the optemp one space to the left since it begins with a space
 														   //since the labelname array does not.
-								
+
 								if (opTemp[i] == -52) //-52 is the default character in char arrays
 								{
 									opTemp[i - 1] = '\0'; //ends the optemp string and stops the shift
 									break;
 								}
-								
+
 							}
 
 							for (int i = 0; i < 100; i++) //compares the optemp with the labelnames to find out which one is to be printed
 							{
-								if (strstr(labelName[i],opTemp)) //if labelname[i] contains optemp
+								if (strstr(labelName[i], opTemp)) //if labelname[i] contains optemp
 								{
 									int num = labelLine[i]; //saves the labelline to an int
 									char padString[17]; //creates a temporary string which is needed to pad the value to 16 bits,
 														//after it is converted to binary
 									int zeros = 0; //int for storing the amount of padding zeros
-									
+
 									_itoa(num, padString, 2); //saves num as a string in padstring in radix 2 (binary)
 
 									//checks for the end of padstring and uses this location to find out how many padding zeros are needed.
 									//Afterwards it creates a temporary char array since the padding has to be done from the right,
 									//the binary value is then appended onto the temporary string which creates a 16 bit string
 									//the temporary string is then saved in the original one and saved for output
-									for (int j = 0; j < 17; j++) 
+									for (int j = 0; j < 17; j++)
 									{
 										if (padString[j] == '\0')
 										{
@@ -592,35 +598,49 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 						{
 							//same immediate handling as previously
 							int num = atoi(opTemp);
-							char padString[17];
-							int zeros = 0;
-							_itoa(num, padString, 2);
-							for (int j = 0; j < 17; j++)
+
+							if (num > 0) //positive
 							{
-								if (padString[j] == '\0')
+								int zeros = 0;
+								char padString[17];
+								_itoa(num, padString, 2);
+								for (int j = 0; j < 17; j++)
 								{
-									zeros = 16 - j;
-									char padTemp[17];
-									for (int u = 0; u < zeros; u++)
+									if (padString[j] == '\0')
 									{
-										padTemp[u] = '0';
+										zeros = 16 - j;
+										char padTemp[17];
+										for (int u = 0; u < zeros; u++)
+										{
+											padTemp[u] = '0';
+										}
+										padTemp[zeros] = '\0';
+
+										strcat(padTemp, padString);
+										strcpy(output[outputIndex], padTemp);
+										outputIndex++;
+										break;
 									}
-									padTemp[zeros] = '\0';
-									
-									strcat(padTemp, padString);
-									strcpy(padString, padTemp);
 								}
-									
 							}
-							strcpy(output[outputIndex], padString);
-							outputIndex++;
-						} 
-						
-						
-						
+							else //negative
+							{
+								char padString[33]; //32 bit string since program is 32 bit and negative numbers are converted to that
+								_itoa(num, padString, 2);
+								char padTemp[17];
+								for (int u = 16; u < 33; u++)
+								{
+									padTemp[u - 16] = padString[u];
+								}
+								strcpy(output[outputIndex], padTemp);
+								outputIndex++;
+								break;
+							}
+						}
 					}
+				}
 			}
-		}
+		
 
 		if (opcType == REGISTER) 
 		{
@@ -693,17 +713,17 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 								
 							}
 							strcat(regTemp, " "); //appens a space on the end of regtemp to allow it to compare to opArr properly
+							
+							for (int u = 0; u < 100; u++)
 							{
-								for (int u = 0; u < 100; u++)
+								if (strstr(regTemp, opArr[u]))
 								{
-									if (strstr(regTemp, opArr[u]))
-									{
-										strcpy(output[outputIndex], opArrBin[u]); //copies found registry to output in binary
-										outputIndex++;
-										break;
-									}
+									strcpy(output[outputIndex], opArrBin[u]); //copies found registry to output in binary
+									outputIndex++;
+									break;
 								}
 							}
+							
 
 							//loads the immediate part of the operand into a temporary array and outputs it as binary the same as the other immedates
 							char immTemp[10];
@@ -739,7 +759,6 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 									strcat(padTemp, padString);
 									strcpy(padString, padTemp);
 								}
-
 							}
 							strcpy(output[outputIndex], padString);
 							outputIndex++;
@@ -834,7 +853,6 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 							}
 						}
 					}
-
 				}
 			}
 		}
