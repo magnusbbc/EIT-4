@@ -1,43 +1,57 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
+--------------------------------------------------------------------------------------
+--Engineer: Frederik Rasmussen
+--Module Name: Binary to Binary Coded Decimal
+--
+--Description:
+--
+--
+--
+--------------------------------------------------------------------------------------
 
-entity b2bcd is 
-	generic (
-		bits 		: integer := 16;
-		digits 	: integer := 4
-);
-port(	
-		clr 		: in 	std_logic;
-		binary 	: in std_logic_vector (15 downto 0);
-		bcd		: out std_logic_vector (15 downto 0)
-		);
-end b2bcd;
-architecture a of b2bcd is 
-begin
-b2bcd : process (binary,clr)
-	variable  temp : std_logic_vector(31 downto 0);
-	begin
-		temp:= x"00000000";
-		if  clr= '0' then
-			temp(18 downto 3):= binary;
-			
-			for i in 0 to 12 loop
-				if temp(19 downto 16) > 4 then
-					temp(19 downto 16) := temp(19 downto 16)+3;
-				end if;
-				if temp(23 downto 20) > 4 then
-					temp(23 downto 20) := temp(23 downto 20)+3;
-				end if;
-				if temp(27 downto 24) > 4 then
-					temp(27 downto 24) := temp(27 downto 24)+3;
-				end if;
-				if temp(31 downto 28) > 4 then
-					temp(31 downto 28) := temp(31 downto 28)+3;
-				end if;
-				temp(31 downto 1) := temp(30 downto 0);
-			end loop;
-		end if;
-		bcd <= temp(31 downto 16);
-	end process b2bcd;
-end a;
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.std_logic_unsigned.ALL;
+
+ENTITY b2bcd IS
+	PORT
+	(
+		clr    : IN std_logic;
+		binary : IN std_logic_vector (15 DOWNTO 0); --Input value
+		bcd    : OUT std_logic_vector (15 DOWNTO 0) --Binary coded decimal representation of that value
+	);
+END b2bcd;
+ARCHITECTURE a OF b2bcd IS
+BEGIN
+	
+	--------------------------------------------
+	-- b2bcd:
+	-- converts a number to binary coded decimal
+	-- Note that it is only possible to represent numbers up to
+	-- 9999 with 16 available output BITS
+	--------------------------------------------
+	b2bcd : PROCESS (binary, clr)
+		VARIABLE temp : std_logic_vector(31 DOWNTO 0);
+	BEGIN
+		temp := x"00000000";
+		IF clr = '0' THEN
+			temp(18 DOWNTO 3) := binary;
+
+			FOR i IN 0 TO 12 LOOP
+				IF temp(19 DOWNTO 16) > 4 THEN
+					temp(19 DOWNTO 16) := temp(19 DOWNTO 16) + 3;
+				END IF;
+				IF temp(23 DOWNTO 20) > 4 THEN
+					temp(23 DOWNTO 20) := temp(23 DOWNTO 20) + 3;
+				END IF;
+				IF temp(27 DOWNTO 24) > 4 THEN
+					temp(27 DOWNTO 24) := temp(27 DOWNTO 24) + 3;
+				END IF;
+				IF temp(31 DOWNTO 28) > 4 THEN
+					temp(31 DOWNTO 28) := temp(31 DOWNTO 28) + 3;
+				END IF;
+				temp(31 DOWNTO 1) := temp(30 DOWNTO 0);
+			END LOOP;
+		END IF;
+		bcd <= temp(31 DOWNTO 16);
+	END PROCESS b2bcd;
+END a;
