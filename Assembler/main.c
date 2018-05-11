@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -231,6 +231,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		{
 			if (temp[i] == '/' && temp[i + 1] == '/')
 			{
+				//printf("comment found"); //debugging
 				for (int u = i; u < bufferSize-i; u++)
 				{
 					temp[u] = '-52';
@@ -256,18 +257,31 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		
 #pragma region MIF LinePrint
 		//outputs some required syntax for .mif format before the actual binary opcode
+		for (int i = 0; i < bufferSize; i++)
+		{
+			if (temp[i] != ' ' && temp[i] != '\n' && temp[i] != '\0' && temp[i] != 9)
+			{
+				opcType = 5;
+				break;
+			}
+			else
+			{
+				opcType = 0;
+			}
+		}
+
 		if (temp[0] == ' ' && temp[1] == ' ' && temp[2] == '\0') //checks for empty line
 		{
 			opcType = 0;
 		}
-		else if (temp[0] == '\0') //checks for empty string as well
+		if (temp[0] == '\0') //checks for empty string as well
 		{
 			opcType = 0;
 		}
-		else if (label == false) //if no label exists, the opcode type is set to non zero but not 1-4
-		{
-			opcType = 5;
-		}
+		//else if (label == false) //if no label exists, the opcode type is set to non zero but not 1-4
+		//{
+		//	opcType = 5;
+		//}
 
 		if (label == false && opcType != 0) // if opcode is present, outputs required syntax
 		{
@@ -295,7 +309,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 
 #pragma region opcArr
 		//array that contains all opcodes. used for comparison with input
-		char opcArr[36][10]; 
+		char opcArr[100][15]; 
 		strcpy(opcArr[0], "ADDI "); //ADD immediate
 		strcpy(opcArr[1], "SUBI "); //substract immediate
 		strcpy(opcArr[2], "ADDCI "); // Add carry immediate
@@ -309,6 +323,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArr[10], "RASI "); // right arithmetic shift immediate
 		strcpy(opcArr[11], "CMPI "); // compare immediate
 		strcpy(opcArr[12], "MOVI "); // Move immediate
+
 		strcpy(opcArr[13], "ADDR "); // ADD register
 		strcpy(opcArr[14], "ADDC "); // ADD carry
 		strcpy(opcArr[15], "SUBR "); // substract register
@@ -322,22 +337,32 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArr[23], "RASR "); // right arithmetic shift register
 		strcpy(opcArr[24], "CMP "); // compare Register
 		strcpy(opcArr[25], "MOV "); // Move Register
+
 		strcpy(opcArr[26], "JMP "); // Jump Register
 		strcpy(opcArr[27], "JMPNQ "); // jump NOT EQUAL TO
 		strcpy(opcArr[28], "JMPLE "); // Jump Less Register
 		strcpy(opcArr[29], "JMPEQ "); // Jump equal Register
+
 		strcpy(opcArr[30], "NOP "); // No operation 
+		
 		strcpy(opcArr[31], "LOAD "); // Load 
 		strcpy(opcArr[32], "STORE "); // store
 		strcpy(opcArr[33], "POP "); // POP
 		strcpy(opcArr[34], "PUSH "); // Push
+
 		strcpy(opcArr[35], "HALT "); // HALT
+
+		strcpy(opcArr[36], "FIRCOR "); // FIRCOR
+		strcpy(opcArr[37], "FIRCOI "); // FIRCOI
+		strcpy(opcArr[38], "FIRSAR "); // FIRSAR
+		strcpy(opcArr[39], "FIRSAI "); // FIRSARI
+		strcpy(opcArr[40], "FIRCORESET "); // FIRCORESET
 
 #pragma endregion
 
 #pragma region opcArrBin
 		//opcodes written in binary for each corresponding opcode
-		char opcArrBin[36][10]; 
+		char opcArrBin[100][10]; 
 		strcpy(opcArrBin[0], "001101"); // ADDI
 		strcpy(opcArrBin[1], "001111"); // SUBI
 		strcpy(opcArrBin[2], "001110"); // ADDCI
@@ -351,6 +376,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArrBin[10], "010111"); // RASI
 		strcpy(opcArrBin[11], "011100"); // CMPI
 		strcpy(opcArrBin[12], "011101"); // MOVI
+
 		strcpy(opcArrBin[13], "000001"); // ADDR
 		strcpy(opcArrBin[14], "000010"); // ADDC
 		strcpy(opcArrBin[15], "000011"); // SUBR
@@ -364,16 +390,26 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArrBin[23], "001011"); // RASR
 		strcpy(opcArrBin[24], "011010"); // CMP
 		strcpy(opcArrBin[25], "011011"); // MOV
+
 		strcpy(opcArrBin[26], "100010"); // JMP
 		strcpy(opcArrBin[27], "100101"); // JMPNQ
 		strcpy(opcArrBin[28], "100100"); // JMPLE
 		strcpy(opcArrBin[29], "100011"); // JMPEQ
+
 		strcpy(opcArrBin[30], "000000"); // NOP 
+
 		strcpy(opcArrBin[31], "011110"); // LOAD
 		strcpy(opcArrBin[32], "011111"); // STORE
 		strcpy(opcArrBin[33], "100000"); // POP
 		strcpy(opcArrBin[34], "100001"); // PUSH
+
 		strcpy(opcArrBin[35], "100110"); // HALT
+
+		strcpy(opcArrBin[36], "100111"); // FIRCOR 
+		strcpy(opcArrBin[37], "101000"); // FIRCOI
+		strcpy(opcArrBin[38], "101010"); // FIRSAR
+		strcpy(opcArrBin[39], "101011"); // FIRSARI
+		strcpy(opcArrBin[40], "101001"); // FIRCORESET
 
 #pragma endregion
 
@@ -387,21 +423,30 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				outputIndex++;
 				//sets the opcode type depending on what opcode is found in temp
 				//opcodes are sorted by type in opcArr and opcArrBin
-				if (i <= 12)
+
+				if (i <= 12 || i == 37 || i == 39) 
 				{
 					opcType = IMMEDIATE; 
 				}
-				else if (i > 12 && i <= 25)
+				if (i > 12 && i <= 25)
 				{
 					opcType = REGISTER; 
 				}
-				else if (i > 25 && i <= 29)
+				if (i == 36 || i == 38)
+				{
+					opcType = REGISTER;
+				}
+				if (i > 25 && i <= 29)
 				{
 					opcType = JUMP; 
 				}
-				else if (i >= 30 && i <= 35)
+				if (i >= 30 && i <= 35)
 				{
 					opcType = MEMORY; 
+				}
+				if (i == 39)
+				{
+					opcType == MEMORY;
 				}
 				break;
 			}
@@ -478,7 +523,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 #pragma region opArrBin
 		// registers in binary
 		char opArrBin[32][10];
-		strcpy(opArrBin[0], "00000"); // zero
+		strcpy(opArrBin[0], "ERROR"); // DOES NOT WORK ON CPU BUT DOES EXIST (TECHNICALLY)
 		strcpy(opArrBin[1], "00001"); // R1
 		strcpy(opArrBin[2], "00010"); // R2
 		strcpy(opArrBin[3], "00011"); // R3
@@ -507,7 +552,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opArrBin[26], "11010"); // R26
 		strcpy(opArrBin[27], "11011"); // R27
 		strcpy(opArrBin[28], "11100"); // R28
-		strcpy(opArrBin[29], "11101"); // R29
+		strcpy(opArrBin[29], "11101"); // ZERO
 		strcpy(opArrBin[30], "11110"); // SP
 		strcpy(opArrBin[31], "11111"); // PC
 #pragma endregion
@@ -593,13 +638,12 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 							}
 						}
 
-						else if (i == 1) // if i=1 and previous statements were not true, the immediate value is present since its written
-										 // OPC REG IMM, and it only reads operands and is zero indexed
+						else // if previous statements were not true, the immediate value is present
 						{
 							//same immediate handling as previously
 							int num = atoi(opTemp);
 
-							if (num > 0) //positive
+							if (num >= 0) //positive
 							{
 								int zeros = 0;
 								char padString[17];
@@ -634,14 +678,12 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 								}
 								strcpy(output[outputIndex], padTemp);
 								outputIndex++;
-								break;
 							}
 						}
 					}
 				}
 			}
 		
-
 		if (opcType == REGISTER) 
 		{
 			for (int i = 0; i < opCount + 1; i++)
@@ -981,8 +1023,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		
 		if (strstr(output[0], opcArrBin[3]))//NEGI
 		{
-			printf("%s %s %s %s", output[0], output[5], output[1], output[2]);
-			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[1], output[2]);
+			printf("%s %s %s %s", output[0], output[5], output[2], output[1]);
+			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[2], output[1]);
 		}
 
 		if (opcType == JUMP)
@@ -994,8 +1036,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		{
 			if (immMem == 1)// reg+imm
 			{
-				printf("%s %s %s %s", output[0], output[2], output[1], output[3]);
-				fprintf(fpOut, "%s%s%s%s", output[0], output[2], output[1], output[3]);
+				printf("%s %s %s %s", output[0], output[1], output[2], output[3]);
+				fprintf(fpOut, "%s%s%s%s", output[0], output[1], output[2], output[3]);
 			}
 			else if (immMem == 2) //imm
 			{
@@ -1017,8 +1059,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 			}
 			else if (immMem == 2) //imm
 			{
-				printf("%s %s %s %s", output[0], output[1], output[3], output[2]);
-				fprintf(fpOut, "%s%s%s%s", output[0], output[1], output[3], output[2]);
+				printf("%s %s %s %s", output[0], output[3], output[1], output[2]);
+				fprintf(fpOut, "%s%s%s%s", output[0], output[3], output[1], output[2]);
 			}
 			else //reg
 			{
@@ -1038,6 +1080,31 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[5], output[5], output[1], output[5], output[6]);
 			}
 		if (strstr(output[0],opcArrBin[35]))//Halt
+		{
+			printf("%s %s %s %s %s %s", output[0], output[5], output[5], output[5], output[5], output[6]);
+			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[5], output[5], output[5], output[5], output[6]);
+		}
+		if (strstr(output[0], opcArrBin[36])) //FIRCOR
+		{
+			printf("%s %s %s %s %s %s", output[0], output[1], output[5], output[5], output[5], output[6]);
+			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[1], output[5], output[5], output[5], output[6]);
+		}
+		if (strstr(output[0], opcArrBin[37])) //FIRCORI
+		{
+			printf("%s %s %s %s", output[0], output[5], output[5], output[1]);
+			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[5], output[1]);
+		}
+		if (strstr(output[0], opcArrBin[38])) //FIRSAR
+		{
+			printf("%s %s %s %s %s %s", output[0], output[1], output[2], output[5], output[5], output[6]);
+			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[1], output[2], output[5], output[5], output[6]);
+		}
+		if (strstr(output[0], opcArrBin[39])) //FIRSAI
+		{
+			printf("%s %s %s %s", output[0], output[2], output[5], output[1]);
+			fprintf(fpOut, "%s%s%s%s", output[0], output[2], output[5], output[1]);
+		}
+		if (strstr(output[0], opcArrBin[40]))//NOP
 		{
 			printf("%s %s %s %s %s %s", output[0], output[5], output[5], output[5], output[5], output[6]);
 			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[5], output[5], output[5], output[5], output[6]);
