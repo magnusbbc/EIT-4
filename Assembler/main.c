@@ -1036,18 +1036,18 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		{
 			if (immMem == 1)// reg+imm
 			{
-				printf("%s %s %s %s", output[0], output[1], output[2], output[3]);
-				fprintf(fpOut, "%s%s%s%s", output[0], output[1], output[2], output[3]);
+				printf("%s %s %s %s", output[0], output[2], output[1], output[3]);
+				fprintf(fpOut, "%s%s%s%s", output[0], output[2], output[1], output[3]);
 			}
 			else if (immMem == 2) //imm
 			{
-				printf("%s %s %s %s", output[0], output[1], output[3], output[2]);
-				fprintf(fpOut, "%s%s%s%s", output[0], output[1], output[3], output[2]);
+				printf("%s %s %s %s", output[0], output[3], output[1], output[2]);
+				fprintf(fpOut, "%s%s%s%s", output[0], output[3], output[1], output[2]);
 			}
 			else //reg
 			{
-				printf("%s %s %s %s %s %s", output[0], output[1], output[2], output[5], output[5], output[6]);
-				fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[1], output[2], output[5], output[5], output[6]);
+				printf("%s %s %s %s %s %s", output[0], output[2], output[1], output[5], output[5], output[6]);
+				fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[2], output[1], output[5], output[5], output[6]);
 			}
 		}
 		if (strstr(output[0], opcArrBin[32]))//STORE
