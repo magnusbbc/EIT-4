@@ -28,7 +28,9 @@ ENTITY MemoryController IS
 		interrupt_cpu             : OUT std_logic;
 		interrupt_enable          : IN std_logic := '0';
 		interrupt_nest_enable     : OUT std_logic;
-
+		#ifdef LED_ENABLE
+		led   					  : OUT std_logic_vector(9 DOWNTO 0); 	--Signals for controlling onboard LED's
+		#endif
 		--I2S
 		i2s_bit_clk               : IN std_logic  := '0';
 		i2s_word_select           : IN std_logic  := '0';
@@ -118,6 +120,9 @@ BEGIN
 		interrupt_address         => interrupt_address,
 		interrupt_cpu             => interrupt_cpu,
 		interrupt_enable          => interrupt_enable,
+		#ifdef LED_ENABLE
+		led 			  		  => led,
+		#endif
 		interrupt_nest_enable     => interrupt_nest_enable
 		);
 

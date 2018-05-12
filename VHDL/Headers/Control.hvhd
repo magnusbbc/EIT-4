@@ -27,6 +27,9 @@
 #define NQ 4 //If Not Equal
 
 //Control Signals Enabled
+#define FIRIN_E '1'
+#define FIRCO_E '1'
+#define FIRRE_E '1'
 #define MEMRD_E '1' //Memory Read
 #define MEMWR_E '1' //Memory Write
 #define REGWR_E '1' //Register Write
@@ -39,6 +42,9 @@
 #define HALTP_E '1' //HALT CPU Execution
 
 //Control Signals Disabled
+#define FIRIN_D '0'
+#define FIRCO_D '0'
+#define FIRRE_D '0'
 #define MEMRD_D '0'
 #define MEMWR_D '0'
 #define REGWR_D '0'
@@ -87,3 +93,8 @@
 #define JMPLE 36 //Jump if less than
 #define JMPNQ 37 //Jump if not equal
 #define HALT 38 //HALT CPU
+#define FIRCOR 39 
+#define FIRCOI 40 
+#define FIRRESET 41 
+#define FIRSAR 42 
+#define FIRSAI 43 

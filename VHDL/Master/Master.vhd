@@ -9,8 +9,11 @@
 --
 --------------------------------------------------------------------------------------
 --Definition of control lines groupings
-#define ALU_CONTROL 18 DOWNTO 13
-#define JUMP_CONTROL 12 DOWNTO 10
+#define ALU_CONTROL 21 DOWNTO 16
+#define JUMP_CONTROL 15 DOWNTO 13
+#define FIR_LOAD_SAMPLE 12
+#define FIR_LOAD_COEFFICIENT 11
+#define FIR_RESET 10
 #define MEMORY_READ 9
 #define MEMORY_WRITE 8
 #define REGISTER_WRITE 7
@@ -42,7 +45,10 @@ ENTITY Master IS
 		clk   : IN std_logic; 						--Device hardware clock
 		btn   : IN std_logic_vector(2 DOWNTO 0); 	--Device's 3 available push buttons (note: active low)
 		sseg  : OUT std_logic_vector(31 DOWNTO 0); 	--Seven segment display control signals (8 signals for each of the four displays)
-		led   : OUT std_logic_vector(9 DOWNTO 0); 	--Signals for controlling onboard LED's
+
+		#ifdef LED_ENABLE
+		led   : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
+		#endif
 
 		--I2S input
 		bclk  : IN std_logic  := '0';				--External input bitclock signal
@@ -87,6 +93,9 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL source_register_2_output : STD_logic_vector(WORD_SIZE DOWNTO 0); --2nd indexed register output, needed as a buffer to be able to switch bewtween register_2 and Immediate input to the alu
 
 	SIGNAL jmp_enable : std_logic := '0'; --Is '0' when PC increments by 1, is set to '1' when jump occours
+	SIGNAL jmp_enable_latch : std_logic := '0';
+	SIGNAL PC_TEMP : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); --Program Counter
+
 	SIGNAL pc_overwrite, sp_overwrite : std_logic := '0'; --SP and PC are special registers, and PC/sp_overwrite needs to be '1' to be able to change their values
 
 	SIGNAL pc_register_file_input : std_logic_vector(WORD_SIZE DOWNTO 0); --Routes PC+1 into the register file
@@ -97,7 +106,6 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL interrupt_nest_enable : std_logic := '1';
 	SIGNAL interrupt_nest_enable_latch : std_logic := '0';
 
-	SIGNAL pc_interrupt_push : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0');
 	--FLAGS
 	SIGNAL parity_flag                      : std_logic                    := '0';
 	SIGNAL signed_flag                      : std_logic                    := '0';
@@ -116,7 +124,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL pll_clk : std_logic; --PLL Clock
 	SIGNAL pll_lock : std_logic; --PLL lock signal
 	SIGNAL pll_tmp_clk : Std_logic; --Is assigned the pll_clk when pll_lock is detected
-	SIGNAL clk_counter : std_logic_vector(24 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
+	SIGNAL clk_counter : std_logic_vector(2 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
 
 BEGIN
 
@@ -145,6 +153,9 @@ BEGIN
 			i2s_data_in => Din,
 			i2s_bit_clk_out => bclkO,
 			i2s_word_select_out => wsO,
+			#ifdef LED_ENABLE
+			led => led,
+			#endif
 			i2s_data_out => DOut
 		);
 
@@ -205,20 +216,15 @@ BEGIN
 		);
 
 
-	
-	--------------------------------------------
-	-- InterruptPcPush:
-	-- If interrupt occoured, then send 
-	-- PC-1("pc_interrupt_push") to the dram input port. 
-	-- This is required to simultaneously push the PC to the stack, 
-	-- and perform a jmp instruction, during the same clock cycle
 
-	-- Otherwise send register two to memory input
-	--------------------------------------------
-	InterruptPcPush : WITH Interrupt_latch SELECT dram_data_in <=
-		std_logic_vector(to_unsigned(to_integer(unsigned(pc_interrupt_push)), dram_data_in'length)) WHEN '1',
-		source_register_2_output WHEN OTHERS;
-
+	PROCESS(source_register_2_output, jmp_enable_latch)
+	BEGIN
+	IF (jmp_enable_latch = '1') THEN
+		dram_data_in <= "000000" & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
+	ELSE
+		dram_data_in <= source_register_2_output;
+	END IF;
+	END PROCESS;
 
 	--------------------------------------------
 	-- ImmediateOperand:
@@ -321,7 +327,7 @@ BEGIN
 	--------------------------------------------
 	SetAlternativePc : PROCESS (interrupt_cpu, Interrupt_latch, control_signals(MEMORY_TO_PC), dram_data_out(9 DOWNTO 0), alu_output(9 DOWNTO 0))
 	BEGIN
-		IF (interrupt_cpu = '1' OR Interrupt_latch = '1') THEN
+		IF (Interrupt_latch = '1') THEN
 			pc_alt <= interrupt_address;
 		ELSIF (control_signals(MEMORY_TO_PC) = '1') THEN
 			pc_alt <= dram_data_out(9 DOWNTO 0);
@@ -364,11 +370,7 @@ BEGIN
 	SetPc : PROCESS (sys_clk) --Chose new value of PC based on branching
 	BEGIN
 		IF (rising_edge(sys_clk)) THEN
-			IF (Interrupt_latch = '1' AND jmp_enable /= '1') THEN --Is jump ever not enabled for interrupts???
-				pc <= pc;
---			ELSIF (Interrupt_latch = '1' AND jmp_enable = '1') THEN
---				pc <= std_logic_vector(unsigned(pc_alt) + 1);  --Is this even required? same as the ELSE code??
-			ELSIF (jmp_enable /= '1') THEN
+			IF (jmp_enable /= '1') THEN
 				pc <= std_logic_vector(unsigned(pc) + 1); --Most common mode, simply increments PC every clock cycle
 			ELSE
 				pc <= std_logic_vector(unsigned(pc_alt) + 1); --If jump was performed, then set PC to "PC_ALT+1" (NOT "PC_ALT", as that is directly passed to the PRAM address index
@@ -400,13 +402,11 @@ BEGIN
 		IF (rising_edge(sys_clk)) THEN
 			IF (interrupt_cpu = '1') THEN
 				Interrupt_latch <= '1';
-				IF (jmp_enable = '1') THEN
-					pc_interrupt_push <= std_logic_vector(unsigned(pc) - 1); --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
-				ELSE
-					pc_interrupt_push <= pc;
-				END IF;
+				jmp_enable_latch <= jmp_enable;
+				PC_TEMP <= PC;
 			ELSIF (Interrupt_latch = '1') THEN --Disables latc on the following clock cycle
 				Interrupt_latch <= '0';
+				jmp_enable_latch <= '0';
 			END IF;
 		END IF;
 	END PROCESS;
@@ -426,7 +426,7 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	pc_register_file_input <= "000000" & std_logic_vector(unsigned(PC) + 1);
+	pc_register_file_input <= "000000" & std_logic_vector(unsigned(PC) - 1);
 
 
 	--------------------------------------------
@@ -436,6 +436,7 @@ BEGIN
 	SysClockSelect : WITH control_signals(HALT) SELECT sys_clk <=
 	pll_tmp_clk WHEN '0',
 	--DBtn(2) when '0',
+	--clk_counter(2),
 	--clk when '0',
 	'0' WHEN OTHERS;
 
@@ -461,14 +462,14 @@ BEGIN
 	btn_inverted <= NOT btn;
 
 	--Used for debugging
-	LED(9)       <= zero_flag;
-	LED(8)       <= overflow_flag;
-	LED(7)       <= signed_flag;
-	LED(6)       <= parity_flag;
-	LED(5)       <= btn_inverted(0);
-
-	LED(0)       <= clk_counter(24);
-	LED(1)       <= control_signals(HALT);
+	--LED(9)       <= zero_flag;
+	--LED(8)       <= overflow_flag;
+	--LED(7)       <= signed_flag;
+	--LED(6)       <= parity_flag;
+	--LED(5)       <= btn_inverted(0);
+	
+	--LED(0)       <= clk_counter(24);
+	--LED(1)       <= control_signals(HALT);
 
 	--LED(0)       <= control_signals(HALT);
 	--LED(1)       <= clk_counter(6);

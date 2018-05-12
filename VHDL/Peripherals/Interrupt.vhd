@@ -61,6 +61,9 @@ ENTITY Interrupt IS
         interrupt_nest_enable : OUT std_logic := '1' ;      --Tells the Main logic that whether nesting interrups are allowed. MUST ben high by default
         write_enable :IN std_logic;                         --Write enable to allow changes to the interrupt controllers configuration registers
         clk : IN std_logic;                                 --System Clock
+        #ifdef LED_ENABLE
+		led : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
+		#endif
 
         internal_register_address : IN std_logic_vector(1 downto 0);    --Addresses the configuration registers
         data_in : IN std_logic_vector(ADDRESS_SIZE downto 0);           --Input data to be written to the configuration registers
@@ -131,17 +134,19 @@ BEGIN
     -- peripherals ability to quickly reset its interrupt
 	--------------------------------------------
     --BtnResetLatching : INTERRUPT_ RESET(interrupt_btn)
-    BtnResetLatching : PROCESS(interrupt_btn, interrupt_btn_reset_latch,interrupt_btn_reset)
+    BtnResetLatching : PROCESS(clk)
     BEGIN
-        IF(interrupt_btn_reset_latch = '1') THEN
-            interrupt_btn_latch <= '0';
-        ElSIF(interrupt_btn = '1') THEN
-            interrupt_btn_latch <= '1';
-        END IF;
-        IF (interrupt_btn_reset_latch = '1') THEN
-            interrupt_btn_reset <= '1';
-        ELSIF(interrupt_btn_reset = '1' AND interrupt_btn = '0') THEN
-            interrupt_btn_reset <= '0';
+        IF(rising_edge(clk)) THEN
+            IF(interrupt_btn_reset_latch = '1') THEN
+                interrupt_btn_latch <= '0';
+            ElSIF(interrupt_btn = '1') THEN
+                interrupt_btn_latch <= '1';
+            END IF;
+            IF (interrupt_btn_reset_latch = '1') THEN
+                interrupt_btn_reset <= '1';
+            ELSIF(interrupt_btn_reset = '1' AND interrupt_btn = '0') THEN
+                interrupt_btn_reset <= '0';
+            END IF;
         END IF;   
     END PROCESS;
 
@@ -155,33 +160,35 @@ BEGIN
     -- peripherals ability to quickly reset its interrupt
 	--------------------------------------------\
 
-    I2sResetLatching : INTERRUPT_RESET(interrupt_i2s)
+    --I2sResetL atching : INTERRUPT_ RESET(interrupt_i2s)
 
-    --I2sResetLatching : PROCESS(interrupt_i2s, interrupt_i2s_reset_latch,interrupt_i2s_reset)
-    --BEGIN
-    --    IF(interrupt_i2s_reset_latch = '1') THEN
-    --        interrupt_i2s_latch <= '0';
-    --    ElSIF(interrupt_i2s = '1' AND interrupt_i2s_reset = '0') THEN
-    --        interrupt_i2s_latch <= '1';
-    --    END IF;
-    --    IF (interrupt_i2s_reset_latch = '1') THEN
-    --        interrupt_i2s_reset <= '1';
-    --    ELSIF(interrupt_i2s_reset = '1' AND interrupt_i2s = '0') THEN
-    --        interrupt_i2s_reset <= '0';
-    --    END IF;
---
-    --END PROCESS;
+    I2sResetLatching : PROCESS(interrupt_i2s, interrupt_i2s_reset_latch,interrupt_i2s_reset)
+    BEGIN
+            IF(interrupt_i2s_reset_latch = '1') THEN
+                interrupt_i2s_latch <= '0';
+            ElSIF(interrupt_i2s = '1' AND interrupt_i2s_reset = '0') THEN
+                interrupt_i2s_latch <= '1';
+            END IF;
+            IF (interrupt_i2s_reset_latch = '1') THEN
+                interrupt_i2s_reset <= '1';
+            ELSIF(interrupt_i2s_reset = '1' AND interrupt_i2s = '0') THEN
+                interrupt_i2s_reset <= '0';
+            END IF;
+
+    END PROCESS;
 
 
     --------------------------------------------
 	-- WriteProccess:
 	-- Writes data to the configuration registers
 	--------------------------------------------
-    WriteProccess : PROCESS (clk) IS
+    WriteProccess : PROCESS (write_enable,data_in) IS
 	BEGIN
+        IF(rising_edge(clk)) THEN
 			IF (write_enable = '1') THEN
 				REG(to_integer(unsigned(internal_register_address))) <= data_in(9 downto 0);
 			END IF;
+        END IF;
 	END PROCESS;
 
     --Maps registers to control signals
@@ -193,5 +200,7 @@ BEGIN
 
     interrupt_btn_priority <= to_integer(unsigned(REG(1)(7 downto 0)));
     interrupt_i2s_priority <= to_integer(unsigned(REG(3)(7 downto 0)));
+
+
 
 END Behavioral;

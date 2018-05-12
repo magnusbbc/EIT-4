@@ -1,3 +1,4 @@
+#include "Config.hvhd"
 --------------------------------------------------------------------------------------
 --Engineer: Frederik Rasmussen, Magnus Christensen
 --Module Name: Button Peripheral
