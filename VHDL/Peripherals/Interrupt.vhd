@@ -107,7 +107,7 @@ BEGIN
 	--------------------------------------------
     InterruptCpu : process(clk)
     BEGIN
-        if(rising_edge(clk)) Then
+        if(falling_edge(clk)) Then
             IF(interrupt_enable = '1') Then
                 IF(false_signal = '1') THEN --Done to force an if statement, so the INTERRUPT _BEHAVIOUR can be used for all interrupts
 
@@ -136,7 +136,7 @@ BEGIN
     --BtnResetLatching : INTERRUPT_ RESET(interrupt_btn)
     BtnResetLatching : PROCESS(clk)
     BEGIN
-        IF(rising_edge(clk)) THEN
+        IF(falling_edge(clk)) THEN
             IF(interrupt_btn_reset_latch = '1') THEN
                 interrupt_btn_latch <= '0';
             ElSIF(interrupt_btn = '1') THEN
@@ -162,8 +162,9 @@ BEGIN
 
     --I2sResetL atching : INTERRUPT_ RESET(interrupt_i2s)
 
-    I2sResetLatching : PROCESS(interrupt_i2s, interrupt_i2s_reset_latch,interrupt_i2s_reset)
+    I2sResetLatching : PROCESS(clk)
     BEGIN
+        IF(falling_edge(clk)) THEN
             IF(interrupt_i2s_reset_latch = '1') THEN
                 interrupt_i2s_latch <= '0';
             ElSIF(interrupt_i2s = '1' AND interrupt_i2s_reset = '0') THEN
@@ -174,6 +175,7 @@ BEGIN
             ELSIF(interrupt_i2s_reset = '1' AND interrupt_i2s = '0') THEN
                 interrupt_i2s_reset <= '0';
             END IF;
+        END IF;
 
     END PROCESS;
 
@@ -182,7 +184,7 @@ BEGIN
 	-- WriteProccess:
 	-- Writes data to the configuration registers
 	--------------------------------------------
-    WriteProccess : PROCESS (write_enable,data_in) IS
+    WriteProccess : PROCESS (clk) IS
 	BEGIN
         IF(rising_edge(clk)) THEN
 			IF (write_enable = '1') THEN

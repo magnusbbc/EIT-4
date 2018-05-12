@@ -38,7 +38,7 @@ BEGIN
 	--------------------------------------------
 	Debounce : PROCESS (clk)
 	BEGIN
-		IF (clk'EVENT AND clk = '1') THEN
+		IF (rising_edge(clk)) THEN
 			IF (clr = '1') THEN --Clear
 				Q0 <= (OTHERS => '0');
 				Q1 <= (OTHERS => '0');
@@ -65,12 +65,14 @@ BEGIN
 	-- Disables when "int_toggle" is set high.
 	-- An interrupt signal can then only be set once all buttons are released
 	--------------------------------------------
-	Interrupt : PROCESS (dbtn_buffer, int_toggle)
+	Interrupt : PROCESS (clk,dbtn_buffer, int_toggle)
 	BEGIN
-		IF (dbtn_buffer = "000" OR dbtn_buffer = "ZZZ" OR dbtn_buffer = "UUU" OR int_toggle = '1') THEN
-			interrupt_on <= '0';
-		ELSE
-			interrupt_on <= '1';
+		IF rising_edge(clk) THEN
+			IF (dbtn_buffer = "000" OR dbtn_buffer = "ZZZ" OR dbtn_buffer = "UUU" OR int_toggle = '1') THEN
+				interrupt_on <= '0';
+			ELSE
+				interrupt_on <= '1';
+			END IF;
 		END IF;
 	END PROCESS;
 
@@ -82,11 +84,11 @@ BEGIN
 	--------------------------------------------
 	InterruptReset : PROCESS (interrupt_reset, dbtn_buffer)
 	BEGIN
-		IF (interrupt_reset = '1') THEN
-			int_toggle <= '1';
-		ELSIF (dbtn_buffer = "000") THEN
-			int_toggle <= '0';
-		END IF;
+			IF (interrupt_reset = '1') THEN
+				int_toggle <= '1';
+			ELSIF (dbtn_buffer = "000") THEN
+				int_toggle <= '0';
+			END IF;
 	END PROCESS;
 	debounced_btn_out <= dbtn_buffer;
 END Behavioral;

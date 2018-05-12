@@ -1,4 +1,5 @@
 #include "Config.hvhd"
+#include "FIR_Config.hvhd"
 --------------------------------------------------------------------------------------
 --Engineer: Magnus Christensen
 --Module Name: Master
@@ -89,6 +90,13 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL dram_data_out : std_logic_vector(WORD_SIZE DOWNTO 0); --Data RAM output data
 	SIGNAL dram_data_in : std_logic_vector(WORD_SIZE DOWNTO 0); --Data RAM Input data, either source_register_2_output, or R2O-2 (needed for proper interrupt implementation)
 
+	SIGNAL fir_coefficient_in : std_logic_vector(INOUT_BIT_WIDTH-1 downto 0) := (others=>'0');
+	SIGNAL fir_data_in : std_logic_vector(INOUT_BIT_WIDTH-1 downto 0) := (others=>'0');
+	SIGNAL fir_data_out : std_logic_vector(INOUT_BIT_WIDTH-1 downto 0) := (others=>'0');
+	SIGNAL fir_load_data_enable : std_logic := '0';
+	SIGNAL fir_clk : std_logic := '0';
+
+SIGNAL processing_output : std_logic_vector(WORD_SIZE DOWNTO 0);
 	--Reg Signals
 	SIGNAL source_register_2_output : STD_logic_vector(WORD_SIZE DOWNTO 0); --2nd indexed register output, needed as a buffer to be able to switch bewtween register_2 and Immediate input to the alu
 
@@ -187,6 +195,16 @@ BEGIN
 			zero_flag => Zero_Flag,
 			carry_flag => Carry_Flag
 		);
+	FIR : ENTITY work.Filter(Behavioural)
+		PORT MAP(
+		clk    => fir_clk,   
+		load_system_input => fir_load_data_enable,
+		reset  => control_signals(FIR_RESET), 
+		system_input   => fir_data_in,  
+		coefficient_in => fir_coefficient_in,  
+		system_output  => fir_data_out 
+		);
+
 	PRAM : ENTITY work.MemAuto(SYN)
 		PORT MAP(
 			data => pDataIn,
@@ -257,6 +275,26 @@ BEGIN
 	instruction(REGISTER_WRITE_INDEX_1) WHEN '1',
 	instruction(REGISTER_READ_INDEX_2) WHEN OTHERS;
 	
+		PROCESS(control_signals(FIR_LOAD_SAMPLE),control_signals(FIR_LOAD_COEFFICIENT), alu_output, operand_a, operand_b)
+	BEGIN
+		IF(control_signals(FIR_LOAD_SAMPLE) = '1') THEN
+			fir_load_data_enable <= '1';
+			fir_data_in <= alu_output;
+			fir_clk <= sys_clk;
+		ELSIF(control_signals(FIR_LOAD_COEFFICIENT) = '1') THEN
+			fir_load_data_enable <= '0';
+			fir_coefficient_in <= alu_output;
+			fir_clk <= sys_clk;
+		ELSE
+			fir_load_data_enable <= '0';
+			fir_clk <= '0';
+		END IF;
+	END PROCESS;
+
+	WITH control_signals(FIR_LOAD_SAMPLE) SELECT processing_output <=
+		fir_data_out WHEN '1',
+		alu_output WHEN OTHERS;
+
 	--------------------------------------------
 	-- MemoryRegisterWrite:
 	-- Process controls what data is written to the register file.
@@ -265,7 +303,7 @@ BEGIN
 	--------------------------------------------
 	MemoryRegisterWrite : WITH control_signals(MEMORY_WRITE_BACK) SELECT register_writeback <=
 	dram_data_out WHEN '1',
-	alu_output WHEN OTHERS;
+	processing_output  WHEN OTHERS;
 
 	--------------------------------------------
 	-- PcOvewriteEnable:
@@ -295,14 +333,14 @@ BEGIN
 	-- If POP/PUSH instruction is exectuing, then index memory based on Stack Controller
 	-- Otherwise index based on ALU output
 	--------------------------------------------
-	DramAddressIndex : PROCESS (control_signals(POP), control_signals(PUSH), stack_controller_out, alu_output)
+	DramAddressIndex : PROCESS (control_signals(POP), control_signals(PUSH), stack_controller_out, processing_output )
 		VARIABLE TMP : std_logic_vector(1 DOWNTO 0);
 	BEGIN
 		TMP := control_signals(POP) & control_signals(PUSH);
 		IF (to_integer(UNSIGNED(TMP)) > 0) THEN
 			dram_address_index <= stack_controller_out;
 		ELSE
-			dram_address_index <= alu_output;
+			dram_address_index <= processing_output ;
 		END IF;
 	END PROCESS;
 
@@ -325,14 +363,14 @@ BEGIN
 	-- SetAlternativePc:
 	-- Sets pc_alt based on interrupt status and the MEMORY_TO_PC control line
 	--------------------------------------------
-	SetAlternativePc : PROCESS (interrupt_cpu, Interrupt_latch, control_signals(MEMORY_TO_PC), dram_data_out(9 DOWNTO 0), alu_output(9 DOWNTO 0))
+	SetAlternativePc : PROCESS (interrupt_cpu, Interrupt_latch, control_signals(MEMORY_TO_PC), dram_data_out(9 DOWNTO 0), processing_output (9 DOWNTO 0))
 	BEGIN
 		IF (Interrupt_latch = '1') THEN
 			pc_alt <= interrupt_address;
 		ELSIF (control_signals(MEMORY_TO_PC) = '1') THEN
 			pc_alt <= dram_data_out(9 DOWNTO 0);
 		ELSE
-			pc_alt <= alu_output(9 DOWNTO 0);
+			pc_alt <= processing_output (9 DOWNTO 0);
 		END IF;
 	END PROCESS;
 

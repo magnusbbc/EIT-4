@@ -13,3 +13,5 @@ gpp -n +c "//" "\n" -I Headers Peripherals\I2S\I2SDriverIn.vhd 			> C:\Users\mag
 gpp -n +c "//" "\n" -I Headers Peripherals\I2S\I2SDriverOut.vhd 			> C:\Users\magnu\Documents\AAU\4_Semester\QUARTUS_PROJECTS\CPU_V1_CPP\Project_files\I2SDriverOut.vhd
 gpp -n +c "//" "\n" -I Headers Peripherals\I2S\I2SMonoIn.vhd 			> C:\Users\magnu\Documents\AAU\4_Semester\QUARTUS_PROJECTS\CPU_V1_CPP\Project_files\I2SMonoIn.vhd
 gpp -n +c "//" "\n" -I Headers Peripherals\I2S\I2SMonoOut.vhd 			> C:\Users\magnu\Documents\AAU\4_Semester\QUARTUS_PROJECTS\CPU_V1_CPP\Project_files\I2SMonoOut.vhd
+gpp -n +c "//" "\n" -I Headers Fir_Filter\Filter.vhd 			> C:\Users\magnu\Documents\AAU\4_Semester\QUARTUS_PROJECTS\CPU_V1_CPP\Project_files\Filter.vhd
+gpp -n +c "//" "\n" -I Headers Test_Benches\CPU_V1_TB.vhd 			> C:\Users\magnu\Documents\AAU\4_Semester\QUARTUS_PROJECTS\CPU_V1_CPP\Project_files\CPU_V1_TB.vhd
