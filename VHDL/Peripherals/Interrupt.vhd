@@ -18,20 +18,6 @@ ELSE \
 END IF; \
 --\
 
-#define INTERRUPT_RESET(x) PROCESS($$x$$, $$x$$_reset_latch,$$x$$_reset) \
-    BEGIN \
-        IF($$x$$_reset_latch = '1') THEN\
-            $$x$$_latch <= '0';\
-        ElSIF($$x$$ = '1' AND $$x$$_reset = '0') THEN\
-            $$x$$_latch <= '1';\
-        END IF;\
-        IF ($$x$$_reset_latch = '1') THEN\
-            $$x$$_reset <= '1';\
-        ELSIF($$x$$_reset = '1' AND $$x$$ = '0') THEN\
-            $$x$$_reset <= '0';\
-        END IF;\
-    END PROCESS;\
---\
 
 --Above macro is WIP, does not work with button interrupts
 
@@ -111,9 +97,31 @@ BEGIN
             IF(interrupt_enable = '1') Then
                 IF(false_signal = '1') THEN --Done to force an if statement, so the INTERRUPT _BEHAVIOUR can be used for all interrupts
 
-                INTERRUPT_BEHAVIOUR(Interrupt_btn,0)
+                ELSIF( Interrupt_btn_latch  = '1') Then 
+                    IF(Interrupt_btn_enable = '1') THEN 
+                         interrupt_cpu <= '1'; 
+                        Interrupt_btn_reset_latch <= '1'; 
+                        interrupt_address <= REG(0); 
+                        interrupt_nest_enable <= Interrupt_btn_nest_enable; 
+                    ELSE 
+                        interrupt_cpu <= '0'; 
+                        interrupt_btn_reset_latch <= '1';
+                        interrupt_i2s_reset_latch <= '0';
+                        interrupt_nest_enable <= '1';
+                    END IF; 
 
-                INTERRUPT_BEHAVIOUR(interrupt_i2s,2)
+                ELSIF( interrupt_i2s_latch  = '1') Then 
+                    IF(interrupt_i2s_enable = '1') THEN 
+                        interrupt_cpu <= '1'; 
+                        interrupt_i2s_reset_latch <= '1'; 
+                        interrupt_address <= REG(2); 
+                        interrupt_nest_enable <= interrupt_i2s_nest_enable; 
+                    ELSE 
+                        interrupt_cpu <= '0'; 
+                        interrupt_btn_reset_latch <= '0';
+                        interrupt_i2s_reset_latch <= '1';
+                        interrupt_nest_enable <= '1';
+                    END IF; 
 
                 ELSE
                     DEFAULT_BEHAVIOUR
