@@ -18,7 +18,7 @@ ENTITY I2SMonoOut IS
 
 		clk             : IN std_logic; -- Clock that will be used for logic and will be directly used as output bitclock. Can be directly connected to a syncronized bitclock input from the i2s input signal.
 		data_in         : IN std_logic_vector(15 DOWNTO 0);-- The data input. The word that should be loaded into the buffers should be loaded to these inputs when the interupts are set to high, and will be loaded at next falling_edge.
-		bit_clk_out     : OUT std_logic; -- Output bitclock for the output i2s signal.
+		bit_clock_out     : OUT std_logic; -- Output bitclock for the output i2s signal.
 		word_select_out : OUT std_logic; --Output wordselect for the output i2s signal.
 		data_out        : OUT std_logic -- Output serial data for the i2s signal.    
 	);
@@ -39,7 +39,7 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	dut : ENTITY work.i2sDriverOut
+	Output : ENTITY work.i2sDriverOut
 		PORT MAP
 		(
 			clk                   => clk,
@@ -49,10 +49,10 @@ BEGIN
 			interrupt_reset_right => interrupt_reset_right,
 			data_in_left          => data_in_temp,
 			data_in_right         => data_in_temp,
-			bit_clock             => bit_clk_out,
+			bit_clock             => bit_clock_out,
 			word_select           => word_select_out,
 			data_out              => data_out
-			--Ports for input
+			--Ports for Output
 		);
 	interrupt_reset <= interrupt_reset_left AND interrupt_reset_right;
 END Behavioral;
