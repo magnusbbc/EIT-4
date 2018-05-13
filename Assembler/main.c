@@ -96,6 +96,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 	char output[7][17];// Array with all outputs. used to output in different order depending on opcode type and special cases
 	int immMem = 0; //used to keep track of a specific case for memory addresses which contain $rs+imm
 	
+	int regJump = 0;
 	fpIn = fopen(buffer[0], "r"); //opens input file in read-only mode
 
 	if (!fpIn) //read file doesnt exist
@@ -338,10 +339,10 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArr[24], "CMP "); // compare Register
 		strcpy(opcArr[25], "MOV "); // Move Register
 
-		strcpy(opcArr[26], "JMP "); // Jump Register
+		strcpy(opcArr[26], "JMP "); // Jump label
 		strcpy(opcArr[27], "JMPNQ "); // jump NOT EQUAL TO
-		strcpy(opcArr[28], "JMPLE "); // Jump Less Register
-		strcpy(opcArr[29], "JMPEQ "); // Jump equal Register
+		strcpy(opcArr[28], "JMPLE "); // Jump Less label
+		strcpy(opcArr[29], "JMPEQ "); // Jump equal label
 
 		strcpy(opcArr[30], "NOP "); // No operation 
 		
@@ -357,6 +358,11 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArr[38], "FIRSAR "); // FIRSAR
 		strcpy(opcArr[39], "FIRSAI "); // FIRSARI
 		strcpy(opcArr[40], "FIRCORESET "); // FIRCORESET
+
+		strcpy(opcArr[41], "JMPR "); // Jump Register
+		strcpy(opcArr[42], "JMPNQR "); // jump not equal to register
+		strcpy(opcArr[43], "JMPLER "); // Jump Less Register
+		strcpy(opcArr[44], "JMPEQR "); // Jump equal Register
 
 #pragma endregion
 
@@ -411,6 +417,11 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArrBin[39], "101011"); // FIRSARI
 		strcpy(opcArrBin[40], "101001"); // FIRCORESET
 
+		strcpy(opcArrBin[41], "101100"); // JMPR
+		strcpy(opcArrBin[42], "101101"); // JMPNQR
+		strcpy(opcArrBin[43], "101110"); // JMPLER
+		strcpy(opcArrBin[44], "101111"); // JMPEQR
+
 #pragma endregion
 
 		//Compares the temporary input array with an array of possible opcodes to find which one is present.
@@ -439,6 +450,10 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				if (i > 25 && i <= 29)
 				{
 					opcType = JUMP; 
+				}
+				if (i >= 41)
+				{
+					opcType = JUMP;
 				}
 				if (i >= 30 && i <= 35)
 				{
@@ -917,36 +932,54 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 							opTemp[j + 1] = '\0';
 						}
 					}
-					//compares the found operand with the known labelnames to see which is called.
-					//when the correct labelname is found, the corresponding labeline is saved to output
-					//as binary, the same as other immediates are handled
-					for (int u = 0; u < 100; u++)
+					if (strstr(opTemp, "#")) //label
 					{
-						if (strstr(opTemp, labelName[u]))
+						//compares the found operand with the known labelnames to see which is called.
+						//when the correct labelname is found, the corresponding labeline is saved to output
+						//as binary, the same as other immediates are handled
+						regJump = 0; //no reg in jump
+						for (int u = 0; u < 100; u++)
 						{
-							char padString[17];
-							_itoa(labelLine[u], padString, 2);
-							int zeros = 0;
-							for (int j = 0; j < 17; j++)
+							if (strstr(opTemp, labelName[u]))
 							{
-								if (padString[j] == '\0')
+								char padString[17];
+								_itoa(labelLine[u], padString, 2);
+								int zeros = 0;
+								for (int j = 0; j < 17; j++)
 								{
-									zeros = 16 - j;
-									char padTemp[17];
-									for (int u = 0; u < zeros; u++)
+									if (padString[j] == '\0')
 									{
-										padTemp[u] = '0';
-									}
-									padTemp[zeros] = '\0';
+										zeros = 16 - j;
+										char padTemp[17];
+										for (int u = 0; u < zeros; u++)
+										{
+											padTemp[u] = '0';
+										}
+										padTemp[zeros] = '\0';
 
-									strcat(padTemp, padString);
-									strcpy(padString, padTemp);
+										strcat(padTemp, padString);
+										strcpy(padString, padTemp);
+									}
 								}
+
+								strcpy(output[outputIndex], padString);
+								outputIndex++;
+								break;
 							}
-							
-							strcpy(output[outputIndex], padString);
-							outputIndex++;
-							break;
+						}
+					}
+					else if (strstr(opTemp,"$")) //reg
+					{
+						//compares operand with register array and prints found register as binary
+						regJump = 1; //reg in jump
+						for (int u = 0; u < 100; u++)
+						{
+							if (strstr(opTemp, opArr[u]))
+							{
+								strcpy(output[outputIndex], opArrBin[u]);
+								outputIndex++;
+								break;
+							}
 						}
 					}
 				}				
@@ -1029,8 +1062,16 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 
 		if (opcType == JUMP)
 		{
-			printf("%s %s %s %s", output[0], output[5], output[5], output[1]);
-			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[5], output[1]);
+			if (regJump == 0)//label
+			{
+				printf("%s %s %s %s", output[0], output[5], output[5], output[1]);
+				fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[5], output[1]);
+			}
+			else if (regJump == 1) //reg
+			{
+				printf("%s %s %s %s %s %s", output[0], output[1], output[5], output[5], output[5], output[6]);
+				fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[1], output[5], output[5], output[5], output[6]);
+			}
 		}
 		if (strstr(output[0], opcArrBin[31]))//LOAD
 		{
