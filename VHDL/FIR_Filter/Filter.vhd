@@ -18,7 +18,8 @@ ENTITY Filter IS ------> Interface
 		load_system_input 		: IN STD_LOGIC := '0'; -- Load/run switch
 		system_input  			: IN STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0'); -- system_input
 		coefficient_in  	    : IN STD_LOGIC_VECTOR(COEFFICIENT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0'); -- Coefficient data input
-		system_output  			: OUT STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0')  -- System output
+		system_output  			: OUT STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0');  -- System output
+		write_enable			: IN STD_LOGIC := '0'
 	);
 	
 END Filter; 
@@ -42,18 +43,22 @@ BEGIN
 	BEGIN
 												------> Load data or coefficients
 		IF reset = '1' THEN 			-- clear data and coefficients reg.
-			input_data_temp <= (others=>'0');
-			FOR K IN 0 TO TAPS - 1 LOOP
-				coefficient_array(K) <= (others=>'0');
-			END LOOP;
-		ELSIF rising_edge(clk) THEN
-			IF load_system_input = '0' THEN
-				coefficient_array(TAPS - 1) <= coefficient_in; -- Store coefficient in register
-				FOR I IN TAPS - 2 DOWNTO 0 LOOP -- Coefficients shift one
-					coefficient_array(I) <= coefficient_array(I + 1);
+			IF(write_enable = '1') THEN
+				input_data_temp <= (others=>'0');
+				FOR K IN 0 TO TAPS - 1 LOOP
+					coefficient_array(K) <= (others=>'0');
 				END LOOP;
-			ELSE
-				input_data_temp <= system_input; -- Get one data sample at adder_array time
+			END IF;
+		ELSIF falling_edge(clk) THEN
+			IF(write_enable = '1') THEN
+				IF load_system_input = '0' THEN
+					coefficient_array(TAPS - 1) <= coefficient_in; -- Store coefficient in register
+					FOR I IN TAPS - 2 DOWNTO 0 LOOP -- Coefficients shift one
+						coefficient_array(I) <= coefficient_array(I + 1);
+					END LOOP;
+				ELSE
+					input_data_temp <= system_input; -- Get one data sample at adder_array time
+				END IF;
 			END IF;
 		END IF;
 	END PROCESS Load;
@@ -61,14 +66,18 @@ BEGIN
 	SOP : PROCESS (clk, reset, adder_array, product_array)-- Compute sum-of-products
 	BEGIN
 		IF reset = '1' THEN -- clear tap registers
-			FOR K IN 0 TO TAPS - 1 LOOP
-				adder_array(K) <= (OTHERS => '0');
-			END LOOP;
-		ELSIF rising_edge(clk) THEN
-			FOR I IN 0 TO TAPS - 2 LOOP -- Compute the transposed
-				adder_array(I) <= std_logic_vector(resize(signed(product_array(I)),adder_array(0)'length)) + adder_array(I + 1); -- filter adds
-			END LOOP;
-			adder_array(TAPS - 1) <= std_logic_vector(resize(signed(product_array(TAPS-1)),adder_array(0)'length)); -- First TAP has only adder_array register
+			IF(write_enable = '1') THEN
+				FOR K IN 0 TO TAPS - 1 LOOP
+					adder_array(K) <= (OTHERS => '0');
+				END LOOP;
+			END IF;
+		ELSIF falling_edge(clk) THEN
+			IF(write_enable = '1') THEN
+				FOR I IN 0 TO TAPS - 2 LOOP -- Compute the transposed
+					adder_array(I) <= std_logic_vector(resize(signed(product_array(I)),adder_array(0)'length)) + adder_array(I + 1); -- filter adds
+				END LOOP;
+				adder_array(TAPS - 1) <= std_logic_vector(resize(signed(product_array(TAPS-1)),adder_array(0)'length)); -- First TAP has only adder_array register
+			END IF;
 		END IF; 
 		full_output <= adder_array(0);
 	END PROCESS SOP;

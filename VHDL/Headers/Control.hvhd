@@ -98,3 +98,7 @@
 #define FIRRESET 41 
 #define FIRSAR 42 
 #define FIRSAI 43 
+#define JMPR 44
+#define JMPNQR 45
+#define JMPLER 46
+#define JMPEQR 47

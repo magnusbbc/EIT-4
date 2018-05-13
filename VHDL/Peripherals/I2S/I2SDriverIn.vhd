@@ -15,11 +15,11 @@ USE ieee.std_logic_1164.ALL;
 ENTITY i2sDriverIn IS
 	PORT
 	(
-		bit_clock             : IN std_logic;-- Bitclock in
-		word_select           : IN std_logic;-- Worselect
-		data_in               : IN std_logic;-- Data in
-		data_out_left         : OUT std_logic_vector(DATA_CONF DOWNTO 0); -- One full word of data out
-		data_out_right        : OUT std_logic_vector(DATA_CONF DOWNTO 0);
+		bit_clock             : IN std_logic := '0';-- Bitclock in
+		word_select           : IN std_logic := '0';-- Worselect
+		data_in               : IN std_logic := '0';-- Data in
+		data_out_left         : OUT std_logic_vector(DATA_CONF DOWNTO 0) := (OTHERS => '0'); -- One full word of data out
+		data_out_right        : OUT std_logic_vector(DATA_CONF DOWNTO 0) := (OTHERS => '0');
 		interrupt_left        : OUT std_logic := '0';-- Interupt out. Is set high when a new word is ready
 		interrupt_right       : OUT std_logic := '0';
 		interrupt_reset_left  : IN std_logic  := '0';-- Interupt reset. Set this high to reset the interupt. Should be high untill intterupt put is low again.
@@ -31,7 +31,7 @@ END i2sDriverIn;
 ARCHITECTURE i2sDriverIn OF i2sDriverIn IS
 	SIGNAL lr      : std_logic := '1';--Internal wordselect, short for 'left right' left channel is active when '1'
 	SIGNAL cnt     : INTEGER   := 0; -- Bit counter
-	SIGNAL outBuff : std_logic_vector (DATA_CONF DOWNTO 0);-- The initial buffer for the serial data
+	SIGNAL outBuff : std_logic_vector (DATA_CONF DOWNTO 0) := (OTHERS => '0') ;-- The initial buffer for the serial data
 
 BEGIN
 	data_input : PROCESS (bit_clock, word_select)--The main process

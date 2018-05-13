@@ -94,7 +94,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL fir_data_in : std_logic_vector(INOUT_BIT_WIDTH-1 downto 0) := (others=>'0');
 	SIGNAL fir_data_out : std_logic_vector(INOUT_BIT_WIDTH-1 downto 0) := (others=>'0');
 	SIGNAL fir_load_data_enable : std_logic := '0';
-	SIGNAL fir_clk : std_logic := '0';
+	SIGNAL fir_write : std_logic := '0';
 
 SIGNAL processing_output : std_logic_vector(WORD_SIZE DOWNTO 0);
 	--Reg Signals
@@ -197,12 +197,13 @@ BEGIN
 		);
 	FIR : ENTITY work.Filter(Behavioural)
 		PORT MAP(
-		clk    => fir_clk,   
+		clk    => sys_clk,   
 		load_system_input => fir_load_data_enable,
 		reset  => control_signals(FIR_RESET), 
 		system_input   => fir_data_in,  
 		coefficient_in => fir_coefficient_in,  
-		system_output  => fir_data_out 
+		system_output  => fir_data_out,
+		write_enable => fir_write
 		);
 
 	PRAM : ENTITY work.MemAuto(SYN)
@@ -275,6 +276,14 @@ BEGIN
 	instruction(REGISTER_WRITE_INDEX_1) WHEN '1',
 	instruction(REGISTER_READ_INDEX_2) WHEN OTHERS;
 	
+	PROCESS(control_signals(FIR_LOAD_SAMPLE),control_signals(FIR_LOAD_COEFFICIENT),control_signals(FIR_RESET))
+	BEGIN
+		IF(control_signals(FIR_LOAD_SAMPLE) = '1' OR control_signals(FIR_LOAD_COEFFICIENT) = '1' OR control_signals(FIR_RESET) = '1') THEN
+			fir_write <= '1';
+		ELSE
+			fir_write <= '0';
+		END IF;
+	END PROCESS;
 	PROCESS(control_signals(FIR_LOAD_SAMPLE),control_signals(FIR_LOAD_COEFFICIENT), alu_output, operand_a, operand_b)
 	BEGIN
 		IF(control_signals(FIR_LOAD_SAMPLE) = '1') THEN
@@ -292,16 +301,6 @@ BEGIN
 		fir_data_out WHEN '1',
 		alu_output WHEN OTHERS;
 
-	PROCESS(sys_clk, fir_coefficient_in, fir_data_in)
-	BEGIN
-		IF(sys_clk = '0') THEN
-			fir_clk <= '0';
-		ELSIF (control_signals(FIR_LOAD_SAMPLE) = '1' OR control_signals(FIR_LOAD_COEFFICIENT) = '1') THEN
-			fir_clk <= '1';
-		ELSE
-			fir_clk <= '0';
-		END IF;
-	END PROCESS;
 	--------------------------------------------
 	-- MemoryRegisterWrite:
 	-- Process controls what data is written to the register file.
@@ -476,13 +475,13 @@ BEGIN
 
 	--------------------------------------------
 	-- SysClockSelect:
-	-- Controls "sys_clc" source
+	-- Controls "sys_clk" source
 	--------------------------------------------
 	SysClockSelect : WITH control_signals(HALT) SELECT sys_clk <=
-	--pll_tmp_clk WHEN '0',
+	pll_tmp_clk WHEN '0',
 	--DBtn(2) when '0',
 	--clk_counter(2),
-	clk when '0',
+	--clk when '0',
 	'0' WHEN OTHERS;
 
 	--------------------------------------------

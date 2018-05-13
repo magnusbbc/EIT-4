@@ -93,6 +93,11 @@ BEGIN
 	std_logic_vector(to_unsigned(PBS, 6)) & std_logic_vector(to_unsigned(LE, 3)) & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN JMPLE,
 	std_logic_vector(to_unsigned(PBS, 6)) & std_logic_vector(to_unsigned(NQ, 3)) & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN JMPNQ,
 
+	std_logic_vector(to_unsigned(PAS, 6)) & std_logic_vector(to_unsigned(BR, 3)) & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN JMPR,
+	std_logic_vector(to_unsigned(PAS, 6)) & std_logic_vector(to_unsigned(EQ, 3)) & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN JMPEQR,
+	std_logic_vector(to_unsigned(PAS, 6)) & std_logic_vector(to_unsigned(LE, 3)) & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN JMPLER,
+	std_logic_vector(to_unsigned(PAS, 6)) & std_logic_vector(to_unsigned(NQ, 3)) & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN JMPNQR,
+
 	std_logic_vector(to_unsigned(NAA, 6)) & std_logic_vector(to_unsigned(NB, 3)) & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_E WHEN HALT,
 	
 	std_logic_vector(to_unsigned(PAS, 6)) & std_logic_vector(to_unsigned(NB, 3)) & FIRIN_D & FIRCO_E & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN FIRCOR,
