@@ -4,17 +4,17 @@ USE ieee.std_logic_1164.ALL;
 ENTITY i2s_passthrough IS
 	GENERIC
 	(
-		DATA_WIDTH : INTEGER RANGE 4 TO 32 := 16
+		DATA_WIDTH : INTEGER RANGE 4 TO 32 := 4
 	);
 	PORT
 	(
-		bclk   : IN std_logic;
-		ws     : IN std_logic;
-		Din    : IN std_logic;
+		bit_clock   : IN std_logic;
+		word_select     : IN std_logic;
+		data_in   : IN std_logic;
 		
-		bclkO     : out std_logic;
-		wsO       : out std_logic;
-		DOut     	: out std_logic
+		bit_clock_out     : out std_logic;
+		word_select_out       : out std_logic;
+		data_out     	: out std_logic
 	);
 END i2s_passthrough;
 
@@ -28,31 +28,32 @@ signal inIntr_R :  std_logic;
 		--Ports for input
 
 BEGIN
-	i2sdrivers : entity work.i2sDriver 
-	generic map( 	
-			DATA_WIDTH 	=> DATA_WIDTH  
-	)
+	i2sIn : entity work.i2sDriverIn 
+	
 	port map(
-			bclk 		=> bclk 		,
-			ws			=> ws			,
-			Din		=> Din		,
-			DOut_L	=> DOut_L	,
-			DOut_R	=> DOut_R	,
-			inInt_L	=> inInt_L	,
-			inInt_R	=> inInt_R	,
-			inIntr_L	=> inIntr_L	,
-			inIntr_R	=> inIntr_R	,
-			--input
-			clk 		=> bclk 		,
-			outInt_L	=> inInt_L	,
-			outInt_R	=> inInt_R	,
-			outIntr_L=> inIntr_L,
-			outIntr_R=> inIntr_R,
-			DIn_L 	=> DOut_L 	,
-			DIn_R	 	=> DOut_R 	,
-			bclkO 	=> bclkO 	,
-			wsO		=> wsO		,
-			DOut		=> DOut			
+			bit_clock	 			=> bit_clock	 		,
+			word_select				=> word_select			,
+			data_in 				=> data_in 				,
+			data_out_left 			=> DOut_L 		,
+			data_out_right 			=> DOut_R 		,
+			interrupt_left			=> inInt_L		,
+			interrupt_right			=> inInt_R		,
+			interrupt_reset_left	=> inIntr_L	,
+			interrupt_reset_right	=> inIntr_R		);
+			--
+			i2sOut : entity work.i2sDriverOut
+			port map(
+				
+			clk	 					=> bit_clock 		,
+			interrupt_left			=> inInt_L	,
+			interrupt_right			=> inInt_R	,
+			interrupt_reset_left	=> inIntr_L,
+			interrupt_reset_right	=> inIntr_R,
+			data_in_left	 		=> DOut_L 	,
+			data_in_right		 	=> DOut_R 	,
+			bit_clock	 			=> bit_clock_out 	,
+			word_select				=> word_select_out		,
+			data_out				=> data_out			
         );
 		  
 	
