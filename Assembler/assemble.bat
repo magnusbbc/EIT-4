@@ -1,0 +1,1 @@
+Assembler.exe ..\Assembly\audio_passthrough.asm ..\VHDL\VHDL_RAW\MemInit.mif
