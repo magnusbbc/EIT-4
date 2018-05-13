@@ -275,19 +275,16 @@ BEGIN
 	instruction(REGISTER_WRITE_INDEX_1) WHEN '1',
 	instruction(REGISTER_READ_INDEX_2) WHEN OTHERS;
 	
-		PROCESS(control_signals(FIR_LOAD_SAMPLE),control_signals(FIR_LOAD_COEFFICIENT), alu_output, operand_a, operand_b)
+	PROCESS(control_signals(FIR_LOAD_SAMPLE),control_signals(FIR_LOAD_COEFFICIENT), alu_output, operand_a, operand_b)
 	BEGIN
 		IF(control_signals(FIR_LOAD_SAMPLE) = '1') THEN
 			fir_load_data_enable <= '1';
 			fir_data_in <= alu_output;
-			fir_clk <= sys_clk;
 		ELSIF(control_signals(FIR_LOAD_COEFFICIENT) = '1') THEN
 			fir_load_data_enable <= '0';
 			fir_coefficient_in <= alu_output;
-			fir_clk <= sys_clk;
 		ELSE
 			fir_load_data_enable <= '0';
-			fir_clk <= '0';
 		END IF;
 	END PROCESS;
 
@@ -295,6 +292,16 @@ BEGIN
 		fir_data_out WHEN '1',
 		alu_output WHEN OTHERS;
 
+	PROCESS(sys_clk, fir_coefficient_in, fir_data_in)
+	BEGIN
+		IF(sys_clk = '0') THEN
+			fir_clk <= '0';
+		ELSIF (control_signals(FIR_LOAD_SAMPLE) = '1' OR control_signals(FIR_LOAD_COEFFICIENT) = '1') THEN
+			fir_clk <= '1';
+		ELSE
+			fir_clk <= '0';
+		END IF;
+	END PROCESS;
 	--------------------------------------------
 	-- MemoryRegisterWrite:
 	-- Process controls what data is written to the register file.
@@ -472,10 +479,10 @@ BEGIN
 	-- Controls "sys_clc" source
 	--------------------------------------------
 	SysClockSelect : WITH control_signals(HALT) SELECT sys_clk <=
-	pll_tmp_clk WHEN '0',
+	--pll_tmp_clk WHEN '0',
 	--DBtn(2) when '0',
 	--clk_counter(2),
-	--clk when '0',
+	clk when '0',
 	'0' WHEN OTHERS;
 
 	--------------------------------------------

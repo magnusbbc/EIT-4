@@ -13,12 +13,12 @@ USE ieee.numeric_std.ALL;
 ENTITY Filter IS ------> Interface
 	PORT 
 	(
-		clk    					: IN STD_LOGIC; -- System clock
-		reset  					: IN STD_LOGIC;	-- Asynchron reset
-		load_system_input 		: IN STD_LOGIC; -- Load/run switch
-		system_input  			: IN STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0); -- system_input
-		coefficient_in  	    : IN STD_LOGIC_VECTOR(COEFFICIENT_WIDTH - 1 DOWNTO 0); -- Coefficient data input
-		system_output  			: OUT STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0)  -- System output
+		clk    					: IN STD_LOGIC := '0'; -- System clock
+		reset  					: IN STD_LOGIC := '0';	-- Asynchron reset
+		load_system_input 		: IN STD_LOGIC := '0'; -- Load/run switch
+		system_input  			: IN STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0'); -- system_input
+		coefficient_in  	    : IN STD_LOGIC_VECTOR(COEFFICIENT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0'); -- Coefficient data input
+		system_output  			: OUT STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0')  -- System output
 	);
 	
 END Filter; 
@@ -29,13 +29,13 @@ ARCHITECTURE Behavioural OF Filter IS
 	TYPE product_array_type 		IS ARRAY (0 TO TAPS - 1) OF STD_LOGIC_VECTOR(MULTIPLIER_WIDTH - 1 DOWNTO 0);		
 	TYPE adder_array_type 			IS ARRAY (0 TO TAPS - 1) OF STD_LOGIC_VECTOR(ADDER_WIDTH - 1 DOWNTO 0);				
 
-	SIGNAL coefficient_array 		: coefficient_array_type; 	-- Coefficient array
-	SIGNAL product_array 			: product_array_type; 		-- Product array
-	SIGNAL adder_array 				: adder_array_type; 		-- Adder array
+	SIGNAL coefficient_array 		: coefficient_array_type := (others => (others => '0')); 	-- Coefficient array
+	SIGNAL product_array 			: product_array_type := (others => (others => '0')); 		-- Product array
+	SIGNAL adder_array 				: adder_array_type := (others => (others => '0')); 		-- Adder array
 
-	SIGNAL input_data_temp 			: STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0);
-	SIGNAL full_output 				: STD_LOGIC_VECTOR(ADDER_WIDTH - 1 DOWNTO 0);
-    SIGNAL truncated_output 		: STD_LOGIC_VECTOR(ADDER_WIDTH - 1 DOWNTO 0);      
+	SIGNAL input_data_temp 			: STD_LOGIC_VECTOR(INOUT_BIT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL full_output 				: STD_LOGIC_VECTOR(ADDER_WIDTH - 1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL truncated_output 		: STD_LOGIC_VECTOR(ADDER_WIDTH - 1 DOWNTO 0) := (OTHERS => '0');      
 
 BEGIN
 	Load : PROCESS (clk, reset, coefficient_in, coefficient_array, system_input)
@@ -46,7 +46,7 @@ BEGIN
 			FOR K IN 0 TO TAPS - 1 LOOP
 				coefficient_array(K) <= (others=>'0');
 			END LOOP;
-		ELSIF falling_edge(clk) THEN
+		ELSIF rising_edge(clk) THEN
 			IF load_system_input = '0' THEN
 				coefficient_array(TAPS - 1) <= coefficient_in; -- Store coefficient in register
 				FOR I IN TAPS - 2 DOWNTO 0 LOOP -- Coefficients shift one
@@ -64,7 +64,7 @@ BEGIN
 			FOR K IN 0 TO TAPS - 1 LOOP
 				adder_array(K) <= (OTHERS => '0');
 			END LOOP;
-		ELSIF falling_edge(clk) THEN
+		ELSIF rising_edge(clk) THEN
 			FOR I IN 0 TO TAPS - 2 LOOP -- Compute the transposed
 				adder_array(I) <= std_logic_vector(resize(signed(product_array(I)),adder_array(0)'length)) + adder_array(I + 1); -- filter adds
 			END LOOP;
