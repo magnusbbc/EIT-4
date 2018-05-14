@@ -79,11 +79,35 @@ Finally, to upload the synthesized cpu to the DEO FPGA, double click on "Program
 
 ## Assembly Programming
 
+To make the assembly program work as instended please follow these 2 steps.
+
+
+1. First open the Assembly folder.
+    Here you can see all assembly programs that is written to the CPU.
+    To create your own program for the CPU you must create a .asm file and write the desired program inside.
+
+![Alt Text](https://imgur.com/vDHE4th.gif)
+    
+2. Open the "Assembler" folder
+    Here is a assemble.bat script. Change the bat script to point at the new program you created in step 1.
+    Run the bat script and press y.
+
+![Alt Text](https://i.imgur.com/QtjyFYc.gif)
+
+
+The assembly code is now converted to a MemInit.mif file and is saved at EIT-4 -> VHDL -> VHLD_RAW.
+
+![Alt Text](https://imgur.com/mUx5NbF.gif)
+
+From here on the program is now ready to run.
+
+OBS. for more details and information on how to write the correct syntax please look in the assembler manual.
+    
 ## Authors
 
 * **Frederik Skyt Dæncker Rasmussen**
 * **Jakob Karup Thomsen**
-* **Mikkel Hardysøe**
+* **Mikkel Damgård Hardysøe**
 * **Max Wæhrens**
 * **Peter Fisker**
 * **Magnus B.B. Christensen**
