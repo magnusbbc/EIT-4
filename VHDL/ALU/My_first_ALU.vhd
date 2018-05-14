@@ -112,9 +112,9 @@ multiplier : entity work.Multiplier_1
 		result => Mult_Temp
 	);				
  
-	PROCESS (Operand1, Operand2, Operation, temp) IS
+	PROCESS (Operand1, Operand2, Operation, temp, mult_Temp) IS
 	VARIABLE Parity : std_logic;					
-	BEGIN
+	BEGIN	
 	temp <= (others => '0');
 	utemp <= (others => '0');
 	

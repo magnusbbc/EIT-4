@@ -47,28 +47,28 @@ BEGIN
 	
 stim_proc:process(TbClock)
 		begin
-			operation <= "000010"; 
+			operation <= "000100"; 
 			IF(rising_edge(TbClock)) THEN
 				CASE cnt is 
 					when 1 => 
-						operand1 <= x"0000";
-						operand2 <= x"0000";
+						operand1 <= x"7ffF";
+						operand2 <= x"0002";
 						cnt<= cnt+1;					
 					when 2 =>
-						operand1 <= x"0000";
-						operand2 <= x"2000";
+						operand1 <= x"7ffF";
+						operand2 <= x"0002";
 						cnt<= cnt+1;					
 					when 3 =>
-						operand1 <= x"f000";
-						operand2 <= x"1000";
+						operand1 <= x"7ffF";
+						operand2 <= x"0002";
 						cnt<= cnt+1;					
 					when 4 =>
 						operand1 <= x"7000";
 						operand2 <= x"5000";
 						cnt<= cnt+1;					
 					when 5 =>
-						operand1 <= x"e000";
-						operand2 <= x"b000";
+						operand1 <= x"0005";
+						operand2 <= x"000A";
 						cnt<= cnt+1;					
 					when 6 =>
 						operand1 <= x"f000";
