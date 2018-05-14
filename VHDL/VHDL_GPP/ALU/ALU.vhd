@@ -25,6 +25,8 @@
 -- ICA Increments A
 -- ICB Increments B
 -- NOP
+-- Convert signed to unsigned
+-- Convert unsigned to signed
 --
 --The ALU does not depend on a clock signal
 --
@@ -171,6 +173,7 @@ BEGIN
 					temp   <= ("0" & operand_b);
 					result <= operand_b;
 
+				--WHEN UTS => 
 				WHEN OTHERS =>
 
 			END CASE;

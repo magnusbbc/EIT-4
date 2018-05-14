@@ -29,23 +29,23 @@ BEGIN
 
 	port map(
 			bit_clock 		=> bit_clock 		,
-			word_select			=> word_select			,
-			data_in		=> data_in		,
+			word_select		=> word_select			,
+			data_in			=> data_in		,
 			data_out		=> data_outs		,
-			interrupt	=> interrupt			,
+			interrupt		=> interrupt			,
 			interrupt_reset	=> '1'	
 			
 			--input
 			);
 			
-				i2sdriverout : entity work.i2sMonoOut 
+	i2sdriverout : entity work.i2sMonoOut 
 
 	port map(
-			clk 		=> bit_clock 		,
+			clk 				=> bit_clock 		,
 			word_select_out		=> word_select_out	,
-			data_in	=> data_outs	,
-			bit_clock_out	=> bit_clock_out	,
-			data_out		=> data_out		
+			data_in				=> data_outs	,
+			bit_clock_out		=> bit_clock_out	,
+			data_out			=> data_out		
 			--input
 			);
 

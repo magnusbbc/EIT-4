@@ -108,6 +108,11 @@
 
 
 
+
+
+
+
+
 ------------------------------------------------------------------------------------
 ---- Engineer: Peter Fisker
 ---- Module Name: ALU
@@ -133,6 +138,8 @@
 -- 17  Increments A
 -- 18  Increments B
 -- 0 
+-- Convert signed to unsigned
+-- Convert unsigned to signed
 --
 --The ALU does not depend on a clock signal
 --
@@ -279,6 +286,7 @@ BEGIN
 					temp   <= ("0" & operand_b);
 					result <= operand_b;
 
+				--WHEN 20  => 
 				WHEN OTHERS =>
 
 			END CASE;
