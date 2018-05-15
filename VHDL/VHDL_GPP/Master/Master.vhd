@@ -164,6 +164,7 @@ BEGIN
 			interrupt_enable => interrupt_enable,
 			interrupt_nest_enable => interrupt_nest_enable,
 			i2s_bit_clk => pll_clk_i2s,
+			--i2s_bit_clk => bclk,
 			i2s_word_select => ws,
 			i2s_data_in => Din,
 			i2s_bit_clk_out => bclkO,
