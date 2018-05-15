@@ -18,7 +18,7 @@ ENTITY I2SMonoIn IS
 		bit_clock       : IN std_logic; --bitclock in
 		word_select     : IN std_logic; --wordselect in 
 		data_in         : IN std_logic; --data in
-		data_out        : OUT std_logic_vector(15 DOWNTO 0); -- data recieved from the i2s (little endian)
+		data_out        : OUT std_logic_vector(16-1 DOWNTO 0); -- data recieved from the i2s (little endian)
 		interrupt       : OUT std_logic; --interupt. is set high when data is available at data_out
 		interrupt_reset : IN std_logic --interupt reset. This should be set high when the data has been read from data_out, and will reset interrupt at the next clock.
 	);
