@@ -102,7 +102,7 @@ BEGIN
 		MAP(
 		clk             => i2s_bit_clk,
 		data_in         => i2s_mono_out_data_in,
-		bit_clk_out     => i2s_bit_clk_out,
+		bit_clock_out     => i2s_bit_clk_out,
 		word_select_out => i2s_word_select_out,
 		data_out        => i2s_data_out
 		);

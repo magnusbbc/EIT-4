@@ -1,1 +1,1 @@
-Assembler.exe ..\Assembly\audio_passthrough.asm ..\VHDL\VHDL_RAW\MemInit.mif
+Assembler.exe ..\Assembly\filter_sine_gen2.asm ..\VHDL\VHDL_RAW\MemInit.mif

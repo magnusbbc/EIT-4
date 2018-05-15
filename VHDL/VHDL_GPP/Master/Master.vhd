@@ -130,6 +130,7 @@ SIGNAL processing_output : std_logic_vector(WORD_SIZE DOWNTO 0);
 	
 	SIGNAL sys_clk : std_logic; --Clock that controls the system, can either be assigned to the normal clock (for simulation), or pll_tmp_clk
 	SIGNAL pll_clk : std_logic; --PLL Clock
+	SIGNAL pll_clk_i2s : std_logic; --PLL Clock
 	SIGNAL pll_lock : std_logic; --PLL lock signal
 	SIGNAL pll_tmp_clk : Std_logic; --Is assigned the pll_clk when pll_lock is detected
 	SIGNAL clk_counter : std_logic_vector(2 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
@@ -142,6 +143,12 @@ BEGIN
 			c0 => pll_clk,
 			locked => pll_lock
 		);
+
+	PLL_i2s : ENTITY work.PLL_i2s(SYN)
+	PORT MAP(
+		inclk0 => clk,
+		c0 => pll_clk_i2s
+	);
 	MEMCNT : ENTITY work.MemoryController
 		PORT MAP(
 			write_enable => control_signals(MEMORY_WRITE),
@@ -156,7 +163,7 @@ BEGIN
 			interrupt_cpu => interrupt_cpu,
 			interrupt_enable => interrupt_enable,
 			interrupt_nest_enable => interrupt_nest_enable,
-			i2s_bit_clk => bclk,
+			i2s_bit_clk => pll_clk_i2s,
 			i2s_word_select => ws,
 			i2s_data_in => Din,
 			i2s_bit_clk_out => bclkO,
