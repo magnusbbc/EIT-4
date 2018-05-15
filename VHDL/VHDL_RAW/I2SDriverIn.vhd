@@ -54,7 +54,7 @@ BEGIN
 
 			IF vcnt < (16 ) THEN
 
-				voutBuff(vcnt) := data_in; -- Read data to buffer
+				voutBuff(16-1-vcnt) := data_in; -- Read data to buffer
 
 				vcnt           := vcnt + 1; --increment counter
 

@@ -54,7 +54,7 @@ BEGIN
 
 			IF vcnt < (DATA_WIDTH ) THEN
 
-				voutBuff(vcnt) := data_in; -- Read data to buffer
+				voutBuff(DATA_WIDTH-1-vcnt) := data_in; -- Read data to buffer
 
 				vcnt           := vcnt + 1; --increment counter
 
