@@ -41,7 +41,7 @@ BEGIN
 		BEGIN
 			IF (rising_edge(TbClock)) THEN -- start when Test bench clock goes 1
 				cnt <= cnt + 1;
-				IF (cnt = 5120) THEN
+				IF (cnt = 21200) THEN
 					TbSimEnded <= '1';
 				END IF;
 			END IF;
@@ -64,17 +64,17 @@ BEGIN
 		PROCESS
 		BEGIN
 			btn <= "111";
-			WAIT FOR 1000 ns;
+			WAIT FOR 562 ns;
 			btn <= "011";
-			WAIT FOR 1000 ns;
+			WAIT FOR 795 ns;
 			btn <= "111";
-			WAIT FOR 1000 ns;
+			WAIT FOR 345 ns;
 			btn <= "011";
-			WAIT FOR 1000 ns;
+			WAIT FOR 1025 ns;
 			btn <= "101";
-			WAIT FOR 1000 ns;
+			WAIT FOR 954 ns;
 			btn <= "111";
-			WAIT FOR 2000 ns;
+			WAIT FOR 542 ns;
 		END PROCESS;
 
 		PROCESS (TbSimEnded)

@@ -61,9 +61,12 @@ ENTITY Master IS
 		wsO   : INOUT std_logic := '0';				--Word select output
 		DOut  : INOUT std_logic := '0';				--data output
 		
+
 		bclkO2 : OUT std_logic := '0';				--Bitclock output
 		wsO2   : OUT std_logic := '0';				--Word select output
-		DOut2  : OUT std_logic := '0'				--data output
+		DOut2  : OUT std_logic := '0';				--data output
+
+		clk_out : OUT std_logic := '0'
 	);
 END ENTITY Master;
 
@@ -88,6 +91,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL interrupt_address : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); --Interrupt address, address that the ISR points to
 	SIGNAL pDataIn : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0); --Not used in current implementation, used to write to program memory
 	SIGNAL pDataOut : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0); --Program Memory instruction output
+	SIGNAL previous_instruction : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 	SIGNAL pram_write_enable : std_logic := '0'; --Program memory write enable disabled in current implementation
 	SIGNAL pram_read_enable : std_logic := '1'; --Program memory read enable always on in current implementation
 	--DRAM Signals
@@ -443,7 +447,7 @@ BEGIN
 		IF (interrupt_nest_enable = '0' AND interrupt_nest_enable_latch = '0') THEN --latching to ensure that the IF statement doesn't run an infinite loop when "interrupt_nest_enable" is set low
 			interrupt_enable            <= '0';
 			interrupt_nest_enable_latch <= '1'; 
-		ELSIF (instruction = POP_PC) THEN --Resets interrupts when POP_PC is executed
+		ELSIF (previous_instruction = POP_PC) THEN --Resets interrupts when POP_PC is executed
 			interrupt_enable            <= '1';
 			interrupt_nest_enable_latch <= '0';
 		END IF;
@@ -484,6 +488,12 @@ BEGIN
 
 	pc_register_file_input <= "000000" & std_logic_vector(unsigned(PC) - 1);
 
+	PROCESS(sys_clk)
+	BEGIN
+		IF(rising_edge(sys_clk)) THEN
+			previous_instruction <= instruction;
+		END IF;
+	END PROCESS;
 
 	--------------------------------------------
 	-- SysClockSelect:
@@ -541,4 +551,5 @@ BEGIN
 	bclkO2 <= bclkO;
 	wsO2   <= wsO;
 	DOut2  <= DOut;
+	clk_out <= pll_clk;
 END ARCHITECTURE Behavioral;

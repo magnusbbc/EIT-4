@@ -11,6 +11,8 @@
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+USE IEEE.STD_LOGIC_unsigned.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY I2SMonoOut IS
 	PORT
@@ -31,16 +33,19 @@ ARCHITECTURE Behavioral OF I2SMonoOut IS
 	SIGNAL interrupt_reset_left, interrupt_reset_right, interrupt : std_logic;
 	SIGNAL interrupt_reset                                        : std_logic                                 := '0';
 	SIGNAL data_in_temp                                           : std_logic_vector(16-1 DOWNTO 0) := x"0000";
+	SIGNAL interrupt_count										  : std_logic_vector(0 DOWNTO 0) := "0";
 BEGIN
 	PROCESS (clk,data_in, interrupt_reset)
 	BEGIN
 		IF(rising_edge(clk)) THEN
 			IF (interrupt_reset = '1') THEN
 				interrupt <= '0';
+				IF(interrupt_count = "1") THEN
 				interrupt_out <= '1';
+				END IF;
 			ELSIF(interrupt_out_reset = '1') THEN
 				interrupt_out <= '0';
-			ELSIF (data_in /= data_in_temp) THEN
+			ELSE
 				data_in_temp <= data_in;
 				interrupt    <= '1';
 			END IF;
@@ -63,4 +68,11 @@ BEGIN
 			--Ports for Output
 		);
 	interrupt_reset <= interrupt_reset_left AND interrupt_reset_right;
+
+	PROCESS(interrupt_reset)
+	BEGIN
+		IF(rising_edge(interrupt_reset)) THEN
+			interrupt_count <= std_logic_vector(unsigned(interrupt_count) + 1);
+		END IF;
+	END PROCESS;
 END Behavioral;
