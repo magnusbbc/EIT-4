@@ -68,6 +68,12 @@ BEGIN
 			btn <= "011";
 			WAIT FOR 1000 ns;
 			btn <= "111";
+			WAIT FOR 1000 ns;
+			btn <= "011";
+			WAIT FOR 1000 ns;
+			btn <= "101";
+			WAIT FOR 1000 ns;
+			btn <= "111";
 			WAIT FOR 2000 ns;
 		END PROCESS;
 

@@ -57,9 +57,13 @@ ENTITY Master IS
 		Din   : IN std_logic  := '0';				--External Data input
 
 		--I2S output
-		bclkO : OUT std_logic := '0';				--Bitclock output
-		wsO   : OUT std_logic := '0';				--Word select output
-		DOut  : OUT std_logic := '0'				--data output
+		bclkO : INOUT std_logic := '0';				--Bitclock output
+		wsO   : INOUT std_logic := '0';				--Word select output
+		DOut  : INOUT std_logic := '0';				--data output
+		
+		bclkO2 : OUT std_logic := '0';				--Bitclock output
+		wsO2   : OUT std_logic := '0';				--Word select output
+		DOut2  : OUT std_logic := '0'				--data output
 	);
 END ENTITY Master;
 
@@ -130,6 +134,7 @@ SIGNAL processing_output : std_logic_vector(WORD_SIZE DOWNTO 0);
 	
 	SIGNAL sys_clk : std_logic; --Clock that controls the system, can either be assigned to the normal clock (for simulation), or pll_tmp_clk
 	SIGNAL pll_clk : std_logic; --PLL Clock
+	SIGNAL pll_clk_i2s : std_logic; --PLL Clock
 	SIGNAL pll_lock : std_logic; --PLL lock signal
 	SIGNAL pll_tmp_clk : Std_logic; --Is assigned the pll_clk when pll_lock is detected
 	SIGNAL clk_counter : std_logic_vector(2 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
@@ -142,6 +147,12 @@ BEGIN
 			c0 => pll_clk,
 			locked => pll_lock
 		);
+
+	PLL_i2s : ENTITY work.PLL_i2s(SYN)
+	PORT MAP(
+		inclk0 => clk,
+		c0 => pll_clk_i2s
+	);
 	MEMCNT : ENTITY work.MemoryController
 		PORT MAP(
 			write_enable => control_signals(MEMORY_WRITE),
@@ -156,7 +167,8 @@ BEGIN
 			interrupt_cpu => interrupt_cpu,
 			interrupt_enable => interrupt_enable,
 			interrupt_nest_enable => interrupt_nest_enable,
-			i2s_bit_clk => bclk,
+			i2s_bit_clk => pll_clk_i2s,
+			--i2s_bit_clk => bclk,
 			i2s_word_select => ws,
 			i2s_data_in => Din,
 			i2s_bit_clk_out => bclkO,
@@ -526,4 +538,7 @@ BEGIN
 	--LED(8)       <= clk_counter(22);
 	--LED(9)       <= clk_counter(24);
 
+	bclkO2 <= bclkO;
+	wsO2   <= wsO;
+	DOut2  <= DOut;
 END ARCHITECTURE Behavioral;
