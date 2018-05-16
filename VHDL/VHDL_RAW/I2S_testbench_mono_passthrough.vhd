@@ -68,7 +68,7 @@ begin
 						word_select_in <= w;
 					end if;
 
-					data_in 		<= d(i-1);
+					data_in 		<= d(d'length-i);
 					wait for t;
 
 					bit_clock_in 	<= '1';
@@ -83,7 +83,7 @@ begin
 		-- Loop counts to 10 in specified bit-depth to both channels
 		-----------------------------------------
 		
-		for i in 0 to 10 loop
+		for i in 0 to 5 loop
 		I2SSignalBurst(('1'),(std_logic_vector(to_unsigned(i,16))),(1));
 		I2SSignalBurst(('0'),(std_logic_vector(to_unsigned(i,16))),(1));
 		
