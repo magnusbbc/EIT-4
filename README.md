@@ -104,7 +104,8 @@ From here on the program is now ready to run.
 OBS. for more details and information on how to write the correct syntax please look in the assembler manual.
 
 ## Known bugs/Issues
- * The JMP will (sometimes?) jump an extra address
+ * The JMP will (sometimes?) jump an (or two?) extra address
+ * Two interrupts following each other will pop the stack twice, and thus reset the PC to 0
 ## Authors
 
 * **Frederik Skyt Dæncker Rasmussen**
