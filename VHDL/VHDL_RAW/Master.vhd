@@ -74,9 +74,13 @@ ENTITY Master IS
 		Din   : IN std_logic  := '0';				--External Data input
 
 		--I2S output
-		bclkO : OUT std_logic := '0';				--Bitclock output
-		wsO   : OUT std_logic := '0';				--Word select output
-		DOut  : OUT std_logic := '0'				--data output
+		bclkO : INOUT std_logic := '0';				--Bitclock output
+		wsO   : INOUT std_logic := '0';				--Word select output
+		DOut  : INOUT std_logic := '0';				--data output
+		
+		bclkO2 : OUT std_logic := '0';				--Bitclock output
+		wsO2   : OUT std_logic := '0';				--Word select output
+		DOut2  : OUT std_logic := '0'				--data output
 	);
 END ENTITY Master;
 
@@ -551,4 +555,7 @@ BEGIN
 	--LED(8)       <= clk_counter(22);
 	--LED(9)       <= clk_counter(24);
 
+	bclkO2 <= bclkO;
+	wsO2   <= wsO;
+	DOut2  <= DOut;
 END ARCHITECTURE Behavioral;

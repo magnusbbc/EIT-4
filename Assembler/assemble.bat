@@ -1,1 +1,0 @@
-Assembler.exe ..\Assembly\filter_sine_gen2.asm ..\VHDL\VHDL_RAW\MemInit.mif
