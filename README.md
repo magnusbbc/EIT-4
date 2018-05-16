@@ -102,7 +102,9 @@ The assembly code is now converted to a MemInit.mif file and is saved at EIT-4 -
 From here on the program is now ready to run.
 
 OBS. for more details and information on how to write the correct syntax please look in the assembler manual.
-    
+
+## Known bugs/Issues
+ * The JMP will (sometimes?) jump an extra address
 ## Authors
 
 * **Frederik Skyt Dæncker Rasmussen**
