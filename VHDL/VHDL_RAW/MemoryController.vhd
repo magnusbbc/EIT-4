@@ -4,6 +4,8 @@
 
 
 
+
+
 --------------------------------------------------------------------------------------
 --Engineer: Jakob Thomsen, Mikkel Hardysoe, Magnus Christensen
 --Module Name: Memory Controller
@@ -29,7 +31,7 @@ ENTITY MemoryController IS
 		clk                       : IN STD_LOGIC;
 		btn                       : IN std_LOGIC_vector(2 DOWNTO 0);
 		seven_seg_control_signals : OUT std_LOGIC_vector(31 DOWNTO 0);
-		interrupt_address         : OUT std_logic_vector(9 DOWNTO 0);
+		interrupt_address         : OUT std_logic_vector(10 - 1 DOWNTO 0);
 		interrupt_cpu             : OUT std_logic;
 		interrupt_enable          : IN std_logic := '0';
 		interrupt_nest_enable     : OUT std_logic;
