@@ -21,8 +21,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 {
 	//the buffer array is used to store either the arguments of main or filenames input from the user.
 	//This is because the program can be run from a command line with arguments or as a .exe without.
-	char buffer[2][100];
-	
+	char buffer[3][100];
+	int memoryDepth = 1024;
 	//The arguments are counted in argc and if there are 2 (3 because argc counts as an argument)
 	//normal execution will occur. Else the program will prompt for input or exit
 	if (argc == 1)
@@ -70,13 +70,32 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 	}
 	else if (argc == 3)
 	{
-		printf("Arguments given is: %s & %s.\n", argv[1], argv[2]);
+		printf("Arguments given are: %s & %s.\nDefault memory depth will be used (1024)\n", argv[1], argv[2]);
 		strcpy(buffer[0], argv[1]);
 		strcpy(buffer[1], argv[2]);
 	}
+	else if (argc == 4)
+	{
+		printf("Arguments given are: %s, %s & %s.\n", argv[1], argv[2], argv[3]);
+		strcpy(buffer[0], argv[1]);
+		strcpy(buffer[1], argv[2]);
+		strcpy(buffer[2], argv[3]);
+
+		memoryDepth = atoi(buffer[2]);
+		if (memoryDepth <= 0)
+		{
+			printf("Memeory depth is not a number.\nPress enter to exit...");
+			getchar();
+			return(0);
+		}
+		else
+		{
+			printf("Memeory depth will be %d.\n", memoryDepth);
+		}
+	}
 	else
 	{
-		printf("Too many arguments given...\n");
+		printf("Too many arguments given...\nPress enter to exit...");
 		getchar();
 		return(0);
 	}
@@ -186,7 +205,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 
 #pragma region MIF prep
 	//outputs to the start of the outputfile. These lines are needed to load a .mif onto the cpu
-	fprintf(fpOut, "DEPTH = 1024;\n");
+	fprintf(fpOut, "DEPTH = %d;\n", memoryDepth);
 	fprintf(fpOut, "WIDTH = 32;\n");
 	fprintf(fpOut, "ADDRESS_RADIX = UNS;\n");
 	fprintf(fpOut, "DATA_RADIX = BIN;\n\n");
@@ -916,7 +935,6 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 
 		if (opcType == JUMP)
 		{
-			
 			for (int i = 0; i < opCount + 1; i++)
 			{
 				spaceDist = spaces[i + 1] - spaces[i];
@@ -1175,7 +1193,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 
 	//after the final line is read, the .mif format requires the remaining memory addresses to be populated by zeros
 	//followed by an "END;"
-	fprintf(fpOut, "[%d..1023] : 00000000000000000000000000000000;", lineCount);
+	fprintf(fpOut, "[%d..%d] : 00000000000000000000000000000000;", lineCount, memoryDepth - 1);
 	fprintf(fpOut, "\nEND;\n");
 	
 	//both files are closed
