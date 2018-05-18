@@ -85,10 +85,10 @@ BEGIN
 	-- with the operation signal to calculate
 	-- an output
 	--------------------------------------------
-	Arithmetic : PROCESS (operand_a, operand_b, operation, temp) IS
+	Arithmetic : PROCESS (operand_a, operand_b, operation, temp, mult_temp) IS
 		VARIABLE Parity : std_logic;
 	BEGIN
-		temp         <= (OTHERS         => '0');
+		temp         <= (OTHERS => '0');
 		unsigned_emp <= (OTHERS => '0');
 
 		IF (to_integer(unsigned(operation)) = NAA) THEN
@@ -193,14 +193,31 @@ BEGIN
 				overflow_flag <= ((NOT operand_a(15)) AND temp(15));
 			ELSIF (to_integer(unsigned(operation)) = ICB) THEN
 				overflow_flag <= ((NOT operand_b(15)) AND temp(15));
-
-			ELSIF (to_integer(unsigned(operation)) = MUL) THEN -- This dont work??? 
+			ELSIF (to_integer(unsigned(operation)) = IKA) THEN
+				IF (to)
+				end if 
+			ELSIF (to_integer(unsigned(operation)) = MUL) THEN
+					---if (a != 0 && x / a != b)   --- En anden måde at gøre det på tror jeg. 
+   				 		--	// overflow handling
+						--						
 				IF (to_integer(signed(mult_temp(31 DOWNTO 16))) > 0) THEN
 					overflow_flag <= '1';
 				END IF;
 			END IF;
 
-			carry_flag  <= unsigned_emp(16);
+
+			IF (to_integer(unsigned(operation)) = MUL) THEN 
+				IF (to_integer(signed(mult_temp(31 DOWNTO 16))) > 0) THEN
+					carry_flag <= '1';
+				END IF;
+			ELSIF (to_integer(unsigned(operation)) = SUB) THEN
+				if (to_integer(unsigned(operand_b))>to_integer(unsigned(operand_a))) then
+					carry_flag <= '1';
+				end if;
+			ELSE
+				carry_flag  <= unsigned_emp(16);
+			END IF;
+						
 			signed_flag <= temp(15);
 
 			IF (temp(15 DOWNTO 0) = "0000000000000000") THEN

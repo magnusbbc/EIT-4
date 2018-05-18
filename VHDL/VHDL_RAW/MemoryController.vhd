@@ -4,6 +4,8 @@
 
 
 
+
+
 --------------------------------------------------------------------------------------
 --Engineer: Jakob Thomsen, Mikkel Hardysoe, Magnus Christensen
 --Module Name: Memory Controller
@@ -29,7 +31,7 @@ ENTITY MemoryController IS
 		clk                       : IN STD_LOGIC;
 		btn                       : IN std_LOGIC_vector(2 DOWNTO 0);
 		seven_seg_control_signals : OUT std_LOGIC_vector(31 DOWNTO 0);
-		interrupt_address         : OUT std_logic_vector(9 DOWNTO 0);
+		interrupt_address         : OUT std_logic_vector(10 - 1 DOWNTO 0);
 		interrupt_cpu             : OUT std_logic;
 		interrupt_enable          : IN std_logic := '0';
 		interrupt_nest_enable     : OUT std_logic;
@@ -47,16 +49,16 @@ ENTITY MemoryController IS
 END MemoryController;
 
 ARCHITECTURE Behavioral OF MemoryController IS
-	SIGNAL seven_seg_data, seven_seg_configuration, btn_data, interrupt_data : std_LOGIC_vector(15 DOWNTO 0) := (OTHERS => '0');
-	SIGNAL dram_address                                                      : std_logic_vector(15 DOWNTO 0);
-	SIGNAL interrupt_controller_address_index                                : std_logic_vector(1 DOWNTO 0);
-	SIGNAL interrupt_btn_reset_signal, interrupt_i2s_reset_signal            : STD_LOGIC;
-	SIGNAL dram_data_out                                                     : std_logic_vector(15 DOWNTO 0) := (OTHERS => '0');
-	SIGNAL btn_interrupt, i2s_interrupt                                      : std_logic                            := '0';
-	SIGNAL write_enable_dram                                                 : std_logic                            := '0';
-	SIGNAL read_enable_dram                                                  : std_logic                            := '0';
-	SIGNAL i2s_mono_in_data_out                                              : std_logic_vector(15 DOWNTO 0) := (OTHERS => '0');
-	SIGNAL i2s_mono_out_data_in                                              : std_logic_vector(15 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL seven_seg_data, seven_seg_configuration, btn_data, interrupt_data 							: std_LOGIC_vector(15 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL dram_address                                                      							: std_logic_vector(15 DOWNTO 0);
+	SIGNAL interrupt_controller_address_index                                							: std_logic_vector(2 DOWNTO 0);
+	SIGNAL interrupt_btn_reset_signal, interrupt_i2s_reset_signal, interrupt_i2s_out_reset_signal       : STD_LOGIC;
+	SIGNAL dram_data_out                                                     							: std_logic_vector(15 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL btn_interrupt, i2s_interrupt, i2s_out_interrupt                   							: std_logic                            := '0';
+	SIGNAL write_enable_dram                                                 							: std_logic                            := '0';
+	SIGNAL read_enable_dram                                                  							: std_logic                            := '0';
+	SIGNAL i2s_mono_in_data_out                                              							: std_logic_vector(15 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL i2s_mono_out_data_in                                              							: std_logic_vector(15 DOWNTO 0) := (OTHERS => '0');
 BEGIN
 
 	SevenSegmentDisplayDriver : ENTITY work.ssgddriver
@@ -109,7 +111,9 @@ BEGIN
 		data_in         => i2s_mono_out_data_in,
 		bit_clock_out     => i2s_bit_clk_out,
 		word_select_out => i2s_word_select_out,
-		data_out        => i2s_data_out
+		data_out        => i2s_data_out,
+		interrupt_out 	=> i2s_out_interrupt,
+		interrupt_out_reset => interrupt_i2s_out_reset_signal
 		);
 
 	InterruptDriver : ENTITY work.Interrupt(Behavioral)
@@ -119,6 +123,8 @@ BEGIN
 		interrupt_btn_reset       => interrupt_btn_reset_signal,
 		interrupt_i2s             => i2s_interrupt,
 		interrupt_i2s_reset       => interrupt_i2s_reset_signal,
+		interrupt_i2s_out		  => i2s_out_interrupt,
+        interrupt_i2s_out_reset   => interrupt_i2s_out_reset_signal,
 		write_enable              => write_enable,
 		clk                       => clk,
 		internal_register_address => interrupt_controller_address_index,

@@ -58,9 +58,16 @@ ENTITY Master IS
 		Din   : IN std_logic  := '0';				--External Data input
 
 		--I2S output
-		bclkO : OUT std_logic := '0';				--Bitclock output
-		wsO   : OUT std_logic := '0';				--Word select output
-		DOut  : OUT std_logic := '0'				--data output
+		bclkO : INOUT std_logic := '0';				--Bitclock output
+		wsO   : INOUT std_logic := '0';				--Word select output
+		DOut  : INOUT std_logic := '0';				--data output
+		
+
+		bclkO2 : OUT std_logic := '0';				--Bitclock output
+		wsO2   : OUT std_logic := '0';				--Word select output
+		DOut2  : OUT std_logic := '0';				--data output
+
+		clk_out : OUT std_logic := '0'
 	);
 END ENTITY Master;
 
@@ -79,12 +86,13 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL r2_w1_switch : std_logic_vector(4 DOWNTO 0); --Size '5' to be able to index register. Is used to switch between indexing Read_2 and Write_1 register
 
 	--PRAM Signals
-	SIGNAL PC : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); --Program Counter
-	SIGNAL pram_address_index : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); --Wires connected to the PRAM's address port
-	SIGNAL PC_ALT : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); --Alternative new PC (e.g. ALU/Memory Output), used when changing the PC (for jumps)
-	SIGNAL interrupt_address : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); --Interrupt address, address that the ISR points to
+	SIGNAL PC : std_logic_vector(PC_SIZE-1 DOWNTO 0) := (OTHERS => '0'); --Program Counter
+	SIGNAL pram_address_index : std_logic_vector(PC_SIZE-1 DOWNTO 0) := (OTHERS => '0'); --Wires connected to the PRAM's address port
+	SIGNAL PC_ALT : std_logic_vector(PC_SIZE-1 DOWNTO 0) := (OTHERS => '0'); --Alternative new PC (e.g. ALU/Memory Output), used when changing the PC (for jumps)
+	SIGNAL interrupt_address : std_logic_vector(PC_SIZE-1 DOWNTO 0) := (OTHERS => '0'); --Interrupt address, address that the ISR points to
 	SIGNAL pDataIn : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0); --Not used in current implementation, used to write to program memory
 	SIGNAL pDataOut : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0); --Program Memory instruction output
+	SIGNAL previous_instruction : std_logic_vector(INSTRUCTION_SIZE DOWNTO 0);
 	SIGNAL pram_write_enable : std_logic := '0'; --Program memory write enable disabled in current implementation
 	SIGNAL pram_read_enable : std_logic := '1'; --Program memory read enable always on in current implementation
 	--DRAM Signals
@@ -103,7 +111,7 @@ SIGNAL processing_output : std_logic_vector(WORD_SIZE DOWNTO 0);
 
 	SIGNAL jmp_enable : std_logic := '0'; --Is '0' when PC increments by 1, is set to '1' when jump occours
 	SIGNAL jmp_enable_latch : std_logic := '0';
-	SIGNAL PC_TEMP : std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); --Program Counter
+	SIGNAL PC_TEMP : std_logic_vector(PC_SIZE-1 DOWNTO 0) := (OTHERS => '0'); --Program Counter
 
 	SIGNAL pc_overwrite, sp_overwrite : std_logic := '0'; --SP and PC are special registers, and PC/sp_overwrite needs to be '1' to be able to change their values
 
@@ -131,6 +139,7 @@ SIGNAL processing_output : std_logic_vector(WORD_SIZE DOWNTO 0);
 	
 	SIGNAL sys_clk : std_logic; --Clock that controls the system, can either be assigned to the normal clock (for simulation), or pll_tmp_clk
 	SIGNAL pll_clk : std_logic; --PLL Clock
+	SIGNAL pll_clk_i2s : std_logic; --PLL Clock
 	SIGNAL pll_lock : std_logic; --PLL lock signal
 	SIGNAL pll_tmp_clk : Std_logic; --Is assigned the pll_clk when pll_lock is detected
 	SIGNAL clk_counter : std_logic_vector(2 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
@@ -143,6 +152,12 @@ BEGIN
 			c0 => pll_clk,
 			locked => pll_lock
 		);
+
+	PLL_i2s : ENTITY work.PLL_i2s(SYN)
+	PORT MAP(
+		inclk0 => clk,
+		c0 => pll_clk_i2s
+	);
 	MEMCNT : ENTITY work.MemoryController
 		PORT MAP(
 			write_enable => control_signals(MEMORY_WRITE),
@@ -157,7 +172,8 @@ BEGIN
 			interrupt_cpu => interrupt_cpu,
 			interrupt_enable => interrupt_enable,
 			interrupt_nest_enable => interrupt_nest_enable,
-			i2s_bit_clk => bclk,
+			i2s_bit_clk => pll_clk_i2s,
+			--i2s_bit_clk => bclk,
 			i2s_word_select => ws,
 			i2s_data_in => Din,
 			i2s_bit_clk_out => bclkO,
@@ -241,7 +257,7 @@ BEGIN
 	PROCESS(source_register_2_output, jmp_enable_latch)
 	BEGIN
 	IF (jmp_enable_latch = '1') THEN
-		dram_data_in <= "000000" & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
+		dram_data_in <= ZERO_PAD & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
 	ELSE
 		dram_data_in <= source_register_2_output;
 	END IF;
@@ -376,9 +392,9 @@ BEGIN
 		IF (Interrupt_latch = '1') THEN
 			pc_alt <= interrupt_address;
 		ELSIF (control_signals(MEMORY_TO_PC) = '1') THEN
-			pc_alt <= dram_data_out(9 DOWNTO 0);
+			pc_alt <= dram_data_out(PC_SIZE-1 DOWNTO 0);
 		ELSE
-			pc_alt <= processing_output (9 DOWNTO 0);
+			pc_alt <= processing_output (PC_SIZE-1 DOWNTO 0);
 		END IF;
 	END PROCESS;
 
@@ -433,7 +449,7 @@ BEGIN
 		IF (interrupt_nest_enable = '0' AND interrupt_nest_enable_latch = '0') THEN --latching to ensure that the IF statement doesn't run an infinite loop when "interrupt_nest_enable" is set low
 			interrupt_enable            <= '0';
 			interrupt_nest_enable_latch <= '1'; 
-		ELSIF (instruction = POP_PC) THEN --Resets interrupts when POP_PC is executed
+		ELSIF (previous_instruction = POP_PC) THEN --Resets interrupts when POP_PC is executed
 			interrupt_enable            <= '1';
 			interrupt_nest_enable_latch <= '0';
 		END IF;
@@ -472,8 +488,14 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	pc_register_file_input <= "000000" & std_logic_vector(unsigned(PC) - 1);
+	pc_register_file_input <= ZERO_PAD & std_logic_vector(unsigned(PC) - 1);
 
+	PROCESS(sys_clk)
+	BEGIN
+		IF(rising_edge(sys_clk)) THEN
+			previous_instruction <= instruction;
+		END IF;
+	END PROCESS;
 
 	--------------------------------------------
 	-- SysClockSelect:
@@ -528,4 +550,8 @@ BEGIN
 	--LED(8)       <= clk_counter(22);
 	--LED(9)       <= clk_counter(24);
 
+	bclkO2 <= bclkO;
+	wsO2   <= wsO;
+	DOut2  <= DOut;
+	clk_out <= pll_clk;
 END ARCHITECTURE Behavioral;

@@ -45,9 +45,9 @@ BEGIN
 
 			IF bit_counter < (DATA_WIDTH-1 + 1) THEN
 				IF left_right_select = '1' THEN --Write from the active buffer 
-					data_out <= buff_in_left(bit_counter);
+					data_out <= buff_in_left(DATA_WIDTH -1- bit_counter);
 				ELSE
-					data_out <= buff_in_right(bit_counter);
+					data_out <= buff_in_right(DATA_WIDTH -1- bit_counter);
 				END IF;
 
 			END IF;
