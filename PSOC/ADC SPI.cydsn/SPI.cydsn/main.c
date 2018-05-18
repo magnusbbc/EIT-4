@@ -16,7 +16,7 @@ void DmaAdcConfiguration(void);
 /* Move these variable declarations to the top of the function */
 uint8 DMA_1_Chan;
 uint8 DMA_1_TD[1];
-uint8 adc_buff[2]={1,2};
+uint8 adc_buff[2]={1,8};
 
 /* Variable declarations for DMA_TX */
 /* Move these variable declarations to the top of the function */
@@ -30,6 +30,8 @@ int main(void)
     /* Place your initialization/startup code here (e.g. MyInst_Start()) */
     SPIS_Start();
     SPIS_WriteTxDataZero(0x00u);
+    ADC_SAR_1_Start();
+    ADC_SAR_1_StartConvert();
      DmaTxConfiguration();
      DmaAdcConfiguration();
     for(;;)
@@ -52,7 +54,7 @@ void DmaAdcConfiguration(){
 DMA_1_Chan = DMA_1_DmaInitialize(DMA_1_BYTES_PER_BURST, DMA_1_REQUEST_PER_BURST, 
     HI16(DMA_1_SRC_BASE), HI16(DMA_1_DST_BASE));
 DMA_1_TD[0] = CyDmaTdAllocate();
-CyDmaTdSetConfiguration(DMA_1_TD[0], 2, CY_DMA_DISABLE_TD, CY_DMA_TD_INC_SRC_ADR | CY_DMA_TD_INC_DST_ADR);
+CyDmaTdSetConfiguration(DMA_1_TD[0], 2, DMA_1_TD[0], 0);
 CyDmaTdSetAddress(DMA_1_TD[0], LO16((uint32)ADC_SAR_1_SAR_WRK0_PTR), LO16((uint32)adc_buff));
 CyDmaChSetInitialTd(DMA_1_Chan, DMA_1_TD[0]);
 CyDmaChEnable(DMA_1_Chan, 1);
@@ -75,7 +77,7 @@ CyDmaTdSetConfiguration(DMA_TX_TD[0], 1, DMA_TX_TD[1], 0);
 CyDmaTdSetConfiguration(DMA_TX_TD[1], 1, DMA_TX_TD[0], 0);
 CyDmaTdSetAddress(DMA_TX_TD[0], LO16((uint32)&adc_buff[1]), LO16((uint32)SPIS_TXDATA_PTR));
 CyDmaTdSetAddress(DMA_TX_TD[1], LO16((uint32)&adc_buff[0]), LO16((uint32)SPIS_TXDATA_PTR));
-CyDmaChSetInitialTd(DMA_TX_Chan, DMA_TX_TD[0]);
+CyDmaChSetInitialTd(DMA_TX_Chan, DMA_TX_TD[1]);
 CyDmaChEnable(DMA_TX_Chan, 1);
 
 
