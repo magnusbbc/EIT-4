@@ -1012,8 +1012,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		//outputs to both the output file, as well as the console window for easier debugging
 		if (strstr(output[0], opcArrBin[12])) //Type MOVE immediate
 		{
-			printf("%s %s %s %s", output[0], output[5], output[1], output[2]);
-			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[1], output[2]);
+			printf("%s %s %s %s", output[0], output[5], output[2], output[1]);
+			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[2], output[1]);
 		}
 
 		if (strstr(output[0], opcArrBin[11])) //Type CMP immediate
