@@ -42,9 +42,13 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				fgets(buffer[0], 100, stdin);
 				printf("\nWrite <output-filename.extension>: ");
 				fgets(buffer[1], 100, stdin);
+				printf("\nWrite <memory depth>: ");
+				fgets(buffer[2], 100, stdin);
 
 				strtok(buffer[0], "\n");
 				strtok(buffer[1], "\n");
+				strtok(buffer[2], "\n");
+				memoryDepth = atoi(buffer[2]);
 			}
 			else
 			{
@@ -244,9 +248,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 
 #pragma region commentFinder
 		//checks temp for comments and replaces the comment with two spaces and a string end.
-		//also replaces the rest of the string with char -52 which is the default empty char
-		//this could be changed to any character, but since -52 is the defualt and isnt used,
-		//this isnt required
+		//also replaces the rest of the string with char \0, which is the string terminator char.
 		for (int i = 0; i < bufferSize; i++)
 		{
 			if (temp[i] == '/' && temp[i + 1] == '/')
@@ -254,7 +256,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				//printf("comment found"); //debugging
 				for (int u = i; u < bufferSize-i; u++)
 				{
-					temp[u] = '-52';
+					temp[u] = '\0';
 				}
 				temp[i] = ' ';
 				temp[i + 1] = ' ';
@@ -625,7 +627,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 								opTemp[i] = opTemp[i + 1]; //shifts the optemp one space to the left since it begins with a space
 														   //since the labelname array does not.
 
-								if (opTemp[i] == -52) //-52 is the default character in char arrays
+								if (opTemp[i] == '\0') //-52 is the default character in char arrays
 								{
 									opTemp[i - 1] = '\0'; //ends the optemp string and stops the shift
 									break;
