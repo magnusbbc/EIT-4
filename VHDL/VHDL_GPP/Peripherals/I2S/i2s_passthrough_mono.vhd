@@ -45,7 +45,7 @@ BEGIN
 			--input
 			);
 			
-	i2sdriverout : entity work.i2sMonoOut 
+				i2sdriverout : entity work.i2sMonoOut 
 
 	port map(
 			clk 				=> bit_clock_in 		,

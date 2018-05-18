@@ -110,11 +110,6 @@
 
 
 
-
-
-
-
-
 --------------------------------------------------------------------------------------
 --Engineer: Magnus Christensen
 --Module Name: Control Unit
@@ -147,7 +142,7 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY Control IS
 	PORT (
 		opcode : IN std_logic_vector(31 DOWNTO 26); --6 bit opcode (e.g 13 )
-		control_signals : OUT std_logic_vector(22 DOWNTO 0) --Control Output
+		control_signals : OUT std_logic_vector(21 DOWNTO 0) --Control Output
 	);
 END ENTITY Control;
 
@@ -157,70 +152,69 @@ BEGIN
 	WITH to_integer(unsigned(opcode)) SELECT control_signals <=
 
 	--Register-Register ALU Control
-	std_logic_vector(to_unsigned(2 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 1 ,
-	std_logic_vector(to_unsigned(1 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 2 ,
-	std_logic_vector(to_unsigned(3 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 3 ,
-	std_logic_vector(to_unsigned(10 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 4 ,
-	std_logic_vector(to_unsigned(5 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 5 ,
-	std_logic_vector(to_unsigned(6 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 6 ,
-	std_logic_vector(to_unsigned(7 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 7 ,
-	std_logic_vector(to_unsigned(4 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 8 ,
-	std_logic_vector(to_unsigned(12 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 9 ,
-	std_logic_vector(to_unsigned(13 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 10 ,
-	std_logic_vector(to_unsigned(14 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 11 ,
+	std_logic_vector(to_unsigned(2 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 1 ,
+	std_logic_vector(to_unsigned(1 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 2 ,
+	std_logic_vector(to_unsigned(3 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 3 ,
+	std_logic_vector(to_unsigned(10 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 4 ,
+	std_logic_vector(to_unsigned(5 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 5 ,
+	std_logic_vector(to_unsigned(6 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 6 ,
+	std_logic_vector(to_unsigned(7 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 7 ,
+	std_logic_vector(to_unsigned(4 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 8 ,
+	std_logic_vector(to_unsigned(12 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 9 ,
+	std_logic_vector(to_unsigned(13 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 10 ,
+	std_logic_vector(to_unsigned(14 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 11 ,
 
 	--Register-Immediate ALU Control
-	std_logic_vector(to_unsigned(2 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 13 ,
-	std_logic_vector(to_unsigned(1 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 14 ,
-	std_logic_vector(to_unsigned(3 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 15 ,
-	std_logic_vector(to_unsigned(10 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 16 ,
-	std_logic_vector(to_unsigned(5 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 17 ,
-	std_logic_vector(to_unsigned(6 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 18 ,
-	std_logic_vector(to_unsigned(7 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 19 ,
-	std_logic_vector(to_unsigned(4 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 20 ,
-	std_logic_vector(to_unsigned(12 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 21 ,
-	std_logic_vector(to_unsigned(13 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 22 ,
-	std_logic_vector(to_unsigned(14 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 23 ,
+	std_logic_vector(to_unsigned(2 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 13 ,
+	std_logic_vector(to_unsigned(1 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 14 ,
+	std_logic_vector(to_unsigned(3 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 15 ,
+	std_logic_vector(to_unsigned(10 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 16 ,
+	std_logic_vector(to_unsigned(5 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 17 ,
+	std_logic_vector(to_unsigned(6 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 18 ,
+	std_logic_vector(to_unsigned(7 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 19 ,
+	std_logic_vector(to_unsigned(4 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 20 ,
+	std_logic_vector(to_unsigned(12 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 21 ,
+	std_logic_vector(to_unsigned(13 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 22 ,
+	std_logic_vector(to_unsigned(14 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 23 ,
 
 	--Nop
-	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 0 ,
+	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 0 ,
 
 
 	--Register Compare and Move
-	std_logic_vector(to_unsigned(3 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 26 ,
-	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 27 ,
+	std_logic_vector(to_unsigned(3 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 26 ,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 27 ,
 
 	--Immediate Compare and Move
-	std_logic_vector(to_unsigned(3 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 28 ,
-	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 29 ,
+	std_logic_vector(to_unsigned(3 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 28 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 29 ,
 
 	--Memory Control
-	std_logic_vector(to_unsigned(2 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '1'  & '1'  & '0' & '0' & '0' & '1'  & '0' WHEN 30 ,
-	std_logic_vector(to_unsigned(2 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '1'  & '0' & '0' & '1'  & '0' & '0' WHEN 31 ,
+	std_logic_vector(to_unsigned(2 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '1'  & '0' & '1'  & '1'  & '1'  & '0' & '0' & '0' & '1'  & '0' WHEN 30 ,
+	std_logic_vector(to_unsigned(2 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '1'  & '0' & '0' & '1'  & '0' & '0' WHEN 31 ,
 
 	--Stack Control
-	std_logic_vector(to_unsigned(17 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '1'  & '1'  & '0' & '0' & '1'  & '0' & '0' & '0' & '0' WHEN 33 ,
-	std_logic_vector(to_unsigned(0 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '1'  & '0' & '0' & '1'    & '0' & '1'  & '0' WHEN 32 ,
+	std_logic_vector(to_unsigned(17 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '1'  & '1'  & '0' & '0' & '1'  & '0' & '0' & '0' & '0' WHEN 33 ,
+	std_logic_vector(to_unsigned(0 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '1'  & '0' & '1'  & '1'  & '0' & '0' & '1'    & '0' & '1'  & '0' WHEN 32 ,
 
 	--Branch Control
-	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(1 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 34 ,
-	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(2 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 35 ,
-	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(3 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 36 ,
-	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(4 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 37 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(1 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 34 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(2 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 35 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(3 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 36 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(4 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 37 ,
 
-	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(1 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 44,
-	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(2 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 47,
-	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(3 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 46,
-	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(4 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 45,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(1 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 44,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(2 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 47,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(3 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 46,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(4 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 45,
 
-	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  WHEN 38 ,
+	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  WHEN 38 ,
 	
-	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '1' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 39 ,
-	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '1' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 40 ,
-	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '1' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 41 ,
-	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '1' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 48,
-	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '1' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 42 ,
-	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '1' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 43 ,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '1' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 39 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '1' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 40 ,
+	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '1' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 41 ,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '1' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 42 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '1' & '0' & '0' & '0' & '0' & '1'  & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 43 ,
 	
 	(OTHERS => '0') WHEN OTHERS;
 END ARCHITECTURE Behavioral;

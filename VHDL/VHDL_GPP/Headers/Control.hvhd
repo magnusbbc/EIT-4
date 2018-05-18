@@ -18,8 +18,6 @@
 #define ICA 17 //Increment Operand A
 #define ICB 18 //Increment Operand B
 #define NAA 19 //NOP
-#define UTS 20 //Unsigned to signed
-#define STU 21 //Signed to Unsigned
 
 //Types of Branches
 #define NB 0 //No Branching
@@ -32,7 +30,6 @@
 #define FIRIN_E '1'
 #define FIRCO_E '1'
 #define FIRRE_E '1'
-#define FIRTO_E '1'
 #define MEMRD_E '1' //Memory Read
 #define MEMWR_E '1' //Memory Write
 #define REGWR_E '1' //Register Write
@@ -48,7 +45,6 @@
 #define FIRIN_D '0'
 #define FIRCO_D '0'
 #define FIRRE_D '0'
-#define FIRTO_D '0'
 #define MEMRD_D '0'
 #define MEMWR_D '0'
 #define REGWR_D '0'
@@ -106,4 +102,3 @@
 #define JMPNQR 45
 #define JMPLER 46
 #define JMPEQR 47
-#define FIRTOG 48

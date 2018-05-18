@@ -115,7 +115,6 @@ BEGIN
 		interrupt_out 	=> i2s_out_interrupt,
 		interrupt_out_reset => interrupt_i2s_out_reset_signal
 		);
-
 	InterruptDriver : ENTITY work.Interrupt(Behavioral)
 		PORT
 		MAP(

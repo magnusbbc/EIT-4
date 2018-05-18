@@ -10,12 +10,11 @@
 --
 --------------------------------------------------------------------------------------
 --Definition of control lines groupings
-#define ALU_CONTROL 22 DOWNTO 17
-#define JUMP_CONTROL 16 DOWNTO 14
-#define FIR_LOAD_SAMPLE 13
-#define FIR_LOAD_COEFFICIENT 12
-#define FIR_RESET 11
-#define FIR_TOGGLE 10
+#define ALU_CONTROL 21 DOWNTO 16
+#define JUMP_CONTROL 15 DOWNTO 13
+#define FIR_LOAD_SAMPLE 12
+#define FIR_LOAD_COEFFICIENT 11
+#define FIR_RESET 10
 #define MEMORY_READ 9
 #define MEMORY_WRITE 8
 #define REGISTER_WRITE 7
@@ -220,8 +219,7 @@ BEGIN
 		system_input   => fir_data_in,  
 		coefficient_in => fir_coefficient_in,  
 		system_output  => fir_data_out,
-		write_enable => fir_write,
-		array_toggle => control_signals(FIR_TOGGLE)
+		write_enable => fir_write
 		);
 
 	PRAM : ENTITY work.MemAuto(SYN)
