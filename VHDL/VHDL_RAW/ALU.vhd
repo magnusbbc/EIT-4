@@ -18,7 +18,7 @@
 
 
 
-
+ 
 
 
 
@@ -317,17 +317,15 @@ BEGIN
 					overflow_flag <= '1';
 				end if; 			
 			ELSIF (to_integer(unsigned(operation)) = 4 ) THEN
-					---if (a != 0 && x / a != b)   --- En anden måde at gøre det på tror jeg. 
-   				 		--	
-						--						
-				IF (to_integer(signed(mult_temp(31 DOWNTO 16))) > 0) THEN
+							
+				IF (to_integer(unsigned(mult_temp(31 DOWNTO 16))) /= 0) THEN
 					overflow_flag <= '1';
 				END IF;
 			END IF;
 			
 
 			IF (to_integer(unsigned(operation)) = 4 ) THEN 
-				IF (to_integer(signed(mult_temp(31 DOWNTO 16))) > 0) THEN
+				IF (to_integer(unsigned(mult_temp(31 DOWNTO 16))) /= 0) THEN
 					carry_flag <= '1';
 				END IF;
 			ELSIF (to_integer(unsigned(operation)) = 3 ) THEN
