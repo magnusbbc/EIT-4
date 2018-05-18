@@ -194,7 +194,7 @@ BEGIN
 			ELSIF (to_integer(unsigned(operation)) = ICB) THEN
 				overflow_flag <= ((NOT operand_b(15)) AND temp(15));
 			ELSIF (to_integer(unsigned(operation)) = IKA) THEN
-				IF (to)
+				IF (operand_a = x"")
 				end if 
 			ELSIF (to_integer(unsigned(operation)) = MUL) THEN
 					---if (a != 0 && x / a != b)   --- En anden måde at gøre det på tror jeg. 
