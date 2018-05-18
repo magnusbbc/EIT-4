@@ -13,7 +13,9 @@
 #include <DMA_dma.h>
 #include <DMA_1_dma.h>
 #include <ADC.h>
+#define LUTSize 96
 #define DMAon 1
+#define ADCon 0
 
 void DMA_Config(void);
 
@@ -34,8 +36,12 @@ union buffer{
     uint16 in;
     uint8 out[2];
 };
+uint16 sineLUT[LUTSize] ={0, 523, 1044, 1560, 2070, 2571, 3061, 3538, 3999, 4444, 4870, 5274, 5656, 6014, 6346, 6651, 6928, 7174, 7391, 7575, 7727, 7846, 7931, 7982, 8000, 7982, 7931, 7846, 7727, 7575, 7391, 7174, 6928, 6651, 6346, 6014, 5656, 5274, 4870, 4444, 3999, 3538, 3061, 2571, 2070, 1560, 1044, 523, 0, -523, -1044, -1560, -2070, -2571, -3061, -3538, -4000, -4444, -4870, -5274, -5656, -6014, -6346, -6651, -6928, -7174, -7391, -7575, -7727, -7846, -7931, -7982, -8000, -7982, -7931, -7846, -7727, -7575, -7391, -7174, -6928, -6651, -6346, -6014, -5656, -5274, -4870, -4444, -4000, -3538, -3061, -2571, -2070, -1560, -1044, -523};
+
 union buffer buf;
 union buffer buffer0, buffer1;
+
+
 int main(void)
 {
     CyGlobalIntEnable; /* Enable global interrupts. */
@@ -92,11 +98,14 @@ void DMA_Config(void){
 /* Defines for DMA */
 #define DMA_BYTES_PER_BURST 2
 #define DMA_REQUEST_PER_BURST 1
+#if ADCon    
 #define DMA_SRC_BASE (CYDEV_PERIPH_BASE)
+#else
+#define DMA_SRC_BASE (CYDEV_PERIPH_BASE)
+#endif
 #define DMA_DST_BASE (CYDEV_SRAM_BASE)
 
-
-
+#if ADCon
 /* DMA Configuration for DMA */
 DMA_Chan = DMA_DmaInitialize(DMA_BYTES_PER_BURST, DMA_REQUEST_PER_BURST, 
     HI16(DMA_SRC_BASE), HI16(DMA_DST_BASE));
@@ -109,6 +118,23 @@ CyDmaTdSetAddress(DMA_TD[1], LO16((uint32)ADC_DEC_SAMP_PTR), LO16((uint32)&buffe
 CyDmaChSetInitialTd(DMA_Chan, DMA_TD[0]);
 CyDmaChEnable(DMA_Chan, 1);
 //////////////////////////////////
+#else
+/* DMA Configuration for DMA */
+DMA_Chan = DMA_DmaInitialize(DMA_BYTES_PER_BURST, DMA_REQUEST_PER_BURST, 
+    HI16(DMA_SRC_BASE), HI16(DMA_DST_BASE));
+DMA_TD[0] = CyDmaTdAllocate();
+DMA_TD[1] = CyDmaTdAllocate();
+CyDmaTdSetConfiguration(DMA_TD[0], LUTSize*2, DMA_TD[1], CY_DMA_TD_INC_DST_ADR|CY_DMA_TD_INC_SRC_ADR);
+CyDmaTdSetConfiguration(DMA_TD[1], LUTSize*2, DMA_TD[0], CY_DMA_TD_INC_DST_ADR|CY_DMA_TD_INC_SRC_ADR);
+CyDmaTdSetAddress(DMA_TD[0], LO16((uint32)sineLUT), LO16((uint32)&buffer0.in));
+CyDmaTdSetAddress(DMA_TD[1], LO16((uint32)sineLUT), LO16((uint32)&buffer1.in));
+CyDmaChSetInitialTd(DMA_Chan, DMA_TD[0]);
+CyDmaChEnable(DMA_Chan, 1);
+//////////////////////////////////
+#endif
+
+
+
 /* Defines for DMA_1 */
 #define DMA_1_BYTES_PER_BURST 1
 #define DMA_1_REQUEST_PER_BURST 1
