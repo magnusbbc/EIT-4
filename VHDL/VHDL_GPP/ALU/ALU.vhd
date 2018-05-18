@@ -25,6 +25,8 @@
 -- ICA Increments A
 -- ICB Increments B
 -- NOP
+-- Convert signed to unsigned
+-- Convert unsigned to signed
 --
 --The ALU does not depend on a clock signal
 --
@@ -65,7 +67,7 @@ ARCHITECTURE Behavioral OF ALU IS
 	SIGNAL unsigned_emp : std_logic_vector(16 DOWNTO 0); -- used to store unsigned results.
 
 BEGIN
-
+ 
 	--Altera Multiplier IP Core
 	multiplier : ENTITY work.Multiplier_1
 		PORT MAP(
@@ -83,10 +85,10 @@ BEGIN
 	-- with the operation signal to calculate
 	-- an output
 	--------------------------------------------
-	Arithmetic : PROCESS (operand_a, operand_b, operation, temp) IS
+	Arithmetic : PROCESS (operand_a, operand_b, operation, temp, mult_temp) IS
 		VARIABLE Parity : std_logic;
 	BEGIN
-		temp         <= (OTHERS         => '0');
+		temp         <= (OTHERS => '0');
 		unsigned_emp <= (OTHERS => '0');
 
 		IF (to_integer(unsigned(operation)) = NAA) THEN
@@ -171,6 +173,7 @@ BEGIN
 					temp   <= ("0" & operand_b);
 					result <= operand_b;
 
+				--WHEN UTS => 
 				WHEN OTHERS =>
 
 			END CASE;
@@ -190,14 +193,36 @@ BEGIN
 				overflow_flag <= ((NOT operand_a(15)) AND temp(15));
 			ELSIF (to_integer(unsigned(operation)) = ICB) THEN
 				overflow_flag <= ((NOT operand_b(15)) AND temp(15));
-
-			ELSIF (to_integer(unsigned(operation)) = MUL) THEN -- This dont work??? 
+			ELSIF (to_integer(unsigned(operation)) = IKA) THEN
+				IF (operand_a = x"8000") then
+					overflow_flag <= '1';
+				end if; 
+			ELSIF (to_integer(unsigned(operation)) = IKB) THEN
+				IF (operand_b = x"8000") then
+					overflow_flag <= '1';
+				end if; 			
+			ELSIF (to_integer(unsigned(operation)) = MUL) THEN
+					---if (a != 0 && x / a != b)   --- En anden måde at gøre det på tror jeg. 
+   				 		--	// overflow handling
+						--						
 				IF (to_integer(signed(mult_temp(31 DOWNTO 16))) > 0) THEN
 					overflow_flag <= '1';
 				END IF;
 			END IF;
+			
 
-			carry_flag  <= unsigned_emp(16);
+			IF (to_integer(unsigned(operation)) = MUL) THEN 
+				IF (to_integer(signed(mult_temp(31 DOWNTO 16))) > 0) THEN
+					carry_flag <= '1';
+				END IF;
+			ELSIF (to_integer(unsigned(operation)) = SUB) THEN
+				if (to_integer(unsigned(operand_b))>to_integer(unsigned(operand_a))) then
+					carry_flag <= '1';
+				end if;
+			ELSE
+				carry_flag  <= unsigned_emp(16);
+			END IF;
+						
 			signed_flag <= temp(15);
 
 			IF (temp(15 DOWNTO 0) = "0000000000000000") THEN
