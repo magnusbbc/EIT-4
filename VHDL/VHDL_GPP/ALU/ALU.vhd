@@ -67,7 +67,7 @@ ARCHITECTURE Behavioral OF ALU IS
 	SIGNAL unsigned_emp : std_logic_vector(16 DOWNTO 0); -- used to store unsigned results.
 
 BEGIN
-
+ 
 	--Altera Multiplier IP Core
 	multiplier : ENTITY work.Multiplier_1
 		PORT MAP(
@@ -194,8 +194,13 @@ BEGIN
 			ELSIF (to_integer(unsigned(operation)) = ICB) THEN
 				overflow_flag <= ((NOT operand_b(15)) AND temp(15));
 			ELSIF (to_integer(unsigned(operation)) = IKA) THEN
-				IF (operand_a = x"")
-				end if 
+				IF (operand_a = x"8000") then
+					overflow_flag <= '1';
+				end if; 
+			ELSIF (to_integer(unsigned(operation)) = IKB) THEN
+				IF (operand_b = x"8000") then
+					overflow_flag <= '1';
+				end if; 			
 			ELSIF (to_integer(unsigned(operation)) = MUL) THEN
 					---if (a != 0 && x / a != b)   --- En anden måde at gøre det på tror jeg. 
    				 		--	// overflow handling
@@ -204,7 +209,7 @@ BEGIN
 					overflow_flag <= '1';
 				END IF;
 			END IF;
-
+			
 
 			IF (to_integer(unsigned(operation)) = MUL) THEN 
 				IF (to_integer(signed(mult_temp(31 DOWNTO 16))) > 0) THEN
