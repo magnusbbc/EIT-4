@@ -384,7 +384,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArr[42], "JMPNQR "); // jump not equal to register
 		strcpy(opcArr[43], "JMPLER "); // Jump Less Register
 		strcpy(opcArr[44], "JMPEQR "); // Jump equal Register
-
+		strcpy(opcArr[45], "JMPPA "); // Jump parity immediate
+		strcpy(opcArr[46], "JMPPAR "); // Jump parity Register
 #pragma endregion
 
 #pragma region opcArrBin
@@ -442,7 +443,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArrBin[42], "101101"); // JMPNQR
 		strcpy(opcArrBin[43], "101110"); // JMPLER
 		strcpy(opcArrBin[44], "101111"); // JMPEQR
-
+		strcpy(opcArrBin[45], "110000"); // JMPPA
+		strcpy(opcArrBin[46], "110001"); // JMPPAR
 #pragma endregion
 
 		//Compares the temporary input array with an array of possible opcodes to find which one is present.
