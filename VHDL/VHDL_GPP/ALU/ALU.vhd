@@ -63,7 +63,7 @@ END ENTITY ALU;
 ARCHITECTURE Behavioral OF ALU IS
 
 	SIGNAL mult_temp    : std_LOGIC_VECTOR(31 DOWNTO 0); -- Used to store results from multiplier
-	SIGNAL temp         : std_logic_vector(16 DOWNTO 0); -- Used to store signed results. 
+	SIGNAL temp         : std_logic_vector(15 DOWNTO 0); -- Used to store signed results. 
 	SIGNAL unsigned_emp : std_logic_vector(16 DOWNTO 0); -- used to store unsigned results.
 
 BEGIN
@@ -102,80 +102,78 @@ BEGIN
 					-- to assign it directly to your output vector. You first need to cast
 					-- the result to std_logic_vector.
 
-					temp(15 DOWNTO 0)         <= std_logic_vector(signed(operand_a) + signed(operand_b)); -- We append "0" to the first operand before adding the two operands.
+					temp        <= std_logic_vector(signed(operand_a) + signed(operand_b)); -- We append "0" to the first operand before adding the two operands.
 					unsigned_emp <= std_logic_vector(unsigned("0" & operand_a) + unsigned(operand_b)); -- We use an unsigned result to determine carry-bit if any. 
 					result       <= temp(15 DOWNTO 0);
-					-- -- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Good source about overflow detection
 
 				WHEN SUB => -- Returns operand_a - operand_b
-					temp         <= std_logic_vector(signed("0" & operand_a) - signed(operand_b));
+					temp         <= std_logic_vector(signed( operand_a) - signed(operand_b));
 					unsigned_emp <= std_logic_vector(unsigned("0" & operand_a) - unsigned(operand_b));
 
 					result       <= temp(15 DOWNTO 0);
 
 				WHEN MUL => -- Returns operand_a * operand_b
-					temp   <= ("0" & (mult_temp(15 DOWNTO 0))); -- When opcode for mult is chosen, output from multiplier is routed to the output of the ALU.
+					temp   <= (mult_temp(15 DOWNTO 0)); -- When opcode for mult is chosen, output from multiplier is routed to the output of the ALU.
 					result <= temp(15 DOWNTO 0);
 
 				WHEN OGG => -- Returns operand_a AND operand_b
-					temp   <= ("0" & (operand_a AND operand_b));
+					temp   <=  (operand_a AND operand_b);
 					result <= temp(15 DOWNTO 0);
 
 				WHEN ELL => -- Returns operand_a OR operand_b
-					temp   <= ("0" & (operand_a OR operand_b));
+					temp   <=  (operand_a OR operand_b);
 					result <= temp(15 DOWNTO 0);
 
 				WHEN XEL => -- Returns operand_a XOR operand_b
-					temp   <= ("0" & (operand_a XOR operand_b));
+					temp   <=  (operand_a XOR operand_b);
 					result <= temp(15 DOWNTO 0);
 
 				WHEN IKA => -- Negates operand A
-					temp   <= std_logic_vector("0" & ((NOT signed(operand_a)) + "0000000000000001"));
+					temp   <= std_logic_vector((NOT signed(operand_a)) + "0000000000000001");
 					result <= temp(15 DOWNTO 0);
 
 				WHEN IKB => -- Negates operand A
-					temp   <= std_logic_vector("0" & ((NOT signed(operand_b)) + "0000000000000001"));
+					temp   <= std_logic_vector((NOT signed(operand_b)) + "0000000000000001");
 					result <= temp(15 DOWNTO 0);
 
 				WHEN NOA => -- Returns NOT operand_a
-					temp   <= ("0" & (NOT (operand_a)));
+					temp   <=  (NOT (operand_a));
 					result <= temp(15 DOWNTO 0);
 
 				WHEN NOB => -- Returns NOT operand_a
-					temp   <= ("0" & (NOT (operand_b)));
+					temp   <= (NOT (operand_b));
 					result <= temp(15 DOWNTO 0);
 
 				WHEN LSL => -- Logic Shift Left operand_a by operand_b number of bits. Fill with "0"
-					temp   <= std_logic_vector("0" & (shift_left(unsigned(operand_a), to_integer(unsigned(operand_b)))));
+					temp   <= std_logic_vector(shift_left(unsigned(operand_a), to_integer(unsigned(operand_b))));
 					result <= temp(15 DOWNTO 0);
 
 				WHEN LSR => -- Logic Shift Right operand_a by operand_b number of bits. Fill with "0"
-					temp   <= std_logic_vector("0" & (shift_right(unsigned(operand_a), to_integer(unsigned(operand_b)))));
+					temp   <= std_logic_vector(shift_right(unsigned(operand_a), to_integer(unsigned(operand_b))));
 					result <= temp(15 DOWNTO 0);
 
 				WHEN ASR => -- Arithmetic Shift right operand_a by operand_b number of bits. Fill with "sign-bit"
-					temp   <= std_logic_vector("0" & (shift_right(signed(operand_a), to_integer(unsigned(operand_b)))));
+					temp   <= std_logic_vector(shift_right(signed(operand_a), to_integer(unsigned(operand_b))));
 					result <= temp(15 DOWNTO 0);
 
 				WHEN ICA => -- Increments operand_a
-					temp   <= std_logic_vector("0" & (signed(operand_a) + 1));
-					unsigned_emp <= std_logic_vector(("0" & (unsigned(operand_a)) + 1));
+					temp   <= std_logic_vector(signed(operand_a) + 1);
+					unsigned_emp <= std_logic_vector(("0" & unsigned(operand_a)) + 1);
 					result <= temp(15 DOWNTO 0);
 
 				WHEN ICB => -- Increments operand_b
-					temp   <= std_logic_vector("0" & (signed(operand_b) + 1));
-					unsigned_emp <= std_logic_vector(("0" & (unsigned(operand_b)) + 1));					
+					temp   <= std_logic_vector(signed(operand_b) + 1));
+					unsigned_emp <= std_logic_vector(("0" & unsigned(operand_b)) + 1);					
 					result <= temp(15 DOWNTO 0);
 
 				WHEN PAS => -- Lets operand_a pass through the ALU
-					temp   <= ("0" & operand_a);
+					temp   <= (operand_a);
 					result <= operand_a;
 
 				WHEN PBS => -- Lets operand_b pass through the ALU
-					temp   <= ("0" & operand_b);
+					temp   <= (operand_b);
 					result <= operand_b;
 
-				--WHEN UTS => 
 				WHEN OTHERS =>
 
 			END CASE;
@@ -187,6 +185,7 @@ BEGIN
 			overflow_flag <= '0';
 			zero_flag     <= '0';
 
+			-- -- http://www.c-jump.com/CIS77/CPU/Overflow/lecture.html Good source about overflow detection
 			IF (to_integer(unsigned(operation)) = ADD) THEN
 				overflow_flag <= ((operand_a(15)) OR (temp(15))) AND ((NOT (operand_b(15))) OR(NOT (temp(15)))) AND ((NOT (operand_a(15))) OR ((operand_b(15))));
 			ELSIF (to_integer(unsigned(operation)) = SUB) THEN
