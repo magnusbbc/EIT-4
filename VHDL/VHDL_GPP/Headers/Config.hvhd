@@ -3,6 +3,5 @@
 #define WORD_SIZE 15
 #define ADDRESS_SIZE 15
 #define WORD_COUNT 1023
-#define LED_ENABLE 1
 #define PC_SIZE 10
 #define ZERO_PAD "000000"

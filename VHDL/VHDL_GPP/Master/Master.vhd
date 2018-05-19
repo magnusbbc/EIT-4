@@ -47,9 +47,7 @@ ENTITY Master IS
 		btn   : IN std_logic_vector(2 DOWNTO 0); 	--Device's 3 available push buttons (note: active low)
 		sseg  : OUT std_logic_vector(31 DOWNTO 0); 	--Seven segment display control signals (8 signals for each of the four displays)
 
-		#ifdef LED_ENABLE
 		led   : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
-		#endif
 
 		--I2S input
 		bclk  : IN std_logic  := '0';				--External input bitclock signal
@@ -57,16 +55,11 @@ ENTITY Master IS
 		Din   : IN std_logic  := '0';				--External Data input
 
 		--I2S output
-		bclkO : INOUT std_logic := '0';				--Bitclock output
-		wsO   : INOUT std_logic := '0';				--Word select output
-		DOut  : INOUT std_logic := '0';				--data output
+		bclkO : OUT std_logic := '0';				--Bitclock output
+		wsO   : OUT std_logic := '0';				--Word select output
+		DOut  : OUT std_logic := '0'				--data output
 		
 
-		bclkO2 : OUT std_logic := '0';				--Bitclock output
-		wsO2   : OUT std_logic := '0';				--Word select output
-		DOut2  : OUT std_logic := '0';				--data output
-
-		clk_out : OUT std_logic := '0'
 	);
 END ENTITY Master;
 
@@ -140,7 +133,9 @@ SIGNAL processing_output : std_logic_vector(WORD_SIZE DOWNTO 0);
 	SIGNAL pll_clk : std_logic; --PLL Clock
 	SIGNAL pll_clk_i2s : std_logic; --PLL Clock
 	SIGNAL pll_lock : std_logic; --PLL lock signal
-	SIGNAL pll_tmp_clk : Std_logic; --Is assigned the pll_clk when pll_lock is detected
+	SIGNAL pll_i2s_lock : std_logic;
+	SIGNAL pll_tmp_clk : std_logic; --Is assigned the pll_clk when pll_lock is detected
+	SIGNAL pll_i2s_tmp_clk : std_logic;
 	SIGNAL clk_counter : std_logic_vector(2 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
 
 BEGIN
@@ -155,7 +150,8 @@ BEGIN
 	PLL_i2s : ENTITY work.PLL_i2s(SYN)
 	PORT MAP(
 		inclk0 => clk,
-		c0 => pll_clk_i2s
+		c1 => pll_clk_i2s,
+		locked => pll_i2s_lock
 	);
 	MEMCNT : ENTITY work.MemoryController
 		PORT MAP(
@@ -171,15 +167,13 @@ BEGIN
 			interrupt_cpu => interrupt_cpu,
 			interrupt_enable => interrupt_enable,
 			interrupt_nest_enable => interrupt_nest_enable,
-			i2s_bit_clk => pll_clk_i2s,
-			--i2s_bit_clk => bclk,
+			i2s_bit_clk => bclk,
+			i2s_bit_clk_2 => pll_i2s_tmp_clk,
+			--i2s_bit_clk_2 => bclk,
 			i2s_word_select => ws,
 			i2s_data_in => Din,
 			i2s_bit_clk_out => bclkO,
 			i2s_word_select_out => wsO,
-			#ifdef LED_ENABLE
-			led => led,
-			#endif
 			i2s_data_out => DOut
 		);
 
@@ -377,6 +371,7 @@ BEGIN
 	zero_flag_latch WHEN 2, --jmpeq
 	carry_flag_latch WHEN 3, --jmple
 	NOT zero_flag_latch WHEN 4, --jmpnq
+	parity_flag_latch WHEN 5,
 	'1' WHEN 8, --Jump (change pc) when pc_overwrite is set 
 	'1' WHEN 16, --Jump When Interrupt_latch is set
 	'0' WHEN OTHERS;
@@ -514,6 +509,9 @@ BEGIN
 		pll_clk WHEN '1',
 		'0' WHEN OTHERS;
 		
+	WaitForPllI2sLock : WITH pll_i2s_lock SELECT pll_i2s_tmp_clk <=
+		pll_clk_i2s WHEN '1',
+		'0' WHEN OTHERS;
 	--------------------------------------------
 	-- ClockCount:
 	-- Counts system clock rising edges
@@ -548,8 +546,4 @@ BEGIN
 	--LED(8)       <= clk_counter(22);
 	--LED(9)       <= clk_counter(24);
 
-	bclkO2 <= bclkO;
-	wsO2   <= wsO;
-	DOut2  <= DOut;
-	clk_out <= pll_clk;
 END ARCHITECTURE Behavioral;

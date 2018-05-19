@@ -49,9 +49,6 @@ ENTITY Interrupt IS
         interrupt_nest_enable : OUT std_logic := '1' ;      --Tells the Main logic that whether nesting interrups are allowed. MUST ben high by default
         write_enable :IN std_logic;                         --Write enable to allow changes to the interrupt controllers configuration registers
         clk : IN std_logic;                                 --System Clock
-        #ifdef LED_ENABLE
-		led : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
-		#endif
 
         internal_register_address : IN std_logic_vector(2 downto 0);    --Addresses the configuration registers
         data_in : IN std_logic_vector(ADDRESS_SIZE downto 0);           --Input data to be written to the configuration registers

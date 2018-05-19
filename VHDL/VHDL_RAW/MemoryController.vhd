@@ -5,7 +5,6 @@
 
 
 
-
 --------------------------------------------------------------------------------------
 --Engineer: Jakob Thomsen, Mikkel Hardysoe, Magnus Christensen
 --Module Name: Memory Controller
@@ -35,11 +34,9 @@ ENTITY MemoryController IS
 		interrupt_cpu             : OUT std_logic;
 		interrupt_enable          : IN std_logic := '0';
 		interrupt_nest_enable     : OUT std_logic;
-		
-		led   					  : OUT std_logic_vector(9 DOWNTO 0); 	--Signals for controlling onboard LED's
-		
 		--I2S
 		i2s_bit_clk               : IN std_logic  := '0';
+		i2s_bit_clk_2             : IN std_logic  := '0';
 		i2s_word_select           : IN std_logic  := '0';
 		i2s_data_in               : IN std_logic  := '0';
 		i2s_bit_clk_out           : OUT std_logic := '0';
@@ -107,7 +104,7 @@ BEGIN
 	I2SMonoOut : ENTITY work.I2SMonoOut(Behavioral)
 		PORT
 		MAP(
-		clk             => i2s_bit_clk,
+		clk             => i2s_bit_clk_2,
 		data_in         => i2s_mono_out_data_in,
 		bit_clock_out     => i2s_bit_clk_out,
 		word_select_out => i2s_word_select_out,
@@ -131,9 +128,6 @@ BEGIN
 		interrupt_address         => interrupt_address,
 		interrupt_cpu             => interrupt_cpu,
 		interrupt_enable          => interrupt_enable,
-		
-		led 			  		  => led,
-		
 		interrupt_nest_enable     => interrupt_nest_enable
 		);
 

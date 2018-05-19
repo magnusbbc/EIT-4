@@ -25,6 +25,7 @@
 #define EQ 2 //If Equal
 #define LE 3 //If Less Than
 #define NQ 4 //If Not Equal
+#define PA 5 //If parity
 
 //Control Signals Enabled
 #define FIRIN_E '1'
@@ -102,3 +103,5 @@
 #define JMPNQR 45
 #define JMPLER 46
 #define JMPEQR 47
+#define JMPPA 48
+#define JMPPAR 49

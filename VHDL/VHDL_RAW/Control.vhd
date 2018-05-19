@@ -110,6 +110,8 @@
 
 
 
+
+
 --------------------------------------------------------------------------------------
 --Engineer: Magnus Christensen
 --Module Name: Control Unit
@@ -202,11 +204,13 @@ BEGIN
 	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(2 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 35 ,
 	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(3 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 36 ,
 	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(4 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 37 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(5 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 48,
 
 	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(1 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 44,
 	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(2 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 47,
 	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(3 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 46,
 	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(4 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 45,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(5 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 49,
 
 	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  WHEN 38 ,
 	
