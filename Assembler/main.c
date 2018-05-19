@@ -606,6 +606,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 						{
 							opTemp[j] = temp[spaces[i] + 1 + j];
 						}
+						opTemp[spaceDist] = '\0';
 
 						//checks what kind of operand is present in the current opTemp
 						if (strstr(opTemp, "$")) //register operand
@@ -627,7 +628,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 								opTemp[i] = opTemp[i + 1]; //shifts the optemp one space to the left since it begins with a space
 														   //since the labelname array does not.
 
-								if (opTemp[i] == '\0') //-52 is the default character in char arrays
+								if (opTemp[i] == '\0') //string terminator char
 								{
 									opTemp[i - 1] = '\0'; //ends the optemp string and stops the shift
 									break;
