@@ -19,7 +19,7 @@ ARCHITECTURE Behavioral OF ALU_TB IS
 --    signal flags          :  std_logic_vector(4 downto 0); 
     signal Result             :  std_logic_vector(15 DOWNTO 0); 
      
-     
+        
   --Clock Constants 
   constant TbPeriod : time := 10 ns; 
   signal TbClock : std_logic := '0'; 
@@ -424,7 +424,7 @@ begin
                 operand_b <= x"0000"; 
                    cnt<= cnt+1; 
             when 91 => 
-                operand_a <= x"4000"; 
+                operand_a <= x"7FFF"; 
                 operand_b <= x"0000"; 
                    cnt<= cnt+1; 
             when 92 => 
@@ -438,7 +438,7 @@ begin
                    cnt<= cnt+1; 
             when 94 => 
                 operand_a <= x"0000"; 
-                operand_b <= x"4000"; 
+                operand_b <= x"7FFF"; 
                    cnt<= cnt+1; 
             when 95 => 
                 operation <= "010011"; --NOP 
@@ -499,11 +499,20 @@ begin
                 operand_a <= x"C000"; 
                 operand_b <= x"FFFA"; 
                    cnt<= cnt+1; 
-                            
+            when 109 => 
+                operation <= "001000"; --negate a 
+                operand_a <= x"8000"; 
+                operand_b <= x"F000"; 
+                   cnt<= cnt+1;  
+            when 110 => 
+                operation <= "010011"; --NOP 
+                operand_a <= x"0000"; 
+                operand_b <= x"F000"; 
+                   cnt<= cnt+1;                        
             when others =>  
               cnt<= cnt+1; 
         End case;      
-        IF(cnt = 108) THEN 
+        IF(cnt = 111) THEN 
             TbSimEnded <= '1'; 
             --wait; 
         END IF;  

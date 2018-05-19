@@ -1,24 +1,24 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -217,7 +217,7 @@ BEGIN
 					-- to assign it directly to your output vector. You first need to cast
 					-- the result to std_logic_vector.
 
-					temp         <= std_logic_vector(signed("0" & operand_a) + signed(operand_b)); -- We append "0" to the first operand before adding the two operands.
+					temp(15 DOWNTO 0)         <= std_logic_vector(signed(operand_a) + signed(operand_b)); -- We append "0" to the first operand before adding the two operands.
 					unsigned_emp <= std_logic_vector(unsigned("0" & operand_a) + unsigned(operand_b)); -- We use an unsigned result to determine carry-bit if any. 
 					result       <= temp(15 DOWNTO 0);
 					-- -- http:
@@ -274,10 +274,12 @@ BEGIN
 
 				WHEN 17  => -- Increments operand_a
 					temp   <= std_logic_vector("0" & (signed(operand_a) + 1));
+					unsigned_emp <= std_logic_vector(("0" & (unsigned(operand_a)) + 1));
 					result <= temp(15 DOWNTO 0);
 
 				WHEN 18  => -- Increments operand_b
 					temp   <= std_logic_vector("0" & (signed(operand_b) + 1));
+					unsigned_emp <= std_logic_vector(("0" & (unsigned(operand_b)) + 1));					
 					result <= temp(15 DOWNTO 0);
 
 				WHEN 15  => -- Lets operand_a pass through the ALU
@@ -305,9 +307,11 @@ BEGIN
 			ELSIF (to_integer(unsigned(operation)) = 3 ) THEN
 				overflow_flag <= ((operand_a(15)) OR (operand_b(15))) AND ((NOT (operand_b(15))) OR((temp(15)))) AND ((NOT (operand_a(15))) OR (NOT (temp(15))));
 			ELSIF (to_integer(unsigned(operation)) = 17 ) THEN
-				overflow_flag <= ((NOT operand_a(15)) AND temp(15));
+			--	overflow_flag <= ((NOT operand_a(15)) AND temp(15));
+				overflow_flag <= ((operand_a(15)) OR (temp(15))) AND ((NOT ('0')) OR(NOT (temp(15)))) AND ((NOT (operand_a(15))) OR (('0')));
 			ELSIF (to_integer(unsigned(operation)) = 18 ) THEN
-				overflow_flag <= ((NOT operand_b(15)) AND temp(15));
+			--  overflow_flag <= ((NOT operand_b(15)) AND temp(15));
+				overflow_flag <= ('0' OR (temp(15))) AND ((NOT (operand_b(15))) OR(NOT (temp(15)))) AND ((NOT ('0')) OR ((operand_b(15))));
 			ELSIF (to_integer(unsigned(operation)) = 8 ) THEN
 				IF (operand_a = x"8000") then
 					overflow_flag <= '1';

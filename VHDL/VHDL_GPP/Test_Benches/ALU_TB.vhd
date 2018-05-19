@@ -424,7 +424,7 @@ begin
                 operand_b <= x"0000"; 
                    cnt<= cnt+1; 
             when 91 => 
-                operand_a <= x"4000"; 
+                operand_a <= x"7FFF"; 
                 operand_b <= x"0000"; 
                    cnt<= cnt+1; 
             when 92 => 
@@ -438,7 +438,7 @@ begin
                    cnt<= cnt+1; 
             when 94 => 
                 operand_a <= x"0000"; 
-                operand_b <= x"4000"; 
+                operand_b <= x"7FFF"; 
                    cnt<= cnt+1; 
             when 95 => 
                 operation <= "010011"; --NOP 
