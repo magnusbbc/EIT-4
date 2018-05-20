@@ -386,6 +386,11 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArr[44], "JMPEQR "); // Jump equal Register
 		strcpy(opcArr[45], "JMPPA "); // Jump parity immediate
 		strcpy(opcArr[46], "JMPPAR "); // Jump parity Register
+
+		strcpy(opcArr[47], "GETFLAG "); // get flags to reg
+		strcpy(opcArr[48], "SETFLAG "); // set flags immediate
+		strcpy(opcArr[49], "PUSHFLAGS "); // push flags
+		strcpy(opcArr[50], "POPFLAGS "); // pop flags
 #pragma endregion
 
 #pragma region opcArrBin
@@ -445,6 +450,11 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArrBin[44], "101111"); // JMPEQR
 		strcpy(opcArrBin[45], "110000"); // JMPPA
 		strcpy(opcArrBin[46], "110001"); // JMPPAR
+
+		strcpy(opcArrBin[47], "110010"); // GETFLAG
+		strcpy(opcArrBin[48], "110011"); // SETFLAG
+		strcpy(opcArrBin[49], "110100"); // PUSHFLAGS
+		strcpy(opcArrBin[50], "110101"); // POPFLAGS 
 #pragma endregion
 
 		//Compares the temporary input array with an array of possible opcodes to find which one is present.
@@ -458,7 +468,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				//sets the opcode type depending on what opcode is found in temp
 				//opcodes are sorted by type in opcArr and opcArrBin
 
-				if (i <= 12 || i == 37 || i == 39) 
+				if (i <= 12 || i == 37 || i == 39 || i == 48) 
 				{
 					opcType = IMMEDIATE; 
 				}
@@ -466,7 +476,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				{
 					opcType = REGISTER; 
 				}
-				if (i == 36 || i == 38)
+				if (i == 36 || i == 38 || i == 47)
 				{
 					opcType = REGISTER;
 				}
@@ -474,7 +484,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				{
 					opcType = JUMP; 
 				}
-				if (i >= 41)
+				if (i >= 41 && i <= 46)
 				{
 					opcType = JUMP;
 				}
@@ -482,7 +492,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				{
 					opcType = MEMORY; 
 				}
-				if (i == 39)
+				if (i == 39 || i >= 49)
 				{
 					opcType == MEMORY;
 				}
@@ -1169,6 +1179,21 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[2], output[1]);
 		}
 		if (strstr(output[0], opcArrBin[40]))//NOP
+		{
+			printf("%s %s %s %s %s %s", output[0], output[5], output[5], output[5], output[5], output[6]);
+			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[5], output[5], output[5], output[5], output[6]);
+		}
+		if (strstr(output[0], opcArrBin[47])) //GETFLAG
+		{
+			printf("%s %s %s %s %s %s", output[0], output[5], output[1], output[5], output[5], output[6]);
+			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[5], output[1], output[5], output[5], output[6]);
+		}
+		if (strstr(output[0], opcArrBin[48])) //SETFLAG
+		{
+			printf("%s %s %s %s", output[0], output[5], output[5], output[1]);
+			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[5], output[1]);
+		}
+		if (strstr(output[0], opcArrBin[49]) || strstr(output[0], opcArrBin[50]))//PUSHFLAGS/POPFLAGS
 		{
 			printf("%s %s %s %s %s %s", output[0], output[5], output[5], output[5], output[5], output[6]);
 			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[5], output[5], output[5], output[5], output[6]);
