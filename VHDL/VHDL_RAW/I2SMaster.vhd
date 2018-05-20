@@ -43,7 +43,7 @@ BEGIN
 	I2SMonoOut : ENTITY work.I2SMonoOut(Behavioral)
 		PORT
 		MAP(
-		clk             => bclk,
+		clk	    => bclk,
 		data_in         => data,
 		bit_clock_out    => bclkO,
 		word_select_out => wsO,

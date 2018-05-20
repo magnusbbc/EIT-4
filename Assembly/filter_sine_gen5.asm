@@ -69,7 +69,7 @@ STORE $r2 [$r1]
 MOVI 512 $r2 //Enable interrupt, disable nesting
 STORE $r2 [$r1+1]
 
-MOVI 65104 $r1 //I2S Interrupt serivce routine
+MOVI 65104 $r1 //I2S_out Interrupt serivce routine
 MOVI #I2SREADYISR $r2
 STORE $r2 [$r1]
 MOVI 512 $r2 //Enable interrupt, disable nesting
@@ -81,6 +81,9 @@ MOVI 65000 $r1
 STORE $r3 [$r1]
 MOVI 15 $r2 
 STORE $r2 [65001]
+
+MOVI 1 $r5
+STORE $r5 [65009]
 
 MOVI 232 $r5
 STORE $r5 [65010]

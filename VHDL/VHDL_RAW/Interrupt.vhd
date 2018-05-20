@@ -44,13 +44,13 @@ ENTITY Interrupt IS
 
         internal_register_address : IN std_logic_vector(2 downto 0);    --Addresses the configuration registers
         data_in : IN std_logic_vector(15 downto 0);           --Input data to be written to the configuration registers
-        interrupt_address : OUT std_logic_vector(10-1 downto 0);           --Address of the first instruction of an interrupt service routine
+        interrupt_address : OUT std_logic_vector(13-1 downto 0);           --Address of the first instruction of an interrupt service routine
         interrupt_cpu : OUT std_logic                                   --Signals the CPU that an interrupt has occoured
 	);
 END Interrupt;
 
 ARCHITECTURE Behavioral OF Interrupt IS
- TYPE register_type IS ARRAY (5 DOWNTO 0) OF std_logic_vector(10 - 1 DOWNTO 0);
+ TYPE register_type IS ARRAY (5 DOWNTO 0) OF std_logic_vector(13 - 1 DOWNTO 0);
     SIGNAL REG : register_type := (others => (others => '0'));
 
     --These signals are configurable by the programmer

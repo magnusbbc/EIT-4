@@ -89,25 +89,25 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL pram_data_out : std_logic_vector(31 DOWNTO 0); --instruction oututted by the program memory
 	
 	--Wires
-	SIGNAL operand_a, operand_b, alu_output : std_logic_vector(15 DOWNTO 0); -- ALU inputs and output wires
-	SIGNAL stack_controller_out : std_logic_vector(15 DOWNTO 0); --Stackpointer address wires
-	SIGNAL register_writeback : std_logic_vector(15 DOWNTO 0); --Wires to connect ALU/Memory output to register writeback logic
-	SIGNAL dram_address_index : std_logic_vector(15 DOWNTO 0); --Wires connected to the memory controllers address port
+	SIGNAL operand_a, operand_b, alu_output : std_logic_vector(16-1 DOWNTO 0); -- ALU inputs and output wires
+	SIGNAL stack_controller_out : std_logic_vector(16-1 DOWNTO 0); --Stackpointer address wires
+	SIGNAL register_writeback : std_logic_vector(16-1 DOWNTO 0); --Wires to connect ALU/Memory output to register writeback logic
+	SIGNAL dram_address_index : std_logic_vector(16-1 DOWNTO 0); --Wires connected to the memory controllers address port
 	SIGNAL r2_w1_switch : std_logic_vector(4 DOWNTO 0); --Size '5' to be able to index register. Is used to switch between indexing Read_2 and Write_1 register
 
 	--PRAM Signals
-	SIGNAL PC : std_logic_vector(10-1 DOWNTO 0) := (OTHERS => '0'); --Program Counter
-	SIGNAL pram_address_index : std_logic_vector(10-1 DOWNTO 0) := (OTHERS => '0'); --Wires connected to the PRAM's address port
-	SIGNAL PC_ALT : std_logic_vector(10-1 DOWNTO 0) := (OTHERS => '0'); --Alternative new PC (e.g. ALU/Memory Output), used when changing the PC (for jumps)
-	SIGNAL interrupt_address : std_logic_vector(10-1 DOWNTO 0) := (OTHERS => '0'); --Interrupt address, address that the ISR points to
+	SIGNAL PC : std_logic_vector(13-1 DOWNTO 0) := (OTHERS => '0'); --Program Counter
+	SIGNAL pram_address_index : std_logic_vector(13-1 DOWNTO 0) := (OTHERS => '0'); --Wires connected to the PRAM's address port
+	SIGNAL PC_ALT : std_logic_vector(13-1 DOWNTO 0) := (OTHERS => '0'); --Alternative new PC (e.g. ALU/Memory Output), used when changing the PC (for jumps)
+	SIGNAL interrupt_address : std_logic_vector(13-1 DOWNTO 0) := (OTHERS => '0'); --Interrupt address, address that the ISR points to
 	SIGNAL pDataIn : std_logic_vector(31 DOWNTO 0); --Not used in current implementation, used to write to program memory
 	SIGNAL pDataOut : std_logic_vector(31 DOWNTO 0); --Program Memory instruction output
 	SIGNAL previous_instruction : std_logic_vector(31 DOWNTO 0);
 	SIGNAL pram_write_enable : std_logic := '0'; --Program memory write enable disabled in current implementation
 	SIGNAL pram_read_enable : std_logic := '1'; --Program memory read enable always on in current implementation
 	--DRAM Signals
-	SIGNAL dram_data_out : std_logic_vector(15 DOWNTO 0); --Data RAM output data
-	SIGNAL dram_data_in : std_logic_vector(15 DOWNTO 0); --Data RAM Input data, either source_register_2_output, or R2O-2 (needed for proper interrupt implementation)
+	SIGNAL dram_data_out : std_logic_vector(16-1 DOWNTO 0); --Data RAM output data
+	SIGNAL dram_data_in : std_logic_vector(16-1 DOWNTO 0); --Data RAM Input data, either source_register_2_output, or R2O-2 (needed for proper interrupt implementation)
 
 	SIGNAL fir_coefficient_in : std_logic_vector(16-1 downto 0) := (others=>'0');
 	SIGNAL fir_data_in : std_logic_vector(16-1 downto 0) := (others=>'0');
@@ -115,17 +115,17 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL fir_load_data_enable : std_logic := '0';
 	SIGNAL fir_write : std_logic := '0';
 
-SIGNAL processing_output : std_logic_vector(15 DOWNTO 0);
+SIGNAL processing_output : std_logic_vector(16-1 DOWNTO 0);
 	--Reg Signals
-	SIGNAL source_register_2_output : STD_logic_vector(15 DOWNTO 0); --2nd indexed register output, needed as a buffer to be able to switch bewtween register_2 and Immediate input to the alu
+	SIGNAL source_register_2_output : STD_logic_vector(16-1 DOWNTO 0); --2nd indexed register output, needed as a buffer to be able to switch bewtween register_2 and Immediate input to the alu
 
 	SIGNAL jmp_enable : std_logic := '0'; --Is '0' when PC increments by 1, is set to '1' when jump occours
 	SIGNAL jmp_enable_latch : std_logic := '0';
-	SIGNAL PC_TEMP : std_logic_vector(10-1 DOWNTO 0) := (OTHERS => '0'); --Program Counter
+	SIGNAL PC_TEMP : std_logic_vector(13-1 DOWNTO 0) := (OTHERS => '0'); --Program Counter
 
 	SIGNAL pc_overwrite, sp_overwrite : std_logic := '0'; --SP and PC are special registers, and PC/sp_overwrite needs to be '1' to be able to change their values
 
-	SIGNAL pc_register_file_input : std_logic_vector(15 DOWNTO 0); --Routes PC+1 into the register file
+	SIGNAL pc_register_file_input : std_logic_vector(16-1 DOWNTO 0); --Routes PC+1 into the register file
 
 	SIGNAL interrupt_cpu : std_logic := '0'; --Interrupt signal for the CPU
 	SIGNAL Interrupt_latch : std_logic := '0'; --Latch for the interrupt signal, ensures signal stays on for an additional clock cycle    (Varaible can not use small letters for some reason)
@@ -267,7 +267,7 @@ BEGIN
 	PROCESS(source_register_2_output, jmp_enable_latch)
 	BEGIN
 	IF (jmp_enable_latch = '1') THEN
-		dram_data_in <= "000000" & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
+		dram_data_in <= "000" & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
 	ELSE
 		dram_data_in <= source_register_2_output;
 	END IF;
@@ -387,7 +387,7 @@ BEGIN
 	'0' WHEN 0, --If not signals are high, then do not enable branching
 	'1' WHEN 1, --unconditional jump
 	zero_flag_latch WHEN 2, --jmpeq
-	carry_flag_latch WHEN 3, --jmple
+	overflow_flag_latch WHEN 3, --jmple
 	NOT zero_flag_latch WHEN 4, --jmpnq
 	parity_flag_latch WHEN 5,
 	'1' WHEN 8, --Jump (change pc) when pc_overwrite is set 
@@ -403,9 +403,9 @@ BEGIN
 		IF (Interrupt_latch = '1') THEN
 			pc_alt <= interrupt_address;
 		ELSIF (control_signals(1) = '1') THEN
-			pc_alt <= dram_data_out(10-1 DOWNTO 0);
+			pc_alt <= dram_data_out(13-1 DOWNTO 0);
 		ELSE
-			pc_alt <= processing_output (10-1 DOWNTO 0);
+			pc_alt <= processing_output (13-1 DOWNTO 0);
 		END IF;
 	END PROCESS;
 
@@ -499,7 +499,7 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	pc_register_file_input <= "000000" & std_logic_vector(unsigned(PC) - 1);
+	pc_register_file_input <= "000" & std_logic_vector(unsigned(PC) - 1);
 
 	PROCESS(sys_clk)
 	BEGIN

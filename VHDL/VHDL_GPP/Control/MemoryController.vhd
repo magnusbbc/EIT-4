@@ -18,9 +18,9 @@ ENTITY MemoryController IS
 	(
 		write_enable              : IN STD_LOGIC;
 		read_enable               : IN STD_LOGIC;
-		address                   : IN STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
-		data_in                   : IN STD_LOGIC_vector (WORD_SIZE DOWNTO 0);
-		data_out                  : BUFFER STD_LOGIC_vector (WORD_SIZE DOWNTO 0) := (OTHERS => '0');
+		address                   : IN STD_LOGIC_vector (WORD_SIZE-1 DOWNTO 0);
+		data_in                   : IN STD_LOGIC_vector (WORD_SIZE-1 DOWNTO 0);
+		data_out                  : BUFFER STD_LOGIC_vector (WORD_SIZE-1 DOWNTO 0) := (OTHERS => '0');
 		clk                       : IN STD_LOGIC;
 		btn                       : IN std_LOGIC_vector(2 DOWNTO 0);
 		seven_seg_control_signals : OUT std_LOGIC_vector(31 DOWNTO 0);
@@ -40,16 +40,16 @@ ENTITY MemoryController IS
 END MemoryController;
 
 ARCHITECTURE Behavioral OF MemoryController IS
-	SIGNAL seven_seg_data, seven_seg_configuration, btn_data, interrupt_data 							: std_LOGIC_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
-	SIGNAL dram_address                                                      							: std_logic_vector(WORD_SIZE DOWNTO 0);
+	SIGNAL seven_seg_data, seven_seg_configuration, btn_data, interrupt_data 							: std_LOGIC_vector(WORD_SIZE-1 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL dram_address                                                      							: std_logic_vector(WORD_SIZE-1 DOWNTO 0);
 	SIGNAL interrupt_controller_address_index                                							: std_logic_vector(2 DOWNTO 0);
 	SIGNAL interrupt_btn_reset_signal, interrupt_i2s_reset_signal, interrupt_i2s_out_reset_signal       : STD_LOGIC;
-	SIGNAL dram_data_out                                                     							: std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
+	SIGNAL dram_data_out                                                     							: std_logic_vector(WORD_SIZE-1 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL btn_interrupt, i2s_interrupt, i2s_out_interrupt                   							: std_logic                            := '0';
 	SIGNAL write_enable_dram                                                 							: std_logic                            := '0';
 	SIGNAL read_enable_dram                                                  							: std_logic                            := '0';
-	SIGNAL i2s_mono_in_data_out                                              							: std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
-	SIGNAL i2s_mono_out_data_in                                              							: std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
+	SIGNAL i2s_mono_in_data_out                                              							: std_logic_vector(WORD_SIZE-1 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL i2s_mono_out_data_in                                              							: std_logic_vector(WORD_SIZE-1 DOWNTO 0) := (OTHERS => '0');
 BEGIN
 
 	SevenSegmentDisplayDriver : ENTITY work.ssgddriver
@@ -184,7 +184,7 @@ BEGIN
 	--------------------------------------------
 	DramWrite : PROCESS (address, write_enable, read_enable)
 	BEGIN
-		IF (to_integer(unsigned(address)) <= 1023) THEN
+		IF (to_integer(unsigned(address)) <= WORD_COUNT-1) THEN
 			IF (write_enable = '1') THEN
 				dram_address      <= address;
 				write_enable_dram <= '1';
