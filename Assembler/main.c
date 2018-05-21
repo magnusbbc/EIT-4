@@ -391,6 +391,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArr[48], "SETFLAG "); // set flags immediate
 		strcpy(opcArr[49], "PUSHFLAGS "); // push flags
 		strcpy(opcArr[50], "POPFLAGS "); // pop flags
+		strcpy(opcArr[51], "SETFLAGR "); // set flags from register
 #pragma endregion
 
 #pragma region opcArrBin
@@ -455,6 +456,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArrBin[48], "110011"); // SETFLAG
 		strcpy(opcArrBin[49], "110100"); // PUSHFLAGS
 		strcpy(opcArrBin[50], "110101"); // POPFLAGS 
+		strcpy(opcArrBin[51], "110110"); // POPFLAGS
 #pragma endregion
 
 		//Compares the temporary input array with an array of possible opcodes to find which one is present.
@@ -476,7 +478,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				{
 					opcType = REGISTER; 
 				}
-				if (i == 36 || i == 38 || i == 47)
+				if (i == 36 || i == 38 || i == 47 || i == 51)
 				{
 					opcType = REGISTER;
 				}
@@ -492,9 +494,13 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				{
 					opcType = MEMORY; 
 				}
-				if (i == 39 || i >= 49)
+				if (i == 39)
 				{
-					opcType == MEMORY;
+					opcType = MEMORY;
+				}
+				if (i >= 49 && i <= 50)
+				{
+					opcType = MEMORY;
 				}
 				break;
 			}
@@ -1197,6 +1203,11 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		{
 			printf("%s %s %s %s %s %s", output[0], output[5], output[5], output[5], output[5], output[6]);
 			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[5], output[5], output[5], output[5], output[6]);
+		}
+		if (strstr(output[0], opcArrBin[51])) //SETFLAGR
+		{
+			printf("%s %s %s %s %s %s", output[0], output[1], output[5], output[5], output[5], output[6]);
+			fprintf(fpOut, "%s%s%s%s%s%s", output[0], output[1], output[5], output[5], output[5], output[6]);
 		}
 #pragma endregion
 
