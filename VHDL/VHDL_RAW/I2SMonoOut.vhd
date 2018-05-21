@@ -19,7 +19,7 @@ ENTITY I2SMonoOut IS
 	(
 
 		clk             : IN std_logic; -- Clock that will be used for logic and will be directly used as output bitclock. Can be directly connected to a syncronized bitclock input from the i2s input signal.
-		data_in         : IN std_logic_vector(16-1 DOWNTO 0);-- The data input. The word that should be loaded into the buffers should be loaded to these inputs when the interupts are set to high, and will be loaded at next falling_edge.
+		data_in         : IN std_logic_vector(16 -1 DOWNTO 0);-- The data input. The word that should be loaded into the buffers should be loaded to these inputs when the interupts are set to high, and will be loaded at next falling_edge.
 		bit_clock_out   : OUT std_logic; -- Output bitclock for the output i2s signal.
 		word_select_out : OUT std_logic; --Output wordselect for the output i2s signal.
 		data_out        : OUT std_logic; -- Output serial data for the i2s signal.    
@@ -32,7 +32,7 @@ END I2SMonoOut;
 ARCHITECTURE Behavioral OF I2SMonoOut IS
 	SIGNAL interrupt_reset_left, interrupt_reset_right, interrupt : std_logic;
 	SIGNAL interrupt_reset                                        : std_logic                                 := '0';
-	SIGNAL data_in_temp                                           : std_logic_vector(16-1 DOWNTO 0) := x"0000";
+	SIGNAL data_in_temp                                           : std_logic_vector(16 -1 DOWNTO 0) := x"0000";
 	SIGNAL interrupt_count										  : std_logic_vector(0 DOWNTO 0) := "0";
 BEGIN
 	PROCESS (clk,data_in, interrupt_reset)

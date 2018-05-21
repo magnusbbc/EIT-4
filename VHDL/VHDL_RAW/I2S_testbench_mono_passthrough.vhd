@@ -84,8 +84,8 @@ begin
 		-----------------------------------------
 		
 		for i in 0 to 5 loop
-		I2SSignalBurst(('1'),(std_logic_vector(to_unsigned(i,16))),(1));
-		I2SSignalBurst(('0'),(std_logic_vector(to_unsigned(i,16))),(1));
+		I2SSignalBurst(('1'),(std_logic_vector(to_unsigned(i,16 ))),(1));
+		I2SSignalBurst(('0'),(std_logic_vector(to_unsigned(i,16 ))),(1));
 		
 		end loop;
 		-----------------------------------------

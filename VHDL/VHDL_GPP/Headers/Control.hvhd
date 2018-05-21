@@ -28,9 +28,11 @@
 #define PA 5 //If parity
 
 //Control Signals Enabled
-#define FIRIN_E '1'
-#define FIRCO_E '1'
-#define FIRRE_E '1'
+#define FIRIN_E '1' //Load Filter data
+#define FIRCO_E '1' //Load Filter coefficient
+#define FIRRE_E '1' //Filter reset 
+#define FLGSE_E '1' //Set Flags
+#define FLGLO_E '1' //Load flags
 #define MEMRD_E '1' //Memory Read
 #define MEMWR_E '1' //Memory Write
 #define REGWR_E '1' //Register Write
@@ -42,10 +44,13 @@
 #define MW2PC_E '1' //Memopry to PC
 #define HALTP_E '1' //HALT CPU Execution
 
+
 //Control Signals Disabled
 #define FIRIN_D '0'
 #define FIRCO_D '0'
 #define FIRRE_D '0'
+#define FLGSE_D '0'
+#define FLGLO_D '0' 
 #define MEMRD_D '0'
 #define MEMWR_D '0'
 #define REGWR_D '0'
@@ -94,14 +99,18 @@
 #define JMPLE 36 //Jump if less than
 #define JMPNQ 37 //Jump if not equal
 #define HALT 38 //HALT CPU
-#define FIRCOR 39 
-#define FIRCOI 40 
-#define FIRRESET 41 
-#define FIRSAR 42 
-#define FIRSAI 43 
-#define JMPR 44
-#define JMPNQR 45
-#define JMPLER 46
-#define JMPEQR 47
-#define JMPPA 48
-#define JMPPAR 49
+#define FIRCOR 39 //Set Fir coefficient with register
+#define FIRCOI 40 //Set Fir coefficient with immediate
+#define FIRRESET 41 //Reset Fir Filter
+#define FIRSAR 42 //Fir input from register
+#define FIRSAI 43 //Fir input from immediate
+#define JMPR 44 //Jump Register
+#define JMPNQR 45 //Jump not equal register
+#define JMPLER 46 //Jump less than register
+#define JMPEQR 47 //Jump Equal Register
+#define JMPPA 48 //Jump Parity
+#define JMPPAR 49 //Jump Parity Register
+#define GETFLAG 50 //Get flag values and save to register
+#define SETFLAG 51 //Set flag values
+#define PUSHFLAGS 52 //Push flags to the stack
+#define POPFLAGS 53 //Pop flags from the stack

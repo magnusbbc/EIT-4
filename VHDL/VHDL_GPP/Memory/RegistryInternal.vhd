@@ -58,7 +58,7 @@ BEGIN
 	BEGIN
 		IF to_integer(unsigned(read_register_a_index)) = 31 THEN --pc to outOne
 			register_file_data_out_a <= pc_value_input;
-		ELSIF to_integer(unsigned(read_register_a_index)) = 30 THEN
+		ELSIF to_integer(unsigned(read_register_a_index)) = 30 THEN --sp to outOne
 			register_file_data_out_a <= sp_value_input;
 		ELSE
 			register_file_data_out_a <= reg(to_integer(unsigned(read_register_a_index)));
@@ -66,7 +66,7 @@ BEGIN
 
 		IF to_integer(unsigned(read_register_b_index)) = 31 THEN --pc to outTwo
 			register_file_data_out_b <= pc_value_input;
-		ELSIF to_integer(unsigned(read_register_b_index)) = 30 THEN
+		ELSIF to_integer(unsigned(read_register_b_index)) = 30 THEN --sp to outTwo
 			register_file_data_out_b <= sp_value_input;
 		ELSE
 			register_file_data_out_b <= reg(to_integer(unsigned(read_register_b_index)));

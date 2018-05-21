@@ -1,8 +1,8 @@
-#define INOUT_BIT_WIDTH 16
+#define INOUT_BIT_WIDTH 16 //Data bit depth
 
-#define COEFFICIENT_WIDTH 16
+#define COEFFICIENT_WIDTH 16 //Coefficient Bit depth
 
-#define MULTIPLIER_WIDTH 32
+#define MULTIPLIER_WIDTH 32 //Multiplier bit depth (must be INOUT_BIT_WIDTH + COEFFICIENT_WIDTH of bit depth)
 
 //Adder width = MULTIPLIER_WIDTH+log2(TAPS)-1
 #define ADDER_WIDTH 32
@@ -10,4 +10,5 @@
 //Should be multiples of two, to generate integer values of adder width
 #define TAPS 64
 
+//For test bench
 #define INPUT_SAMPLES 401
