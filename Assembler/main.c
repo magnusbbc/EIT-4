@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 	//the buffer array is used to store either the arguments of main or filenames input from the user.
 	//This is because the program can be run from a command line with arguments or as a .exe without.
 	char buffer[3][100];
-	int memoryDepth = 1024;
+	int memoryDepth = 8192;
 	//The arguments are counted in argc and if there are 2 (3 because argc counts as an argument)
 	//normal execution will occur. Else the program will prompt for input or exit
 	if (argc == 1)
