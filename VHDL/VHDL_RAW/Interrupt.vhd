@@ -10,7 +10,6 @@
 
 
 
-
 --Above macro is WIP, does not work with button interrupts
 
 --------------------------------------------------------------------------------------
@@ -42,19 +41,16 @@ ENTITY Interrupt IS
         interrupt_nest_enable : OUT std_logic := '1' ;      --Tells the Main logic that whether nesting interrups are allowed. MUST ben high by default
         write_enable :IN std_logic;                         --Write enable to allow changes to the interrupt controllers configuration registers
         clk : IN std_logic;                                 --System Clock
-        
-		led : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
-		
 
         internal_register_address : IN std_logic_vector(2 downto 0);    --Addresses the configuration registers
-        data_in : IN std_logic_vector(15 downto 0);           --Input data to be written to the configuration registers
-        interrupt_address : OUT std_logic_vector(10-1 downto 0);           --Address of the first instruction of an interrupt service routine
+        data_in : IN std_logic_vector(16 -1 downto 0);           --Input data to be written to the configuration registers
+        interrupt_address : OUT std_logic_vector(13 -1 downto 0);           --Address of the first instruction of an interrupt service routine
         interrupt_cpu : OUT std_logic                                   --Signals the CPU that an interrupt has occoured
 	);
 END Interrupt;
 
 ARCHITECTURE Behavioral OF Interrupt IS
- TYPE register_type IS ARRAY (5 DOWNTO 0) OF std_logic_vector(10 - 1 DOWNTO 0);
+ TYPE register_type IS ARRAY (5 DOWNTO 0) OF std_logic_vector(13  - 1 DOWNTO 0);
     SIGNAL REG : register_type := (others => (others => '0'));
 
     --These signals are configurable by the programmer
@@ -241,7 +237,7 @@ interrupt_nest_enable <= '1';
 	BEGIN
         IF(rising_edge(clk)) THEN
 			IF (write_enable = '1') THEN
-				REG(to_integer(unsigned(internal_register_address))) <= data_in(9 downto 0);
+				REG(to_integer(unsigned(internal_register_address))) <= data_in(13 -1 downto 0);
 			END IF;
         END IF;
 	END PROCESS;

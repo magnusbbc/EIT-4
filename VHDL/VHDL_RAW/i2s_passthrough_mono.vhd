@@ -26,7 +26,7 @@ ENTITY i2s_passthrough_mono IS
 END i2s_passthrough_mono;
 
 ARCHITECTURE i2s_passthrough_mono OF i2s_passthrough_mono IS
-signal data_outs 		:  std_logic_vector(16 - 1 DOWNTO 0);
+signal data_outs 		:  std_logic_vector(16  - 1 DOWNTO 0);
 signal interrupt 		:  std_logic;
 signal interrupt_reset 	:  std_logic;
 		--Ports for input

@@ -22,15 +22,15 @@ ENTITY RegistryInternal IS
 
 		write_register_index     : IN std_logic_vector(4 DOWNTO 0); --Index of register to write data to
 
-		register_file_data_in    : IN std_logic_vector(WORD_SIZE DOWNTO 0); --data to be written to a register
+		register_file_data_in    : IN std_logic_vector(WORD_SIZE-1 DOWNTO 0); --data to be written to a register
 
 		--Data outputs
-		register_file_data_out_a : OUT std_logic_vector(WORD_SIZE DOWNTO 0); 
-		register_file_data_out_b : OUT std_logic_vector(WORD_SIZE DOWNTO 0);
+		register_file_data_out_a : OUT std_logic_vector(WORD_SIZE-1 DOWNTO 0); 
+		register_file_data_out_b : OUT std_logic_vector(WORD_SIZE-1 DOWNTO 0);
 
 		--Input data from the PC/SP register
-		pc_value_input           : IN std_logic_vector(WORD_SIZE DOWNTO 0);
-		sp_value_input           : IN std_logic_vector(WORD_SIZE DOWNTO 0);
+		pc_value_input           : IN std_logic_vector(WORD_SIZE-1 DOWNTO 0);
+		sp_value_input           : IN std_logic_vector(WORD_SIZE-1 DOWNTO 0);
 
 		write_enable             : IN std_logic; --Write enable signal
 
@@ -41,7 +41,7 @@ END RegistryInternal;
 
 ARCHITECTURE Behavioral OF RegistryInternal IS
 
-	TYPE register_type IS ARRAY (29 DOWNTO 0) OF std_logic_vector(WORD_SIZE DOWNTO 0);
+	TYPE register_type IS ARRAY (29 DOWNTO 0) OF std_logic_vector(WORD_SIZE-1 DOWNTO 0);
 	SIGNAL reg : register_type := (OTHERS => x"0000");
 BEGIN
 
@@ -58,7 +58,7 @@ BEGIN
 	BEGIN
 		IF to_integer(unsigned(read_register_a_index)) = 31 THEN --pc to outOne
 			register_file_data_out_a <= pc_value_input;
-		ELSIF to_integer(unsigned(read_register_a_index)) = 30 THEN
+		ELSIF to_integer(unsigned(read_register_a_index)) = 30 THEN --sp to outOne
 			register_file_data_out_a <= sp_value_input;
 		ELSE
 			register_file_data_out_a <= reg(to_integer(unsigned(read_register_a_index)));
@@ -66,7 +66,7 @@ BEGIN
 
 		IF to_integer(unsigned(read_register_b_index)) = 31 THEN --pc to outTwo
 			register_file_data_out_b <= pc_value_input;
-		ELSIF to_integer(unsigned(read_register_b_index)) = 30 THEN
+		ELSIF to_integer(unsigned(read_register_b_index)) = 30 THEN --sp to outTwo
 			register_file_data_out_b <= sp_value_input;
 		ELSE
 			register_file_data_out_b <= reg(to_integer(unsigned(read_register_b_index)));

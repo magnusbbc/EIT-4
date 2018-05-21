@@ -20,8 +20,8 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY Stack IS
 	PORT
 	(
-		address_out : OUT std_logic_vector(WORD_SIZE DOWNTO 0); --Stack Pointer output
-		address_in  : IN std_logic_vector(WORD_SIZE DOWNTO 0); --New value of stack pointer (only applicable when "write_back" is set high)
+		address_out : OUT std_logic_vector(WORD_SIZE-1 DOWNTO 0); --Stack Pointer output
+		address_in  : IN std_logic_vector(WORD_SIZE-1 DOWNTO 0); --New value of stack pointer (only applicable when "write_back" is set high)
 		write_back  : IN std_logic := '0'; --Control port, set high when performing a manual stack point overwrite
 		pop         : IN std_logic := '0'; --Control port, set high when a "pop" instruction occours (should be connected to the "pop" control port)
 		push        : IN std_logic := '0'; --Control port, set high when a "push" instruction occours (should be connected to the "push" control port)
@@ -29,7 +29,7 @@ ENTITY Stack IS
 	);
 END Stack;
 ARCHITECTURE Behavioral OF Stack IS
-	SIGNAL sp : std_logic_vector(WORD_SIZE DOWNTO 0) := (OTHERS => '0');
+	SIGNAL sp : std_logic_vector(WORD_SIZE-1 DOWNTO 0) := (OTHERS => '0');
 
 BEGIN
 

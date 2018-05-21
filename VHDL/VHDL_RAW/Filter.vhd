@@ -13,8 +13,9 @@
 
 
 
+
 -- This is adder_array generic FIR filter generator
--- It uses 16 bit data/coefficients bits
+-- It uses 16  bit data/coefficients bits
 LIBRARY ieee; -- Using predefined packages
 USE ieee.std_logic_1164.ALL;
 --USE ieee.std_logic_arith.ALL;
@@ -28,9 +29,9 @@ ENTITY Filter IS ------> Interface
 		clk    					: IN STD_LOGIC := '0'; -- System clock
 		reset  					: IN STD_LOGIC := '0';	-- Asynchron reset
 		load_system_input 		: IN STD_LOGIC := '0'; -- Load/run switch
-		system_input  			: IN STD_LOGIC_VECTOR(16 - 1 DOWNTO 0) := (OTHERS => '0'); -- system_input
-		coefficient_in  	    : IN STD_LOGIC_VECTOR(16 - 1 DOWNTO 0) := (OTHERS => '0'); -- Coefficient data input
-		system_output  			: OUT STD_LOGIC_VECTOR(16 - 1 DOWNTO 0) := (OTHERS => '0');  -- System output
+		system_input  			: IN STD_LOGIC_VECTOR(16  - 1 DOWNTO 0) := (OTHERS => '0'); -- system_input
+		coefficient_in  	    : IN STD_LOGIC_VECTOR(16  - 1 DOWNTO 0) := (OTHERS => '0'); -- Coefficient data input
+		system_output  			: OUT STD_LOGIC_VECTOR(16  - 1 DOWNTO 0) := (OTHERS => '0');  -- System output
 		write_enable			: IN STD_LOGIC := '0'
 	);
 	
@@ -38,15 +39,15 @@ END Filter;
 -- --------------------------------------------------------
 ARCHITECTURE Behavioural OF Filter IS
 
-	TYPE coefficient_array_type 	IS ARRAY (0 TO 64 - 1) OF STD_LOGIC_VECTOR(16 - 1 DOWNTO 0);			
-	TYPE product_array_type 		IS ARRAY (0 TO 64 - 1) OF STD_LOGIC_VECTOR(32 - 1 DOWNTO 0);		
+	TYPE coefficient_array_type 	IS ARRAY (0 TO 64 - 1) OF STD_LOGIC_VECTOR(16  - 1 DOWNTO 0);			
+	TYPE product_array_type 		IS ARRAY (0 TO 64 - 1) OF STD_LOGIC_VECTOR(32  - 1 DOWNTO 0);		
 	TYPE adder_array_type 			IS ARRAY (0 TO 64 - 1) OF STD_LOGIC_VECTOR(32 - 1 DOWNTO 0);				
 
 	SIGNAL coefficient_array 		: coefficient_array_type := (others => (others => '0')); 	-- Coefficient array
 	SIGNAL product_array 			: product_array_type := (others => (others => '0')); 		-- Product array
 	SIGNAL adder_array 				: adder_array_type := (others => (others => '0')); 		-- Adder array
 
-	SIGNAL input_data_temp 			: STD_LOGIC_VECTOR(16 - 1 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL input_data_temp 			: STD_LOGIC_VECTOR(16  - 1 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL full_output 				: STD_LOGIC_VECTOR(32 - 1 DOWNTO 0) := (OTHERS => '0');
     SIGNAL truncated_output 		: STD_LOGIC_VECTOR(32 - 1 DOWNTO 0) := (OTHERS => '0');      
 

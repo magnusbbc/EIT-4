@@ -11,6 +11,7 @@
 
 
 
+
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
@@ -33,9 +34,9 @@ ARCHITECTURE Behavioral OF FIR_TB IS
 	
 	signal reset : std_logic := '0';
 	signal Load_x : std_logic;
-	signal x_in : std_logic_vector(16-1 downto 0) := (others=>'0');
-	signal c_in : std_logic_vector(16-1 downto 0) := (others=>'0');
-	signal y_out : std_logic_vector(16-1 downto 0) := (others=>'0');
+	signal x_in : std_logic_vector(16 -1 downto 0) := (others=>'0');
+	signal c_in : std_logic_vector(16 -1 downto 0) := (others=>'0');
+	signal y_out : std_logic_vector(16 -1 downto 0) := (others=>'0');
 
 	
 	--Clock Constants

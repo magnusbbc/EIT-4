@@ -5,7 +5,6 @@
 
 
 
-
 --------------------------------------------------------------------------------------
 --Engineer: Jakob Thomsen, Mikkel Hardysoe, Magnus Christensen
 --Module Name: Master
@@ -29,15 +28,15 @@ ENTITY RegistryInternal IS
 
 		write_register_index     : IN std_logic_vector(4 DOWNTO 0); --Index of register to write data to
 
-		register_file_data_in    : IN std_logic_vector(15 DOWNTO 0); --data to be written to a register
+		register_file_data_in    : IN std_logic_vector(16 -1 DOWNTO 0); --data to be written to a register
 
 		--Data outputs
-		register_file_data_out_a : OUT std_logic_vector(15 DOWNTO 0); 
-		register_file_data_out_b : OUT std_logic_vector(15 DOWNTO 0);
+		register_file_data_out_a : OUT std_logic_vector(16 -1 DOWNTO 0); 
+		register_file_data_out_b : OUT std_logic_vector(16 -1 DOWNTO 0);
 
 		--Input data from the PC/SP register
-		pc_value_input           : IN std_logic_vector(15 DOWNTO 0);
-		sp_value_input           : IN std_logic_vector(15 DOWNTO 0);
+		pc_value_input           : IN std_logic_vector(16 -1 DOWNTO 0);
+		sp_value_input           : IN std_logic_vector(16 -1 DOWNTO 0);
 
 		write_enable             : IN std_logic; --Write enable signal
 
@@ -48,7 +47,7 @@ END RegistryInternal;
 
 ARCHITECTURE Behavioral OF RegistryInternal IS
 
-	TYPE register_type IS ARRAY (29 DOWNTO 0) OF std_logic_vector(15 DOWNTO 0);
+	TYPE register_type IS ARRAY (29 DOWNTO 0) OF std_logic_vector(16 -1 DOWNTO 0);
 	SIGNAL reg : register_type := (OTHERS => x"0000");
 BEGIN
 
