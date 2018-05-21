@@ -377,7 +377,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArr[36], "FIRCOR "); // FIRCOR
 		strcpy(opcArr[37], "FIRCOI "); // FIRCOI
 		strcpy(opcArr[38], "FIRSAR "); // FIRSAR
-		strcpy(opcArr[39], "FIRSAI "); // FIRSARI
+		strcpy(opcArr[39], "FIRSAI "); // FIRSAI
 		strcpy(opcArr[40], "FIRCORESET "); // FIRCORESET
 
 		strcpy(opcArr[41], "JMPR "); // Jump Register
@@ -442,7 +442,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		strcpy(opcArrBin[36], "100111"); // FIRCOR 
 		strcpy(opcArrBin[37], "101000"); // FIRCOI
 		strcpy(opcArrBin[38], "101010"); // FIRSAR
-		strcpy(opcArrBin[39], "101011"); // FIRSARI
+		strcpy(opcArrBin[39], "101011"); // FIRSAI
 		strcpy(opcArrBin[40], "101001"); // FIRCORESET
 
 		strcpy(opcArrBin[41], "101100"); // JMPR
@@ -494,7 +494,7 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 				{
 					opcType = MEMORY; 
 				}
-				if (i == 39)
+				if (i == 40)
 				{
 					opcType = MEMORY;
 				}
@@ -1181,8 +1181,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		}
 		if (strstr(output[0], opcArrBin[39])) //FIRSAI
 		{
-			printf("%s %s %s %s", output[0], output[5], output[2], output[1]);
-			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[2], output[1]);
+			printf("%s %s %s %s", output[0], output[5], output[5], output[1]);
+			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[5], output[1]);
 		}
 		if (strstr(output[0], opcArrBin[40]))//NOP
 		{
