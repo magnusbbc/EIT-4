@@ -1181,8 +1181,8 @@ int main(int argc, char *argv[]) //main takes 2 arguments, both are names of the
 		}
 		if (strstr(output[0], opcArrBin[39])) //FIRSAI
 		{
-			printf("%s %s %s %s", output[0], output[5], output[5], output[1]);
-			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[5], output[1]);
+			printf("%s %s %s %s", output[0], output[5], output[2], output[1]);
+			fprintf(fpOut, "%s%s%s%s", output[0], output[5], output[2], output[1]);
 		}
 		if (strstr(output[0], opcArrBin[40]))//NOP
 		{
