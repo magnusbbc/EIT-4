@@ -35,6 +35,8 @@ ARCHITECTURE Behavioral OF I2SMonoOut IS
 	SIGNAL data_in_temp                                           : std_logic_vector(16 -1 DOWNTO 0) := x"0000";
 	SIGNAL interrupt_count										  : std_logic_vector(0 DOWNTO 0) := "0";
 BEGIN
+
+	--Handles Interrupts
 	PROCESS (clk,data_in, interrupt_reset)
 	BEGIN
 		IF(rising_edge(clk)) THEN

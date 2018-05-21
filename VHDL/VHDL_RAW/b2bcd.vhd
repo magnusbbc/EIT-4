@@ -17,7 +17,7 @@ ENTITY b2bcd IS
 	(
 		clr    : IN std_logic;
 		binary : IN std_logic_vector (15 DOWNTO 0); --Input value
-		bcd    : OUT std_logic_vector (15 DOWNTO 0) --Binary coded decimal representation of that value
+		bcd    : OUT std_logic_vector (19 DOWNTO 0) --Binary coded decimal representation of that value
 	);
 END b2bcd;
 ARCHITECTURE a OF b2bcd IS
@@ -30,13 +30,13 @@ BEGIN
 	-- 9999 with 16 available output BITS
 	--------------------------------------------
 	b2bcd : PROCESS (binary, clr)
-		VARIABLE temp : std_logic_vector(31 DOWNTO 0);
+		VARIABLE temp : std_logic_vector(35 DOWNTO 0);
 	BEGIN
-		temp := x"00000000";
+		temp :=(others=>'0');
 		IF clr = '0' THEN
-			temp(18 DOWNTO 3) := binary;
+			temp(15 DOWNTO 0) := binary;
 
-			FOR i IN 0 TO 12 LOOP
+			FOR i IN 0 TO 15 LOOP
 				IF temp(19 DOWNTO 16) > 4 THEN
 					temp(19 DOWNTO 16) := temp(19 DOWNTO 16) + 3;
 				END IF;
@@ -49,9 +49,12 @@ BEGIN
 				IF temp(31 DOWNTO 28) > 4 THEN
 					temp(31 DOWNTO 28) := temp(31 DOWNTO 28) + 3;
 				END IF;
-				temp(31 DOWNTO 1) := temp(30 DOWNTO 0);
+				IF temp(35 DOWNTO 32) > 4 THEN
+					temp(35 DOWNTO 32) := temp(35 DOWNTO 32) + 3;
+				END IF;
+				temp(35 DOWNTO 1) := temp(34 DOWNTO 0);
 			END LOOP;
 		END IF;
-		bcd <= temp(31 DOWNTO 16);
+		bcd <= temp(35 DOWNTO 16);
 	END PROCESS b2bcd;
 END a;

@@ -25,8 +25,8 @@ ENTITY ssgddriver IS
 		clr                       : IN STD_LOGIC; --Clear
 		bcd_enable                : IN std_LOGIC; --Enable BCD format
 		input_data                : IN STD_LOGIC_vector (15 DOWNTO 0) := (OTHERS => '0'); --Hex data in 4 nibbles
-		dot_control               : IN STD_LOGIC_vector (3 DOWNTO 0); --Dots data
-		seven_seg_control_signals : OUT STD_LOGIC_vector (31 DOWNTO 0) --Segments connections (31| dot4 - 7seg4 - dot3 - 7seg3 - dot2 - 7seg2 - dot1 - 7seg1 |0)
+		dot_control               : IN STD_LOGIC_vector (4 DOWNTO 0); --Dots data
+		seven_seg_control_signals : OUT STD_LOGIC_vector (39 DOWNTO 0) --Segments connections (31| dot4 - 7seg4 - dot3 - 7seg3 - dot2 - 7seg2 - dot1 - 7seg1 |0)
 	);
 END ssgddriver;
 
@@ -140,5 +140,26 @@ BEGIN
 "0000110" WHEN "1110", 
 "0001110" WHEN "1111", 
 "0000000" WHEN OTHERS;
+		--Sets the fourth display
+		seven_seg_control_signals(39)                                             <= dot_control(4);
+		WITH display(19 DOWNTO 16) SELECT seven_seg_control_signals(38 DOWNTO 32) <=
+		"1000000" WHEN "0000", 
+"1111001" WHEN "0001", 
+"0100100" WHEN "0010", 
+"0110000" WHEN "0011", 
+"0011001" WHEN "0100", 
+"0010010" WHEN "0101", 
+"0000010" WHEN "0110", 
+"1111000" WHEN "0111", 
+"0000000" WHEN "1000", 
+"0010000" WHEN "1001", 
+"0001000" WHEN "1010", 
+"0000011" WHEN "1011", 
+"1000110" WHEN "1100", 
+"0100001" WHEN "1101", 
+"0000110" WHEN "1110", 
+"0001110" WHEN "1111", 
+"0000000" WHEN OTHERS;
+
 
 	END Behavioral;
