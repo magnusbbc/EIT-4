@@ -386,7 +386,7 @@ BEGIN
 	-- SetAlternativePc:
 	-- Sets pc_alt based on interrupt status and the MEMORY_TO_PC control line
 	--------------------------------------------
-	SetAlternativePc : PROCESS (interrupt_cpu, Interrupt_latch, control_signals(MEMORY_TO_PC), dram_data_out(PC_SIZE-1 DOWNTO 0), processing_output (PC_SIZE-1 DOWNTO 0))
+	SetAlternativePc : PROCESS (Interrupt_latch, control_signals(MEMORY_TO_PC), dram_data_out(PC_SIZE-1 DOWNTO 0), processing_output (PC_SIZE-1 DOWNTO 0))
 	BEGIN
 		IF (Interrupt_latch = '1') THEN
 			pc_alt <= interrupt_address;

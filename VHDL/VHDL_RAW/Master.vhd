@@ -405,7 +405,7 @@ BEGIN
 	-- SetAlternativePc:
 	-- Sets pc_alt based on interrupt status and the 1 control line
 	--------------------------------------------
-	SetAlternativePc : PROCESS (interrupt_cpu, Interrupt_latch, control_signals(1), dram_data_out(13 -1 DOWNTO 0), processing_output (13 -1 DOWNTO 0))
+	SetAlternativePc : PROCESS (Interrupt_latch, control_signals(1), dram_data_out(13 -1 DOWNTO 0), processing_output (13 -1 DOWNTO 0))
 	BEGIN
 		IF (Interrupt_latch = '1') THEN
 			pc_alt <= interrupt_address;
