@@ -39,9 +39,9 @@ END Filter;
 -- --------------------------------------------------------
 ARCHITECTURE Behavioural OF Filter IS
 
-	TYPE coefficient_array_type 	IS ARRAY (0 TO 64 - 1) OF STD_LOGIC_VECTOR(16  - 1 DOWNTO 0);			
-	TYPE product_array_type 		IS ARRAY (0 TO 64 - 1) OF STD_LOGIC_VECTOR(32  - 1 DOWNTO 0);		
-	TYPE adder_array_type 			IS ARRAY (0 TO 64 - 1) OF STD_LOGIC_VECTOR(32 - 1 DOWNTO 0);				
+	TYPE coefficient_array_type 	IS ARRAY (0 TO 6 - 1) OF STD_LOGIC_VECTOR(16  - 1 DOWNTO 0);			
+	TYPE product_array_type 		IS ARRAY (0 TO 6 - 1) OF STD_LOGIC_VECTOR(32  - 1 DOWNTO 0);		
+	TYPE adder_array_type 			IS ARRAY (0 TO 6 - 1) OF STD_LOGIC_VECTOR(32 - 1 DOWNTO 0);				
 
 	SIGNAL coefficient_array 		: coefficient_array_type := (others => (others => '0')); 	-- Coefficient array
 	SIGNAL product_array 			: product_array_type := (others => (others => '0')); 		-- Product array
@@ -58,15 +58,15 @@ BEGIN
 		IF reset = '1' THEN 			-- clear data and coefficients reg.
 			IF(write_enable = '1') THEN
 				input_data_temp <= (others=>'0');
-				FOR K IN 0 TO 64 - 1 LOOP
+				FOR K IN 0 TO 6 - 1 LOOP
 					coefficient_array(K) <= (others=>'0');
 				END LOOP;
 			END IF;
 		ELSIF falling_edge(clk) THEN
 			IF(write_enable = '1') THEN
 				IF load_system_input = '0' THEN
-					coefficient_array(64 - 1) <= coefficient_in; -- Store coefficient in register
-					FOR I IN 64 - 2 DOWNTO 0 LOOP -- Coefficients shift one
+					coefficient_array(6 - 1) <= coefficient_in; -- Store coefficient in register
+					FOR I IN 6 - 2 DOWNTO 0 LOOP -- Coefficients shift one
 						coefficient_array(I) <= coefficient_array(I + 1);
 					END LOOP;
 				ELSE
@@ -80,23 +80,23 @@ BEGIN
 	BEGIN
 		IF reset = '1' THEN -- clear tap registers
 			IF(write_enable = '1') THEN
-				FOR K IN 0 TO 64 - 1 LOOP
+				FOR K IN 0 TO 6 - 1 LOOP
 					adder_array(K) <= (OTHERS => '0');
 				END LOOP;
 			END IF;
 		ELSIF falling_edge(clk) THEN
 			IF(write_enable = '1') THEN
-				FOR I IN 0 TO 64 - 2 LOOP -- Compute the transposed
+				FOR I IN 0 TO 6 - 2 LOOP -- Compute the transposed
 					adder_array(I) <= std_logic_vector(resize(signed(product_array(I)),adder_array(0)'length)) + adder_array(I + 1); -- filter adds
 				END LOOP;
-				adder_array(64 - 1) <= std_logic_vector(resize(signed(product_array(64-1)),adder_array(0)'length)); -- First TAP has only adder_array register
+				adder_array(6 - 1) <= std_logic_vector(resize(signed(product_array(6-1)),adder_array(0)'length)); -- First TAP has only adder_array register
 			END IF;
 		END IF; 
 		full_output <= adder_array(0);
 	END PROCESS SOP;
 
-	-- Instantiate 64 multipliers
-	MulGen : FOR I IN 0 TO 64 - 1 GENERATE
+	-- Instantiate 6 multipliers
+	MulGen : FOR I IN 0 TO 6 - 1 GENERATE
 		product_array(i) <= coefficient_array(i) * input_data_temp;
 	END GENERATE;
 	
