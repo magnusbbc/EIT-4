@@ -1,0 +1,26 @@
+MOVI #BTNISR $r1
+STORE $r1 [65100]
+MOVI 512 $r1
+STORE $r1 [65101]
+
+MOVI 15 $r1
+STORE $r1 [65001]
+
+MOVI 0 $r1
+
+loop:
+NOP
+NOP
+NOP
+JMP #loop
+
+BTNISR:
+CMPI $r1 65535
+JMPEQ #overflow
+ADDI $r1 4369 $r1
+STORE $r1 [65000]
+POP $pc
+overflow:
+MOVI 0 $r2
+STORE $r2 [65001]
+POP $pc

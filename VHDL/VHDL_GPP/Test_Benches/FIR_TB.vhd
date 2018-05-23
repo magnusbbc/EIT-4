@@ -25,7 +25,7 @@ ARCHITECTURE Behavioral OF FIR_TB IS
 	signal c_in : std_logic_vector(INOUT_BIT_WIDTH-1 downto 0) := (others=>'0');
 	signal y_out : std_logic_vector(INOUT_BIT_WIDTH-1 downto 0) := (others=>'0');
 
-	
+	SIGNAL write_en : std_logic := '0';
 	--Clock Constants
 	constant TbPeriod : time := 50 ns;
    signal TbClock : std_logic := '0';
@@ -40,6 +40,7 @@ BEGIN
 	clk    => tbclock,   
 	reset  => reset, 
 	load_system_input => Load_x,
+	write_enable => write_en,
 	system_input   => x_in,  
 	coefficient_in   => c_in,  
 	system_output  => y_out 
@@ -493,6 +494,7 @@ END PROCESS;
 						cnt<= cnt+1;
 					when 1 to 64 =>
 					reset <= '0'; 
+					write_en <= '1';
 					load_x <= '0';					--- stay in load coeficcients mode
 					x_in <= x"0000";
 					c_in <= coefs(cnt-1);					--- First coefficient							
@@ -502,6 +504,7 @@ END PROCESS;
 
 					when TAPS+1 =>
 						reset <= '0'; 
+						write_en <= '1';
 						load_x <= '1';					--- Enter load data sample mode
 						x_in <= x"0000";
 						c_in <= x"2a3f";						
@@ -509,13 +512,15 @@ END PROCESS;
 
 --					when 73 =>
 --						reset <= '0'; 
+--						write_en <= '1';
 --						load_x <= '1';					--- Enter load data sample mode
 --						x_in <= x"2710";				--- Send data to the filter
 --						c_in <= x"2a3f";						
 --						cnt <= cnt+1;
 --					when 74 =>
 --						reset <= '0'; 
---						load_x <= '1';					--- Enter load data sample mode
+--						load_x <= '1';
+--                      write_en <= '1';					--- Enter load data sample mode
 --						x_in <= x"0000";				--- Send data to the filter
 --						c_in <= x"2a3f";						
 --						cnt <= cnt+1;
@@ -523,6 +528,7 @@ END PROCESS;
 
 					when others => 
 						reset <= '0'; 
+						write_en <= '1';
 						load_x <= '1';					--- Enter load data sample mode
 						x_in <= sin(i);				--- Send data to the filter
 						c_in <= x"2a3f";
