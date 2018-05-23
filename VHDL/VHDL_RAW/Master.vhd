@@ -118,7 +118,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL fir_load_data_enable : std_logic := '0';
 	SIGNAL fir_write : std_logic := '0';
 
-SIGNAL processing_output : std_logic_vector(16 -1 DOWNTO 0);
+	SIGNAL processing_output : std_logic_vector(16 -1 DOWNTO 0);
 	--Reg Signals
 	SIGNAL source_register_2_output : STD_logic_vector(16 -1 DOWNTO 0); --2nd indexed register output, needed as a buffer to be able to switch bewtween register_2 and Immediate input to the alu
 
