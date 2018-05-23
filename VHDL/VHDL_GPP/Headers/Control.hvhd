@@ -112,5 +112,4 @@
 #define JMPPAR 49 //Jump Parity Register
 #define GETFLAG 50 //Get flag values and save to register
 #define SETFLAG 51 //Set flag values
-#define PUSHFLAGS 52 //Push flags to the stack
-#define POPFLAGS 53 //Pop flags from the stack
+#define SETFLAGR 54 //Set flag values from register

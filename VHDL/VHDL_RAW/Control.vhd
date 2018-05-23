@@ -120,7 +120,6 @@
 
 
 
-
 --------------------------------------------------------------------------------------
 --Engineer: Magnus Christensen
 --Module Name: Control Unit
@@ -207,7 +206,6 @@ BEGIN
 	--Stack Control
 	std_logic_vector(to_unsigned(17 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0'  & '0' & '0' & '0' & '0' & '1'  & '1'  & '0' & '0' & '1'  & '0' & '0' & '0' & '0' WHEN 33 ,
 	std_logic_vector(to_unsigned(0 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '0'  & '0' & '0' & '0' & '1'  & '0' & '1'  & '1'  & '0' & '0' & '1'    & '0' & '1'  & '0' WHEN 32 ,
-
 	--Branch Control
 	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(1 , 3)) & '0' & '0'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 34 ,
 	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(2 , 3)) & '0' & '0'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 35 ,
@@ -234,6 +232,7 @@ BEGIN
 	
 	--Flag Operations
 	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 50 ,
-	std_logic_vector(to_unsigned(19 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '1'  & '0'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 51 ,
+	std_logic_vector(to_unsigned(16 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '1'  & '0'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '1'  & '0' & '0' & '0' & '0' & '0' WHEN 51 ,
+	std_logic_vector(to_unsigned(15 , 6)) & std_logic_vector(to_unsigned(0 , 3)) & '1'  & '0'  & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' & '0' WHEN 54 ,
 	(OTHERS => '0') WHEN OTHERS;
 END ARCHITECTURE Behavioral;

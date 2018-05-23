@@ -18,36 +18,20 @@ add wave -noupdate -label ALU_Out -radix unsigned /cpu_v1_tb/MAIN/alu_output
 add wave -noupdate -label {ALU Operand A} -radix unsigned /cpu_v1_tb/MAIN/operand_a
 add wave -noupdate -label {ALU Operand B} -radix unsigned /cpu_v1_tb/MAIN/operand_b
 add wave -noupdate -label {Processing Output} -radix unsigned /cpu_v1_tb/MAIN/processing_output
-add wave -noupdate -label {Dram Address} -radix unsigned /cpu_v1_tb/MAIN/dram_address_index
-add wave -noupdate -label {Dram Out} -radix unsigned /cpu_v1_tb/MAIN/dram_data_out
-add wave -noupdate -label {Dram In} -radix unsigned /cpu_v1_tb/MAIN/dram_data_in
 add wave -noupdate -label Registers -radix unsigned /cpu_v1_tb/MAIN/REGS/reg
-add wave -noupdate -divider {Peripheral Control}
-add wave -noupdate -label {Seven Seg Data} -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/SevenSegmentDisplayDriver/input_data
-add wave -noupdate -label BTN -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/ButtonDriver/btn
-add wave -noupdate -label BTN_INT /cpu_v1_tb/MAIN/MEMCNT/ButtonDriver/interrupt_on
-add wave -noupdate -label I2S_INT /cpu_v1_tb/MAIN/MEMCNT/I2SMonoIn/interrupt
-add wave -noupdate -divider {Interrupt Controller}
-add wave -noupdate -label INT_CPU -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/interrupt_cpu
-add wave -noupdate -label LOCAL_INT_BTN /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/interrupt_btn
-add wave -noupdate -label LOCAL_INT_i2S /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/interrupt_i2s
-add wave -noupdate -label INT_ENABLE /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/interrupt_enable
-add wave -noupdate -label INT_NEST_ENABLE /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/interrupt_nest_enable
-add wave -noupdate -label {Interrupt Address} -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/interrupt_address
-add wave -noupdate -label INT_Regs -radix unsigned /cpu_v1_tb/MAIN/MEMCNT/InterruptDriver/REG
-add wave -noupdate -divider Filter
-add wave -noupdate -label reset -radix decimal /cpu_v1_tb/MAIN/FIR/reset
-add wave -noupdate -label load_input -radix decimal /cpu_v1_tb/MAIN/FIR/load_system_input
-add wave -noupdate -label {system input} -radix decimal /cpu_v1_tb/MAIN/FIR/system_input
-add wave -noupdate -label coefficient_in -radix decimal /cpu_v1_tb/MAIN/FIR/coefficient_in
-add wave -noupdate -label Coefficients -radix decimal /cpu_v1_tb/MAIN/FIR/coefficient_array
-add wave -noupdate -label system_out -radix decimal /cpu_v1_tb/MAIN/FIR/system_output
-add wave -noupdate -label {product array} -radix decimal /cpu_v1_tb/MAIN/FIR/product_array
-add wave -noupdate -label {adder array} -radix decimal /cpu_v1_tb/MAIN/FIR/adder_array
-add wave -noupdate -label {Temp Input} -radix decimal /cpu_v1_tb/MAIN/FIR/input_data_temp
-add wave -noupdate -label {Full output} -radix decimal /cpu_v1_tb/MAIN/FIR/full_output
+add wave -noupdate /cpu_v1_tb/MAIN/parity_flag
+add wave -noupdate /cpu_v1_tb/MAIN/signed_flag
+add wave -noupdate /cpu_v1_tb/MAIN/overflow_flag
+add wave -noupdate /cpu_v1_tb/MAIN/zero_flag
+add wave -noupdate /cpu_v1_tb/MAIN/carry_flag
+add wave -noupdate /cpu_v1_tb/MAIN/parity_flag_latch
+add wave -noupdate /cpu_v1_tb/MAIN/signed_flag_latch
+add wave -noupdate /cpu_v1_tb/MAIN/overflow_flag_latch
+add wave -noupdate /cpu_v1_tb/MAIN/zero_flag_latch
+add wave -noupdate /cpu_v1_tb/MAIN/carry_flag_latch
+add wave -noupdate /cpu_v1_tb/MAIN/control_signals
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {644498 ps} 0}
+WaveRestoreCursors {{Cursor 1} {211933106 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 404
 configure wave -valuecolwidth 116
@@ -63,4 +47,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {602911 ps} {707923 ps}
+WaveRestoreZoom {211843706 ps} {212013490 ps}

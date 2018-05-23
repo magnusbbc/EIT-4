@@ -86,7 +86,6 @@ BEGIN
 	--Stack Control
 	std_logic_vector(to_unsigned(ICA, 6)) & std_logic_vector(to_unsigned(NB, 3)) & FLGSE_D & FLGLO_D & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_E & REGWR_E & MEMRB_D & IMSEL_D & PUSHO_E & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN PUSH,
 	std_logic_vector(to_unsigned(NOP, 6)) & std_logic_vector(to_unsigned(NB, 3)) & FLGSE_D & FLGLO_D & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_E & MEMWR_D & REGWR_E & MEMRB_E & IMSEL_D & PUSHO_D & POP_E & RWSWI_D & MW2PC_E & HALTP_D WHEN POP,
-
 	--Branch Control
 	std_logic_vector(to_unsigned(PBS, 6)) & std_logic_vector(to_unsigned(BR, 3)) & FLGSE_D & FLGLO_D & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN JMP,
 	std_logic_vector(to_unsigned(PBS, 6)) & std_logic_vector(to_unsigned(EQ, 3)) & FLGSE_D & FLGLO_D & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN JMPEQ,
@@ -113,6 +112,7 @@ BEGIN
 	
 	--Flag Operations
 	std_logic_vector(to_unsigned(NAA, 6)) & std_logic_vector(to_unsigned(NB, 3)) & FLGSE_D & FLGLO_E & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_E & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN GETFLAG,
-	std_logic_vector(to_unsigned(NAA, 6)) & std_logic_vector(to_unsigned(NB, 3)) & FLGSE_E & FLGLO_D & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN SETFLAG,
+	std_logic_vector(to_unsigned(PBS, 6)) & std_logic_vector(to_unsigned(NB, 3)) & FLGSE_E & FLGLO_D & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_E & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN SETFLAG,
+	std_logic_vector(to_unsigned(PAS, 6)) & std_logic_vector(to_unsigned(NB, 3)) & FLGSE_E & FLGLO_D & FIRIN_D & FIRCO_D & FIRRE_D & MEMRD_D & MEMWR_D & REGWR_D & MEMRB_D & IMSEL_D & PUSHO_D & POP_D & RWSWI_D & MW2PC_D & HALTP_D WHEN SETFLAGR,
 	(OTHERS => '0') WHEN OTHERS;
 END ARCHITECTURE Behavioral;

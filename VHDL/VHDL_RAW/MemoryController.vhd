@@ -152,7 +152,7 @@ BEGIN
 				seven_seg_configuration <= data_in;
 			END IF;
 
-		ELSIF (to_integer(unsigned(address)) = 65010 AND write_enable = '1') THEN -- Sevensegdriver control
+		ELSIF (to_integer(unsigned(address)) = 65010 AND write_enable = '1') THEN
 			IF (falling_edge(clk)) THEN
 				i2s_mono_out_data_in <= data_in;
 			END IF;
