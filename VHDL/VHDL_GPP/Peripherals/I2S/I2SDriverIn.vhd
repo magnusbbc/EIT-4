@@ -64,7 +64,7 @@ BEGIN
 
 				--Loading the buffer the apropiate output 
 				--The logic for truncating the data have been removed because it caused problems, another implementation is possible if needed
-				IF lr = '0' THEN
+				IF lr = '1' THEN
 					data_out_left <= voutbuff;
 					
 				ELSE
