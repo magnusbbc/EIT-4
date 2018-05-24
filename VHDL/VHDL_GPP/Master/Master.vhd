@@ -314,7 +314,7 @@ BEGIN
 	
 	WITH control_signals(FLAG_LOAD DOWNTO FIR_LOAD_SAMPLE) SELECT processing_output <=
 		fir_data_out WHEN "01",
-		fir_data_out WHEN "11",
+		fir_data_out WHEN "11", --replicated since the cpu doesn't function without this
 		"00000000000" & carry_flag_latch & parity_flag_latch & signed_flag_latch & overflow_flag_latch & zero_flag_latch WHEN "10",
 		alu_output WHEN OTHERS;
 
