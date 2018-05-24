@@ -22,10 +22,10 @@ END FIR_TB;
 ARCHITECTURE Behavioral OF FIR_TB IS
 	 
 	SUBTYPE Data IS STD_LOGIC_VECTOR(15 DOWNTO 0); 
-	TYPE arr IS ARRAY (0 TO 6-1) OF Data;
-	TYPE arr_int IS ARRAY (0 TO 6-1) OF integer;
-	Type coef is array (0 to 6-1) of data; 
-	Type coef_int is array (0 to 6-1) of integer; 
+	TYPE arr IS ARRAY (0 TO 401-1) OF Data;
+	TYPE arr_int IS ARRAY (0 TO 401-1) OF integer;
+	Type coef is array (0 to 64-1) of data; 
+	Type coef_int is array (0 to 64-1) of integer; 
 
 	signal sin  : arr;
 	signal sin_int  : arr_int;
@@ -475,13 +475,13 @@ BEGIN
    
 PROCESS(sin_int)
 BEGIN
-FOR k IN 0 TO 6-1 LOOP
+FOR k IN 0 TO 401-1 LOOP
 	sin(k) <= std_logic_vector(to_signed(sin_int(k),16));
 END LOOP;
 END PROCESS;
 
    coefs_int <= (
-    	-12,     -4,      5,     17,     31,     48--,     65,     79,     86,
+    	-12,     -4,      5,     17,     31--,     48,     65,     79,     86,
 --       83,     64,     26,    -31,   -106,   -194,   -284,   -366,   -424,
 --     -442,   -405,   -300,   -120,    139,    470,    862,   1295,   1744,
 --     2182,   2578,   2904,   3137,   3256,   3257,   3137,   2904,   2578,
@@ -493,7 +493,7 @@ END PROCESS;
 
 PROCESS(coefs_int)
 BEGIN
-FOR k IN 0 TO 6-1 LOOP
+FOR k IN 0 TO 64-1 LOOP
 	coefs(k) <= std_logic_vector(to_signed(coefs_int(k),16));
 END LOOP;
 END PROCESS;
@@ -521,7 +521,7 @@ END PROCESS;
 						
 
 
-					when 6+1 =>
+					when 64+1 =>
 						reset <= '0'; 
 						write_en <= '1';
 						load_x <= '1';					--- Enter load data sample mode
@@ -551,7 +551,7 @@ END PROCESS;
 						load_x <= '1';					--- Enter load data sample mode
 						x_in <= sin(i);				--- Send data to the filter
 						c_in <= x"2a3f";
-						if (i<6-1) then
+						if (i<401-1) then
 							i <= i+1;
 						   cnt<= cnt+1;
 						else 

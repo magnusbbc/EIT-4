@@ -8,7 +8,7 @@
 #define ADDER_WIDTH 32
 
 //Should be multiples of two, to generate integer values of adder width
-#define TAPS 6
+#define TAPS 64
 
 //For test bench
-#define INPUT_SAMPLES 6
+#define INPUT_SAMPLES 401
