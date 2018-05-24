@@ -37,7 +37,7 @@ union buffer{
     uint8 out[2];
 };
 uint16 sineLUT[LUTSize] ={0, 523, 1044, 1560, 2070, 2571, 3061, 3538, 3999, 4444, 4870, 5274, 5656, 6014, 6346, 6651, 6928, 7174, 7391, 7575, 7727, 7846, 7931, 7982, 8000, 7982, 7931, 7846, 7727, 7575, 7391, 7174, 6928, 6651, 6346, 6014, 5656, 5274, 4870, 4444, 3999, 3538, 3061, 2571, 2070, 1560, 1044, 523, 0, -523, -1044, -1560, -2070, -2571, -3061, -3538, -4000, -4444, -4870, -5274, -5656, -6014, -6346, -6651, -6928, -7174, -7391, -7575, -7727, -7846, -7931, -7982, -8000, -7982, -7931, -7846, -7727, -7575, -7391, -7174, -6928, -6651, -6346, -6014, -5656, -5274, -4870, -4444, -4000, -3538, -3061, -2571, -2070, -1560, -1044, -523};
-
+//uint16 sineLUT[LUTSize] ={101,102,1023};
 union buffer buf;
 union buffer buffer0, buffer1;
 
@@ -101,7 +101,7 @@ void DMA_Config(void){
 #if ADCon    
 #define DMA_SRC_BASE (CYDEV_PERIPH_BASE)
 #else
-#define DMA_SRC_BASE (CYDEV_PERIPH_BASE)
+#define DMA_SRC_BASE (CYDEV_SRAM_BASE)
 #endif
 #define DMA_DST_BASE (CYDEV_SRAM_BASE)
 
@@ -124,8 +124,8 @@ DMA_Chan = DMA_DmaInitialize(DMA_BYTES_PER_BURST, DMA_REQUEST_PER_BURST,
     HI16(DMA_SRC_BASE), HI16(DMA_DST_BASE));
 DMA_TD[0] = CyDmaTdAllocate();
 DMA_TD[1] = CyDmaTdAllocate();
-CyDmaTdSetConfiguration(DMA_TD[0], LUTSize*2, DMA_TD[1], CY_DMA_TD_INC_DST_ADR|CY_DMA_TD_INC_SRC_ADR);
-CyDmaTdSetConfiguration(DMA_TD[1], LUTSize*2, DMA_TD[0], CY_DMA_TD_INC_DST_ADR|CY_DMA_TD_INC_SRC_ADR);
+CyDmaTdSetConfiguration(DMA_TD[0], LUTSize*2, DMA_TD[0], CY_DMA_TD_INC_SRC_ADR);
+CyDmaTdSetConfiguration(DMA_TD[1], LUTSize*2, DMA_TD[0], CY_DMA_TD_INC_SRC_ADR);
 CyDmaTdSetAddress(DMA_TD[0], LO16((uint32)sineLUT), LO16((uint32)&buffer0.in));
 CyDmaTdSetAddress(DMA_TD[1], LO16((uint32)sineLUT), LO16((uint32)&buffer1.in));
 CyDmaChSetInitialTd(DMA_Chan, DMA_TD[0]);
@@ -150,10 +150,10 @@ DMA_1_TD[0] = CyDmaTdAllocate();
 DMA_1_TD[1] = CyDmaTdAllocate();
 DMA_1_TD[2] = CyDmaTdAllocate();
 DMA_1_TD[3] = CyDmaTdAllocate();
-CyDmaTdSetConfiguration(DMA_1_TD[0], 1, DMA_1_TD[1], CY_DMA_TD_INC_SRC_ADR);
-CyDmaTdSetConfiguration(DMA_1_TD[1], 1, DMA_1_TD[2], CY_DMA_TD_INC_SRC_ADR);
-CyDmaTdSetConfiguration(DMA_1_TD[2], 1, DMA_1_TD[3], CY_DMA_TD_INC_SRC_ADR);
-CyDmaTdSetConfiguration(DMA_1_TD[3], 1, DMA_1_TD[0], CY_DMA_TD_INC_SRC_ADR);
+CyDmaTdSetConfiguration(DMA_1_TD[0], 1, DMA_1_TD[1], 0);
+CyDmaTdSetConfiguration(DMA_1_TD[1], 1, DMA_1_TD[0], 0);
+CyDmaTdSetConfiguration(DMA_1_TD[2], 1, DMA_1_TD[3], 0);
+CyDmaTdSetConfiguration(DMA_1_TD[3], 1, DMA_1_TD[0], 0);
 CyDmaTdSetAddress(DMA_1_TD[0], LO16((uint32)&buffer0.out[1]), LO16((uint32)I2S_1_TX_CH0_F0_PTR));
 CyDmaTdSetAddress(DMA_1_TD[1], LO16((uint32)&buffer0.out[0]), LO16((uint32)I2S_1_TX_CH0_F0_PTR));
 CyDmaTdSetAddress(DMA_1_TD[2], LO16((uint32)&buffer1.out[1]), LO16((uint32)I2S_1_TX_CH0_F0_PTR));
