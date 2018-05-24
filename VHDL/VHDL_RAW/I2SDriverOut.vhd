@@ -53,7 +53,7 @@ BEGIN
 			END IF;
 
 			IF bit_counter + 1 >= (16 -1 + 1) THEN --Change channel
-				word_select       <= NOT left_right_select;
+				word_select       <= left_right_select;
 				left_right_select <= NOT left_right_select;
 
 			END IF;

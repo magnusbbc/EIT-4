@@ -268,6 +268,7 @@ BEGIN
 
 
 
+	--Maybe Not needed
 	PROCESS(source_register_2_output, jmp_enable_latch)
 	BEGIN
 	IF (jmp_enable_latch = '1') THEN
@@ -332,7 +333,7 @@ BEGIN
 	
 	WITH control_signals(13 DOWNTO 12) SELECT processing_output <=
 		fir_data_out WHEN "01",
-		fir_data_out WHEN "11",
+		fir_data_out WHEN "11", --replicated since the cpu doesn't function without this
 		"00000000000" & carry_flag_latch & parity_flag_latch & signed_flag_latch & overflow_flag_latch & zero_flag_latch WHEN "10",
 		alu_output WHEN OTHERS;
 
@@ -360,7 +361,6 @@ BEGIN
 	--------------------------------------------
 	SpOvewriteEnable : PROCESS (instruction(20 DOWNTO 16), control_signals(2))
 	BEGIN
-		--2 must also be low, since 20 DOWNTO 16 indexes a read register when it is high ???
 		IF (to_integer(unsigned(instruction(20 DOWNTO 16))) = 30 AND control_signals(2) /= '1') THEN
 			sp_overwrite <= '1';
 		ELSE
@@ -482,7 +482,7 @@ BEGIN
 		IF (rising_edge(sys_clk)) THEN
 			IF (interrupt_cpu = '1') THEN
 				Interrupt_latch <= '1';
-				jmp_enable_latch <= jmp_enable;
+				jmp_enable_latch <= jmp_enable; --Maybe delete latch
 				PC_TEMP <= PC;
 			ELSIF (Interrupt_latch = '1') THEN --Disables latc on the following clock cycle
 				Interrupt_latch <= '0';

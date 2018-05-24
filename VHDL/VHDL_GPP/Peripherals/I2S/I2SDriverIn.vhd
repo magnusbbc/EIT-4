@@ -29,7 +29,7 @@ ENTITY i2sDriverIn IS
 END i2sDriverIn;
 
 ARCHITECTURE i2sDriverIn OF i2sDriverIn IS
-	SIGNAL lr      : std_logic := '1';--Internal wordselect, short for 'left right' left channel is active when '1'
+	SIGNAL lr      : std_logic := '1';--Internal wordselect, short for 'left right'. Right channel is active when '1'
 	SIGNAL cnt     : INTEGER   := 0; -- Bit counter
 	SIGNAL outBuff : std_logic_vector (DATA_WIDTH -1 DOWNTO 0) := (OTHERS => '0') ;-- The initial buffer for the serial data
 
@@ -64,7 +64,7 @@ BEGIN
 
 				--Loading the buffer the apropiate output 
 				--The logic for truncating the data have been removed because it caused problems, another implementation is possible if needed
-				IF lr = '1' THEN
+				IF lr = '0' THEN
 					data_out_left <= voutbuff;
 					
 				ELSE
