@@ -39,6 +39,5 @@ STORE $r3 [$r10+65000]
 POP $pc
 I2SISR:
 LOAD $r5 [$r10+65011]
-LSLR $r5 $r3 $r5
 STORE $r5 [$r10+65010]
 POP $pc
