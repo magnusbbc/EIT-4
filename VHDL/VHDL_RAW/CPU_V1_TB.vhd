@@ -41,7 +41,7 @@ BEGIN
 		BEGIN
 			IF (rising_edge(TbClock)) THEN -- start when Test bench clock goes 1
 				cnt <= cnt + 1;
-				IF (cnt = 128) THEN
+				IF (cnt = 5120) THEN
 					TbSimEnded <= '1';
 				END IF;
 			END IF;
