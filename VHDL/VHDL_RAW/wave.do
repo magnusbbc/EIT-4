@@ -15,23 +15,27 @@ add wave -noupdate -label {I2S Data In} /cpu_v1_tb/I2SDataIn
 add wave -noupdate -label {I2S Counter} /cpu_v1_tb/I2SCnt
 add wave -noupdate -divider Main
 add wave -noupdate -label ALU_Out -radix unsigned /cpu_v1_tb/MAIN/alu_output
-add wave -noupdate -label {ALU Operand A} -radix unsigned /cpu_v1_tb/MAIN/operand_a
-add wave -noupdate -label {ALU Operand B} -radix unsigned /cpu_v1_tb/MAIN/operand_b
 add wave -noupdate -label {Processing Output} -radix unsigned /cpu_v1_tb/MAIN/processing_output
-add wave -noupdate -label Registers -radix unsigned /cpu_v1_tb/MAIN/REGS/reg
-add wave -noupdate /cpu_v1_tb/MAIN/parity_flag
-add wave -noupdate /cpu_v1_tb/MAIN/signed_flag
-add wave -noupdate /cpu_v1_tb/MAIN/overflow_flag
-add wave -noupdate /cpu_v1_tb/MAIN/zero_flag
-add wave -noupdate /cpu_v1_tb/MAIN/carry_flag
-add wave -noupdate /cpu_v1_tb/MAIN/parity_flag_latch
-add wave -noupdate /cpu_v1_tb/MAIN/signed_flag_latch
-add wave -noupdate /cpu_v1_tb/MAIN/overflow_flag_latch
-add wave -noupdate /cpu_v1_tb/MAIN/zero_flag_latch
-add wave -noupdate /cpu_v1_tb/MAIN/carry_flag_latch
+add wave -noupdate /cpu_v1_tb/MAIN/source_register_2_output
 add wave -noupdate /cpu_v1_tb/MAIN/control_signals
+add wave -noupdate /cpu_v1_tb/MAIN/interrupt_cpu
+add wave -noupdate /cpu_v1_tb/MAIN/jmp_enable
+add wave -noupdate /cpu_v1_tb/MAIN/jmp_enable_latch
+add wave -noupdate /cpu_v1_tb/MAIN/Interrupt_latch
+add wave -noupdate /cpu_v1_tb/MAIN/interrupt_enable
+add wave -noupdate /cpu_v1_tb/MAIN/interrupt_nest_enable
+add wave -noupdate /cpu_v1_tb/MAIN/interrupt_nest_enable_latch
+add wave -noupdate /cpu_v1_tb/MAIN/PC_TEMP
+add wave -noupdate /cpu_v1_tb/MAIN/STACK/sp
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(5)
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(4)
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(3)
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(2)
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(1)
+add wave -noupdate /cpu_v1_tb/MAIN/MEMCNT/MemoryDriver/RAM(0)
+add wave -noupdate -label Registers -radix unsigned /cpu_v1_tb/MAIN/REGS/reg
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {211933106 ps} 0}
+WaveRestoreCursors {{Cursor 1} {19675000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 404
 configure wave -valuecolwidth 116
@@ -47,4 +51,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {211843706 ps} {212013490 ps}
+WaveRestoreZoom {0 ps} {53765250 ps}

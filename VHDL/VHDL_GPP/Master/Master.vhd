@@ -99,7 +99,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL fir_load_data_enable : std_logic := '0';
 	SIGNAL fir_write : std_logic := '0';
 
-SIGNAL processing_output : std_logic_vector(WORD_SIZE-1 DOWNTO 0);
+	SIGNAL processing_output : std_logic_vector(WORD_SIZE-1 DOWNTO 0);
 	--Reg Signals
 	SIGNAL source_register_2_output : STD_logic_vector(WORD_SIZE-1 DOWNTO 0); --2nd indexed register output, needed as a buffer to be able to switch bewtween register_2 and Immediate input to the alu
 
@@ -249,10 +249,12 @@ BEGIN
 
 
 
+	--Maybe Not needed
 	PROCESS(source_register_2_output, jmp_enable_latch)
 	BEGIN
 	IF (jmp_enable_latch = '1') THEN
-		dram_data_in <= ZERO_PAD & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
+		dram_data_in <= source_register_2_output;
+		--dram_data_in <= ZERO_PAD & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
 	ELSE
 		dram_data_in <= source_register_2_output;
 	END IF;
@@ -313,7 +315,7 @@ BEGIN
 	
 	WITH control_signals(FLAG_LOAD DOWNTO FIR_LOAD_SAMPLE) SELECT processing_output <=
 		fir_data_out WHEN "01",
-		fir_data_out WHEN "11",
+		fir_data_out WHEN "11", --replicated since the cpu doesn't function without this
 		"00000000000" & carry_flag_latch & parity_flag_latch & signed_flag_latch & overflow_flag_latch & zero_flag_latch WHEN "10",
 		alu_output WHEN OTHERS;
 
@@ -341,7 +343,6 @@ BEGIN
 	--------------------------------------------
 	SpOvewriteEnable : PROCESS (instruction(REGISTER_WRITE_INDEX_1), control_signals(SWITCH_READ_WRITE))
 	BEGIN
-		--SWITCH_READ_WRITE must also be low, since REGISTER_WRITE_INDEX_1 indexes a read register when it is high ???
 		IF (to_integer(unsigned(instruction(REGISTER_WRITE_INDEX_1))) = 30 AND control_signals(SWITCH_READ_WRITE) /= '1') THEN
 			sp_overwrite <= '1';
 		ELSE
@@ -463,7 +464,7 @@ BEGIN
 		IF (rising_edge(sys_clk)) THEN
 			IF (interrupt_cpu = '1') THEN
 				Interrupt_latch <= '1';
-				jmp_enable_latch <= jmp_enable;
+				jmp_enable_latch <= jmp_enable; --Maybe delete latch
 				PC_TEMP <= PC;
 			ELSIF (Interrupt_latch = '1') THEN --Disables latc on the following clock cycle
 				Interrupt_latch <= '0';

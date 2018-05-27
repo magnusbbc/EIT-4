@@ -29,7 +29,7 @@ ENTITY i2sDriverIn IS
 END i2sDriverIn;
 
 ARCHITECTURE i2sDriverIn OF i2sDriverIn IS
-	SIGNAL lr      : std_logic := '1';--Internal wordselect, short for 'left right' left channel is active when '1'
+	SIGNAL lr      : std_logic := '1';--Internal wordselect, short for 'left right'. Right channel is active when '1'
 	SIGNAL cnt     : INTEGER   := 0; -- Bit counter
 	SIGNAL outBuff : std_logic_vector (16  -1 DOWNTO 0) := (OTHERS => '0') ;-- The initial buffer for the serial data
 
