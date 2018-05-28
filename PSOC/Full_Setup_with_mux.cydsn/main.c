@@ -188,28 +188,61 @@ void LCD_WriteLine(uint8 rowSelect, uint8 columnSelect, char printString[16])
         }
     }
 }
-uint16 avgerage(uint16 arr[],uint16 size){
-    uint32 total=0;
+
+uint16 ADC_SAR_ReadValue; /* Variable to store the current read ADC SAR value during its ISR */
+uint16 ADC_SAR_Output; /* Variable to store ADC SAR average result */
+#define BUFFSIZE 100 /* Buffer size which determines how many samples there is for each average */
+uint16 ringBuffer[BUFFSIZE] = {0}; /* Array which stores all the samples */
+uint8 ringPointer = 0;
+uint8 fullAverageFlag = 0;
+/* 
+ * Calculates the sum of all the numbers in the input array
+ * and then divides the sum by the input integer thus calculating
+ * the average value of all the samples in the array.
+*/
+uint16 sampleAverage(uint16 arr[], uint16 sampleAmount)
+{
+    uint32 totalSamples = 0; /* creates a local variable which holds the total sum */
     
-    for (uint32_t i = 0; i < size; i++){
-         total+=arr[i];
+    for (uint32 i = 0; i < sampleAmount; i++) /* Creates a for-loop which adds all the samples together and stores it in a single sum */
+    {
+         totalSamples += arr[i];
     }
-    uint16 result=total/size;
-    return (uint16) result;
+    uint16 averageResult = totalSamples/sampleAmount; /* Calculates the average of the sum and the input integer */
+    return (uint16) averageResult;
+} 
+/*
+ * Function which takes a 16-bit value and places its in a buffer,
+ * for each function call a pointer to the position of the buffer will be incremented
+ * and then an average value of the whole buffer will be made.
+ * After 100 function calls the output will be an average of 100 samples
+ * and the process loops by resetting the pointer of the buffer position.
+*/
+uint16 updateSARBuffer(uint16 newSample)
+{
+    ringBuffer[ringPointer] = newSample; /* Stores the input sample in the buffer at the location which the pointer points at */
+    if(ringPointer < BUFFSIZE) /* Checks whether or not the ringPointer should be incremented or reset to zero */
+    {
+	ringPointer = ringPointer +1 /* Increments the ringPointer so that it is ready for the next function call */
+    }
+    Else
+    {
+	ringPointer = 0;
+	fullAverageFlag = 1;
+    }
+    /*ringPointer = ringPointer < BUFFSIZE ? ringPointer + 1 : 0;*/
+    if(fullAverageFlag == 1) /* Checks whether or not the ringBuffer is full, to determine what value to divide the total sum with when calculating the average */
+    {
+	return sampleAverage(ringBuffer, BUFFSIZE); /* Returns an average value of the whole ringBuffer */
+    }
+    else
+    {
+	return sampleAverage(ringBuffer, (ringPointer - 1)); /* Returns an average of the ringBuffer up until the current amount of samples */
+    }
     
-}
-    
-uint8 ADC_SAR_Flag = 0u; /* Flag condition which is activated once the ADC_SAR has reached its EOC */
-uint16 ADC_SAR_Output; /* Variable to store ADC SAR result */
-#define BUFFSIZE 100
-uint16 ringbuff[BUFFSIZE]={0};
-uint8 rp=0;
-uint16 updateBuffer(uint16 new){
-    ringbuff[rp]=new;
-    rp=rp<BUFFSIZE?rp+1:0;
-    return avgerage(ringbuff,BUFFSIZE);  
 };
-uint16 ADC_SAR_ReadValue;
+
+
 /* Interrupt Service Routine (ISR) for the ADC_SAR internal EOC Interrupt */
 CY_ISR(ADC_SAR_ISR_LOC)
 {
@@ -256,12 +289,10 @@ int main(void)
     I2S_1_EnableTx(); /* Enables the I2S transmitter */
     for(;;)
     {
-        ADC_SAR_Output = updateBuffer(ADC_SAR_ReadValue);
-        //LCD_WriteLine(0,0," ");
+        ADC_SAR_Output = updateSARBuffer(ADC_SAR_ReadValue);
         LCD_Position(0,0);
         LCD_PrintNumber(ADC_SAR_Output);
         LCD_PrintString("    ");
-        //yDelay(100);
 		/* This code block contains the data transfer between ADC and I2S without using DMA */
         #if !DMA_flag
 		//uint8 whileVariable = 0u; /* flag condition for the while-loop */
@@ -333,7 +364,13 @@ int main(void)
         }
     }
 }
-
+/*
+ * This DMAs hardware request input is connected to the end of conversion output of the DelSig ADC
+ * The DMA is set to transfer two bytes per burst and requires a single hardware request per burst
+ * Inside the DMA channel there is two TDs which loops between each other, i.e. TD[0] -> TD[1] -> TD[0] ....
+ * Both of the TD transfer a 16-bit sample from the ADC to a each of their own 16-bit union buffer
+ * Finally, TD[0] is set as the initial TD and thereafter the DMA channel is enabled.
+ */
 void DMA_DelSig_Config(void)
 {
 	/* Defines for DMA_DelSig */
@@ -364,6 +401,15 @@ void DMA_DelSig_Config(void)
 	CyDmaChEnable(DMA_DelSig_Chan, 1);
 }
 
+/* 
+ * This DMA has its hardware request input connected to the TX interrupt of the I2S master
+ * The DMA is set to transfer a single byte per burst and requires a single hardware request per burst
+ * Inside the DMA channel there is four TDs which loop between each other, similar to the DelSig DMA channel.
+ * The first TD transfers a single byte from the output of the aformentioned union buffer,
+ * thereafter the next TD will transfer the second byte of the same buffer, the last two TDs repeat this finallizing the loop.
+ * All of the TDs transfer their single byte to the I2S FIFO-buffer once a FIFO-not-full interrupt has been received.
+ * Finally, TD[0] is set as the initial TD and thereafter the DMA channel is enabled.
+ */ 
 void DMA_I2S_Config(void)
 {
 	/* Defines for DMA_I2S */
@@ -400,11 +446,6 @@ void DMA_I2S_Config(void)
 	/* Enable the DMA channel */
 	CyDmaChEnable(DMA_I2S_Chan, 1);
 }
-
-/*
- * Will SPI handle a 16-bit buffer on its own, or does it require a union
- * which splits the 16 bit into two bytes? Similar to how the I2S works.
- */
 
 void DMA_SAR_Config(void)
 {
