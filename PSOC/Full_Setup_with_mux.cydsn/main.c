@@ -188,26 +188,28 @@ void LCD_WriteLine(uint8 rowSelect, uint8 columnSelect, char printString[16])
         }
     }
 }
-uint16 avgerage(uint16 arr[],uint16 size){
+uint16 average(uint16 arr[],uint16 size)
+{
     uint32 total=0;
     
-    for (uint32_t i = 0; i < size; i++){
-         total+=arr[i];
+    for (uint32_t i = 0; i < size; i++)
+    {
+         total += arr[i];
     }
-    uint16 result=total/size;
+    uint16 result = total/size;
     return (uint16) result;
-    
 }
     
 uint8 ADC_SAR_Flag = 0u; /* Flag condition which is activated once the ADC_SAR has reached its EOC */
 uint16 ADC_SAR_Output; /* Variable to store ADC SAR result */
 #define BUFFSIZE 100
-uint16 ringbuff[BUFFSIZE]={0};
-uint8 rp=0;
-uint16 updateBuffer(uint16 new){
-    ringbuff[rp]=new;
-    rp=rp<BUFFSIZE?rp+1:0;
-    return avgerage(ringbuff,BUFFSIZE);  
+uint16 ringbuff[BUFFSIZE] = {0};
+uint8 rp = 0;
+uint16 updateBuffer(uint16 new)
+{
+    ringbuff[rp] = new;
+    rp = rp < BUFFSIZE ? rp + 1:0;
+    return average(ringbuff,BUFFSIZE);  
 };
 uint16 ADC_SAR_ReadValue;
 /* Interrupt Service Routine (ISR) for the ADC_SAR internal EOC Interrupt */
