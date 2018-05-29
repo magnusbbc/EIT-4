@@ -272,7 +272,8 @@ BEGIN
 	PROCESS(source_register_2_output, jmp_enable_latch)
 	BEGIN
 	IF (jmp_enable_latch = '1') THEN
-		dram_data_in <= "000"  & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
+		dram_data_in <= source_register_2_output;
+		--dram_data_in <= "000"  & PC_TEMP-2; --pc-1 is used since pc-1 never executed, due to the interrupts blocing it
 	ELSE
 		dram_data_in <= source_register_2_output;
 	END IF;
