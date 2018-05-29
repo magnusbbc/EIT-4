@@ -41,7 +41,6 @@ int main(void)
 }
 
 
-
 void DmaAdcConfiguration(){
 /* Defines for DMA_1 */
 #define DMA_1_BYTES_PER_BURST 2
@@ -79,8 +78,6 @@ CyDmaTdSetAddress(DMA_TX_TD[0], LO16((uint32)&adc_buff[1]), LO16((uint32)SPIS_TX
 CyDmaTdSetAddress(DMA_TX_TD[1], LO16((uint32)&adc_buff[0]), LO16((uint32)SPIS_TXDATA_PTR));
 CyDmaChSetInitialTd(DMA_TX_Chan, DMA_TX_TD[1]);
 CyDmaChEnable(DMA_TX_Chan, 1);
-
-
 };
 
 /* [] END OF FILE */

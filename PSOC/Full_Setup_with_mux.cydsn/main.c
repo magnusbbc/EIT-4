@@ -39,7 +39,7 @@ uint8 DMA_I2S_Chan;
 uint8 DMA_I2S_TD[4];
 /* Variable declarations for DMA_SAR */
 uint8 DMA_SAR_Chan;
-uint8 DMA_SAR_TD [2];
+uint8 DMA_SAR_TD [1];
 /* Variable declarations for the DMA_SPIS_Rx */
 uint8 rxChannel;
 uint8 rxTD;
@@ -58,7 +58,7 @@ union buffer
 };
 union buffer buf; /* Instancing a union-buffer which is used when DMA is disabled */
 union buffer I2Sbuffer0, I2Sbuffer1; /* Instancing two union buffers which is for I2S used when DMA is enabled */
-union buffer TXbuffer0, TXbuffer1;
+uint8 adc_sar_buffer[2] = {1,8}; /* Instances a buffer array consisting of two byes which is to be used for the SAR ADC */
 
 /* This function shuts off all the LEDs */
 void LED_ShutOff()
@@ -203,7 +203,6 @@ uint8 fullAverageFlag = 0;
 uint16 sampleAverage(uint16 arr[], uint16 sampleAmount)
 {
     uint32 totalSamples = 0; /* creates a local variable which holds the total sum */
-    
     for (uint32 i = 0; i < sampleAmount; i++) /* Creates a for-loop which adds all the samples together and stores it in a single sum */
     {
          totalSamples += arr[i];
@@ -223,31 +222,30 @@ uint16 updateSARBuffer(uint16 newSample)
     ringBuffer[ringPointer] = newSample; /* Stores the input sample in the buffer at the location which the pointer points at */
     if(ringPointer < BUFFSIZE) /* Checks whether or not the ringPointer should be incremented or reset to zero */
     {
-	ringPointer = ringPointer +1 /* Increments the ringPointer so that it is ready for the next function call */
+	    ringPointer = ringPointer + 1; /* Increments the ringPointer so that it is ready for the next function call */
     }
-    Else
+    else
     {
-	ringPointer = 0;
-	fullAverageFlag = 1;
+	    ringPointer = 0;
+	    fullAverageFlag = 1;
     }
     /*ringPointer = ringPointer < BUFFSIZE ? ringPointer + 1 : 0;*/
     if(fullAverageFlag == 1) /* Checks whether or not the ringBuffer is full, to determine what value to divide the total sum with when calculating the average */
     {
-	return sampleAverage(ringBuffer, BUFFSIZE); /* Returns an average value of the whole ringBuffer */
+        return sampleAverage(ringBuffer, BUFFSIZE); /* Returns an average value of the whole ringBuffer */
     }
     else
     {
-	return sampleAverage(ringBuffer, (ringPointer - 1)); /* Returns an average of the ringBuffer up until the current amount of samples */
+	    return sampleAverage(ringBuffer, (ringPointer - 1)); /* Returns an average of the ringBuffer up until the current amount of samples */
     }
     
 };
-
 
 /* Interrupt Service Routine (ISR) for the ADC_SAR internal EOC Interrupt */
 CY_ISR(ADC_SAR_ISR_LOC)
 {
     ADC_SAR_ReadValue = ADC_SAR_CountsTo_mVolts(ADC_SAR_GetResult16()); /* Reads a 12-bit sample on the ADC_SAR and stores it in the variable */
-    ADC_SAR_Flag = 1u; /* Sets the flag high */
+    //ADC_SAR_Flag = 1u; /* Sets the flag high */
 }
 uint8 flag = 1u;
 uint8 whileVariable = 0u;
@@ -390,7 +388,7 @@ void DMA_DelSig_Config(void)
 	CyDmaTdSetConfiguration(DMA_DelSig_TD[0], 2, DMA_DelSig_TD[1], CY_DMA_TD_INC_DST_ADR);
 	CyDmaTdSetConfiguration(DMA_DelSig_TD[1], 2, DMA_DelSig_TD[0], CY_DMA_TD_INC_DST_ADR);
 	
-	/* Set Source and Destination address of each TD */
+	/* Set source and destination address of each TD */
 	CyDmaTdSetAddress(DMA_DelSig_TD[0], LO16((uint32)ADC_DelSig_DEC_SAMP_PTR), LO16((uint32)&I2Sbuffer0.in));
 	CyDmaTdSetAddress(DMA_DelSig_TD[1], LO16((uint32)ADC_DelSig_DEC_SAMP_PTR), LO16((uint32)&I2Sbuffer1.in));
 	
@@ -434,7 +432,7 @@ void DMA_I2S_Config(void)
 	CyDmaTdSetConfiguration(DMA_I2S_TD[2], 1, DMA_I2S_TD[3], CY_DMA_TD_INC_SRC_ADR);
 	CyDmaTdSetConfiguration(DMA_I2S_TD[3], 1, DMA_I2S_TD[0], CY_DMA_TD_INC_SRC_ADR);
 	
-	/* Set Source and Destination address of each TD */
+	/* Set source and destination address of each TD */
 	CyDmaTdSetAddress(DMA_I2S_TD[0], LO16((uint32)&I2Sbuffer0.out[1]), LO16((uint32)I2S_1_TX_CH0_F0_PTR));
 	CyDmaTdSetAddress(DMA_I2S_TD[1], LO16((uint32)&I2Sbuffer0.out[0]), LO16((uint32)I2S_1_TX_CH0_F0_PTR));
 	CyDmaTdSetAddress(DMA_I2S_TD[2], LO16((uint32)&I2Sbuffer1.out[1]), LO16((uint32)I2S_1_TX_CH0_F0_PTR));
@@ -447,36 +445,64 @@ void DMA_I2S_Config(void)
 	CyDmaChEnable(DMA_I2S_Chan, 1);
 }
 
-void DMA_SAR_Config(void)
+void DMA_SAR_Config()
 {
-    /* Defines for DMA_SAR */
-    #define DMA_SAR_BYTES_PER_BURST 2
-	#define DMA_SAR_REQUEST_PER_BURST 1
-	#define DMA_SAR_SRC_BASE (CYDEV_PERIPH_BASE)
-	#define DMA_SAR_DST_BASE (CYDEV_SRAM_BASE)
+    /* Defines for DMA_1 */
+    #define DMA_1_BYTES_PER_BURST 2
+    #define DMA_1_REQUEST_PER_BURST 1
+    #define DMA_1_SRC_BASE (CYDEV_PERIPH_BASE)
+    #define DMA_1_DST_BASE (CYDEV_SRAM_BASE)
+
+    /* DMA Configuration for DMA_1 */
+    DMA_SAR_Chan = DMA_SAR_DmaInitialize(DMA_1_BYTES_PER_BURST, DMA_1_REQUEST_PER_BURST, 
+                                     HI16(DMA_1_SRC_BASE), HI16(DMA_1_DST_BASE));
     
-    /* DMA_SAR Channel configuration */
-	DMA_SAR_Chan = DMA_SAR_DmaInitialize(DMA_SAR_BYTES_PER_BURST, DMA_SAR_REQUEST_PER_BURST, 
-								 HI16(DMA_SAR_SRC_BASE), HI16(DMA_SAR_DST_BASE));
-    
-    /* TD allocation */
+    /* (TD) allocation */
     DMA_SAR_TD[0] = CyDmaTdAllocate();
-    DMA_SAR_TD[1] = CyDmaTdAllocate();
     
     /* TD configuration settings */
-    CyDmaTdSetConfiguration(DMA_SAR_TD[0], 2, DMA_SAR_TD[1], CY_DMA_TD_INC_DST_ADR);
-	CyDmaTdSetConfiguration(DMA_SAR_TD[1], 2, DMA_SAR_TD[0], CY_DMA_TD_INC_DST_ADR);
+    CyDmaTdSetConfiguration(DMA_SAR_TD[0], 2, DMA_SAR_TD[0], 0);
     
-    /* Set Source and Destination address of each TD */
-    CyDmaTdSetAddress(DMA_SAR_TD[0], LO16((uint32)ADC_SAR_SAR_WRK0_PTR), LO16((uint32)&TXbuffer0.in));
-	CyDmaTdSetAddress(DMA_SAR_TD[1], LO16((uint32)ADC_SAR_SAR_WRK0_PTR), LO16((uint32)&TXbuffer1.in));
+    /* Set source and destination address of each TD */
+    CyDmaTdSetAddress(DMA_SAR_TD[0], LO16((uint32)ADC_SAR_SAR_WRK0_PTR), LO16((uint32)adc_sar_buffer));
     
     /* TD initialization */
     CyDmaChSetInitialTd(DMA_SAR_Chan, DMA_SAR_TD[0]);
     
     /* Enable the DMA channel */
     CyDmaChEnable(DMA_SAR_Chan, 1);
-}
+};
+
+void DMA_SPIS_TX_Config()
+{
+    /* Defines for DMA_TX */
+    #define DMA_SPIS_TX_BYTES_PER_BURST 1
+    #define DMA_SPIS_TX_REQUEST_PER_BURST 1
+    #define DMA_SPIS_TX_SRC_BASE (CYDEV_SRAM_BASE)
+    #define DMA_SPIS_TX_DST_BASE (CYDEV_PERIPH_BASE)
+
+    /* DMA Configuration for DMA_TX */
+    txChannel = DMA_SPIS_TX_DmaInitialize(DMA_SPIS_TX_BYTES_PER_BURST, DMA_SPIS_TX_REQUEST_PER_BURST, 
+                                              HI16(DMA_SPIS_TX_SRC_BASE), HI16(DMA_SPIS_TX_DST_BASE));
+    
+    /* (TD) allocation */
+    txTD[0] = CyDmaTdAllocate();
+    txTD[1] = CyDmaTdAllocate();
+
+    /* TD configuration settings */
+    CyDmaTdSetConfiguration(txTD[0], 1, txTD[1], 0);
+    CyDmaTdSetConfiguration(txTD[1], 1, txTD[0], 0);
+    
+    /* Set source and destination address of each TD */
+    CyDmaTdSetAddress(txTD[0], LO16((uint32)&adc_sar_buffer[1]), LO16((uint32)SPI_Slave_TXDATA_PTR));
+    CyDmaTdSetAddress(txTD[1], LO16((uint32)&adc_sar_buffer[0]), LO16((uint32)SPI_Slave_TXDATA_PTR));
+    
+    /* TD initialization */
+    CyDmaChSetInitialTd(txChannel, txTD[1]);
+    
+    /* Enable the DMA channel */
+    CyDmaChEnable(txChannel, 1);
+};
 
 void DMA_SPIS_RX_Config(void)
 {
@@ -496,44 +522,11 @@ void DMA_SPIS_RX_Config(void)
     /* TD configuration settings */
     CyDmaTdSetConfiguration(rxTD, BUFFER_SIZE, CY_DMA_DISABLE_TD, TD_INC_DST_ADR);
     
-    /* Set Source and Destination address of each TD */
+    /* Set source and destination address of each TD */
     CyDmaTdSetAddress(rxTD, LO16((uint32) SPI_Slave_RXDATA_PTR), LO16((uint32) rxBuffer));
     
     /* TD initialization */
     CyDmaChSetInitialTd(rxChannel, rxTD);  
 }
 
-void DMA_SPIS_TX_Config(void)
-{
-    /* Defines for DMA_SPIS_TX */
-    #define DMA_SPISlave_TX_BYTES_PER_BURST 2
-    #define DMA_SPISlave_TX_REQUEST_PER_BURST 1
-    #define DMA_SPISlave_TX_SRC_BASE (CYDEV_SRAM_BASE)
-    #define DMA_SPISlave_TX_DST_BASE (CYDEV_PERIPH_BASE)
-    
-    /* DMA_SPIS_TX Channel configuration */
-	txChannel = DMA_SPIS_TX_DmaInitialize(DMA_SPISlave_TX_BYTES_PER_BURST, DMA_SPISlave_TX_REQUEST_PER_BURST, 
-                                              HI16(DMA_SPISlave_TX_SRC_BASE), HI16(DMA_SPISlave_TX_DST_BASE));
-    
-    /* TD allocation */
-    txTD[0] = CyDmaTdAllocate();
-    txTD[1] = CyDmaTdAllocate();
-    txTD[2] = CyDmaTdAllocate();
-    txTD[3] = CyDmaTdAllocate();
-    
-    /* TD configuration settings */
-    CyDmaTdSetConfiguration(txTD[0], (BUFFER_SIZE-1), txTD[1], TD_INC_SRC_ADR);
-    CyDmaTdSetConfiguration(txTD[1], (BUFFER_SIZE-1), txTD[2], TD_INC_SRC_ADR);
-    CyDmaTdSetConfiguration(txTD[2], (BUFFER_SIZE-1), txTD[3], TD_INC_SRC_ADR);
-    CyDmaTdSetConfiguration(txTD[3], (BUFFER_SIZE-1), txTD[0], TD_INC_SRC_ADR);
-    
-    /* Set Source and Destination address of each TD */
-    CyDmaTdSetAddress(txTD[0], LO16((uint32) &TXbuffer0.out[0]), LO16((uint32) SPI_Slave_TXDATA_PTR));
-    CyDmaTdSetAddress(txTD[1], LO16((uint32) &TXbuffer0.out[1]), LO16((uint32) SPI_Slave_TXDATA_PTR));
-    CyDmaTdSetAddress(txTD[2], LO16((uint32) &TXbuffer1.out[0]), LO16((uint32) SPI_Slave_TXDATA_PTR));
-    CyDmaTdSetAddress(txTD[3], LO16((uint32) &TXbuffer1.out[1]), LO16((uint32) SPI_Slave_TXDATA_PTR));
-    
-    /* TD initialization */
-    CyDmaChSetInitialTd(txChannel, txTD[0]);    
-}
 /* [] END OF FILE */
