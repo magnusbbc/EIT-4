@@ -104,6 +104,6 @@ STORE $r3 [$r10+65000]
 POP $pc
 I2SISR:
 LOAD $r5 [$r10+65011]
-FIRSAR $r5 $r6
-STORE $r6 [$r10+65010]
+//FIRSAR $r5 $r6
+STORE $r5 [$r10+65010]
 POP $pc
