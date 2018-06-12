@@ -1,0 +1,239 @@
+#include "Config.hvhd"
+
+#define DEFAULT_BEHAVIOUR interrupt_cpu <= '0'; \
+interrupt_btn_reset_latch <= '0';\
+interrupt_i2s_reset_latch <= '0';\
+interrupt_i2s_out_reset_latch <= '0';\
+interrupt_nest_enable <= '1';\
+\
+
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_unsigned.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+
+ENTITY Interrupt IS
+	PORT (
+        interrupt_btn : IN std_logic;                       --Is set high by the button peripheral to interrupt the CPU
+        interrupt_btn_reset : INOUT std_logic;              --Is set high by the interrupt controller to reset the button peripheral's interrupt signal
+
+        interrupt_i2s : IN std_logic := '0';                --Is set high by the i2s peripheral to interrupt the CPU
+        interrupt_i2s_reset : INOUT std_logic := '0';       --Is set high by the interrupt controller to reset the i2s peripheral's interrupt signal
+
+        interrupt_i2s_out : IN std_logic := '0';
+        interrupt_i2s_out_reset : INOUT std_logic := '0'; 
+
+        interrupt_enable : IN std_logic := '1';             --Enables/Disables interrupts entirely 
+        interrupt_nest_enable : OUT std_logic := '1' ;      --Tells the Main logic that whether nesting interrups are allowed. MUST ben high by default
+        write_enable :IN std_logic;                         --Write enable to allow changes to the interrupt controllers configuration registers
+        clk : IN std_logic;                                 --System Clock
+
+        internal_register_address : IN std_logic_vector(2 downto 0);    --Addresses the configuration registers
+        data_in : IN std_logic_vector(ADDRESS_SIZE-1 downto 0);           --Input data to be written to the configuration registers
+        interrupt_address : OUT std_logic_vector(PC_SIZE-1 downto 0);           --Address of the first instruction of an interrupt service routine
+        interrupt_cpu : OUT std_logic                                   --Signals the CPU that an interrupt has occoured
+	);
+END Interrupt;
+
+ARCHITECTURE Behavioral OF Interrupt IS
+ TYPE register_type IS ARRAY (5 DOWNTO 0) OF std_logic_vector(PC_SIZE - 1 DOWNTO 0);
+    SIGNAL REG : register_type := (others => (others => '0'));
+
+    --These signals are configurable by the programmer
+    SIGNAL interrupt_btn_enable : std_logic := '0';         --Enables/Disables Button Interrupts
+    SIGNAL interrupt_btn_nest_enable : std_logic := '0';    --Enables/Disables nesting of Button Interrupts
+    SIGNAL interrupt_btn_priority : integer := 0;           --Priority of the Button interrupt (currently not implemented)
+
+    SIGNAL interrupt_btn_latch : std_logic := '0';          --Latches Button Interrupts
+    SIGNAL interrupt_btn_reset_latch : std_logic := '0';    --Used to make sure that resat interrupts can not run until their interrupt is set low again 
+                                                            --(so we aren't relying on a peripherals ability to quickly reset its interrupt)
+
+    --Same functionaly as the button signals, just for
+    --the i2s peripheral
+    SIGNAL interrupt_i2s_enable : std_logic := '0';         
+    SIGNAL interrupt_i2s_nest_enable : std_logic := '0';
+    SIGNAL interrupt_i2s_priority : integer := 0;
+
+    SIGNAL interrupt_i2s_latch : std_logic := '0';
+    SIGNAL interrupt_i2s_reset_latch : std_logic := '0';      --Used to make sure that resat interrupts can not run until their interrupt is set low again 
+                                                            --(so we aren't relying on a peripherals ability to quickly reset its interrupt)
+
+    SIGNAL interrupt_i2s_out_enable : std_logic := '0';         
+    SIGNAL interrupt_i2s_out_nest_enable : std_logic := '0';
+    SIGNAL interrupt_i2s_out_priority : integer := 0;
+
+    SIGNAL interrupt_i2s_out_latch : std_logic := '0';
+    SIGNAL interrupt_i2s_out_reset_latch : std_logic := '0';
+
+    SIGNAL false_signal : std_logic := '0';
+BEGIN
+
+    --------------------------------------------
+	-- InterruptCpu:
+	-- Process wait for an interrupt signal from a
+    -- peripheral, and then sends an interrupt
+    -- signal to the CPU along with an accompanying
+    -- ISR address, and a bool informing the CPU
+    -- if nesting is allowed
+	--------------------------------------------
+    InterruptCpu : process(clk)
+    BEGIN
+        if(falling_edge(clk)) Then
+            IF(interrupt_enable = '1') Then
+                IF(false_signal = '1') THEN
+
+                
+                ELSIF( Interrupt_btn_latch  = '1') Then 
+                    IF(Interrupt_btn_enable = '1') THEN                     --if button enabled and interrupted
+                         interrupt_cpu <= '1';                              --send iterrupt signal to CPU
+                        Interrupt_btn_reset_latch <= '1';                   --send signal to reset button interrupt
+                        interrupt_address <= REG(0);                        --Send ISR address to CPU
+                        interrupt_nest_enable <= Interrupt_btn_nest_enable; --Send enable state to CPU
+                    ELSE --If ISR not enabled, then do not interrupt
+                        interrupt_cpu <= '0'; 
+                        interrupt_btn_reset_latch <= '1';
+                        interrupt_i2s_reset_latch <= '0';
+                        interrupt_i2s_out_reset_latch <= '0';
+                        interrupt_nest_enable <= '1';
+                    END IF; 
+
+                --Same procedure for the other ISR
+                ELSIF( interrupt_i2s_latch  = '1') Then 
+                    IF(interrupt_i2s_enable = '1') THEN 
+                        interrupt_cpu <= '1'; 
+                        interrupt_i2s_reset_latch <= '1'; 
+                        interrupt_address <= REG(2); 
+                        interrupt_nest_enable <= interrupt_i2s_nest_enable; 
+                    ELSE 
+                        interrupt_cpu <= '0'; 
+                        interrupt_btn_reset_latch <= '0';
+                        interrupt_i2s_reset_latch <= '1';
+                        interrupt_i2s_out_reset_latch <= '0';
+                        interrupt_nest_enable <= '1';
+                    END IF;
+                ELSIF( interrupt_i2s_out_latch  = '1') Then 
+                    IF(interrupt_i2s_out_enable = '1') THEN 
+                        interrupt_cpu <= '1'; 
+                        interrupt_i2s_out_reset_latch <= '1'; 
+                        interrupt_address <= REG(4); 
+                        interrupt_nest_enable <= interrupt_i2s_out_nest_enable; 
+                    ELSE 
+                        interrupt_cpu <= '0'; 
+                        interrupt_btn_reset_latch <= '0';
+                        interrupt_i2s_reset_latch <= '0';
+                        interrupt_i2s_out_reset_latch <= '1';
+                        interrupt_nest_enable <= '1';
+                    END IF;  
+
+                ELSE
+                    DEFAULT_BEHAVIOUR
+                END IF;
+            ELSE
+                DEFAULT_BEHAVIOUR
+            End IF;
+        END IF;
+    end process;
+
+    --------------------------------------------
+	-- BtnResetLatching:
+	-- Latches the reset signal to the button peripheral
+    -- Used to make sure that the button interrupts can not run until their interrupt is set low again 
+    --
+    -- In practice this means that interrupts are dependent on changes (e.g rising /falling edges)
+    -- from the received interrupt signals. This ensures that the CPU does not rely on a
+    -- peripherals ability to quickly reset its interrupt
+	--------------------------------------------
+    --BtnResetLatching : INTERRUPT_ RESET(interrupt_btn)
+    BtnResetLatching : PROCESS(clk)
+    BEGIN
+        IF(falling_edge(clk)) THEN
+            IF(interrupt_btn_reset_latch = '1') THEN
+                interrupt_btn_latch <= '0';
+            ElSIF(interrupt_btn = '1') THEN
+                interrupt_btn_latch <= '1';
+            END IF;
+            IF (interrupt_btn_reset_latch = '1') THEN
+                interrupt_btn_reset <= '1';
+            ELSIF(interrupt_btn_reset = '1' AND interrupt_btn = '0') THEN
+                interrupt_btn_reset <= '0';
+            END IF;
+        END IF;   
+    END PROCESS;
+
+    --------------------------------------------
+	-- I2sResetLatching:
+	-- Latches the reset signal to the I2S peripheral
+    -- Used to make sure that the i2s interrupts can not run until their interrupt is set low again 
+    --
+    -- In practice this means that interrupts are dependent on changes (e.g rising /falling edges)
+    -- from the received interrupt signals. This ensures that the CPU does not rely on a
+    -- peripherals ability to quickly reset its interrupt
+	--------------------------------------------\
+    I2sResetLatching : PROCESS(clk)
+    BEGIN
+        IF(falling_edge(clk)) THEN
+            IF(interrupt_i2s_reset_latch = '1') THEN
+                interrupt_i2s_latch <= '0';
+            ElSIF(interrupt_i2s = '1' AND interrupt_i2s_reset = '0') THEN
+                interrupt_i2s_latch <= '1';
+            END IF;
+            IF (interrupt_i2s_reset_latch = '1') THEN
+                interrupt_i2s_reset <= '1';
+            ELSIF(interrupt_i2s_reset = '1' AND interrupt_i2s = '0') THEN
+                interrupt_i2s_reset <= '0';
+            END IF;
+        END IF;
+
+    END PROCESS;
+
+        I2sOutResetLatching : PROCESS(clk)
+    BEGIN
+        IF(falling_edge(clk)) THEN
+            IF(interrupt_i2s_out_reset_latch = '1') THEN
+                interrupt_i2s_out_latch <= '0';
+            ElSIF(interrupt_i2s_out = '1' AND interrupt_i2s_out_reset = '0') THEN
+                interrupt_i2s_out_latch <= '1';
+            END IF;
+            IF (interrupt_i2s_out_reset_latch = '1') THEN
+                interrupt_i2s_out_reset <= '1';
+            ELSIF(interrupt_i2s_out_reset = '1' AND interrupt_i2s_out = '0') THEN
+                interrupt_i2s_out_reset <= '0';
+            END IF;
+        END IF;
+
+    END PROCESS;
+
+
+    --------------------------------------------
+	-- WriteProccess:
+	-- Writes data to the configuration registers
+	--------------------------------------------
+    WriteProccess : PROCESS (clk) IS
+	BEGIN
+        IF(rising_edge(clk)) THEN
+			IF (write_enable = '1') THEN
+				REG(to_integer(unsigned(internal_register_address))) <= data_in(PC_SIZE-1 downto 0);
+			END IF;
+        END IF;
+	END PROCESS;
+
+    --Maps registers to control signals
+    interrupt_btn_enable     <= REG(1)(9); 
+    interrupt_i2s_enable     <= REG(3)(9);
+    interrupt_i2s_out_enable <= REG(5)(9);
+
+    
+    interrupt_btn_nest_enable       <= REG(1)(8);
+    interrupt_i2s_nest_enable       <= REG(3)(8);
+    interrupt_i2s_out_nest_enable   <= REG(5)(8);
+
+    
+    
+
+    interrupt_btn_priority      <= to_integer(unsigned(REG(1)(7 downto 0)));
+    interrupt_i2s_priority      <= to_integer(unsigned(REG(3)(7 downto 0)));
+    interrupt_i2s_out_priority  <= to_integer(unsigned(REG(5)(7 downto 0)));
+
+
+
+END Behavioral;

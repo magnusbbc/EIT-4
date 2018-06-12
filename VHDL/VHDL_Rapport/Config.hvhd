@@ -1,0 +1,7 @@
+#define INSTRUCTION_SIZE 32 //Size of the instruction
+#define CONTROL_SIZE 24 //Amount of Control Signals
+#define WORD_SIZE 16 //Size of each word
+#define ADDRESS_SIZE 16 //Size of each address???
+#define WORD_COUNT 8192 //How many words reserved in DRAM
+#define PC_SIZE 13 //How many bits are used to represent PRAM (e.g. 10 bits is 1024)
+#define ZERO_PAD "000" //Used for padding PC_SIZE to make sure that it fits in WORD_SIZE
