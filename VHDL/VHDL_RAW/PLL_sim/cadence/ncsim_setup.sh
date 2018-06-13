@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 18.0 614 win32 2018.06.13.13:25:50
+# ACDS 18.0 614 win32 2018.06.13.15:38:41
 
 # ----------------------------------------
 # ncsim - auto-generated simulation script
@@ -20,7 +20,7 @@
 # ----------------------------------------
 # This script provides commands to simulate the following IP detected in
 # your Quartus project:
-#     PLL_i2s
+#     PLL
 # 
 # Altera recommends that you source this Quartus-generated IP simulation
 # script from your own customized top-level script, and avoid editing this
@@ -95,7 +95,7 @@
 # 
 # IP SIMULATION SCRIPT
 # ----------------------------------------
-# If PLL_i2s is one of several IP cores in your
+# If PLL is one of several IP cores in your
 # Quartus project, you can generate a simulation script
 # suitable for inclusion in your top-level simulation
 # script by running the following command line:
@@ -106,10 +106,10 @@
 # within the Quartus project, and generate a unified
 # script which supports all the Altera IP within the design.
 # ----------------------------------------
-# ACDS 18.0 614 win32 2018.06.13.13:25:50
+# ACDS 18.0 614 win32 2018.06.13.15:38:41
 # ----------------------------------------
 # initialize variables
-TOP_LEVEL_NAME="PLL_i2s"
+TOP_LEVEL_NAME="PLL"
 QSYS_SIMDIR="./../"
 QUARTUS_INSTALL_DIR="C:/intelfpga_lite/18.0/quartus/"
 SKIP_FILE_COPY=0
@@ -181,7 +181,7 @@ fi
 # ----------------------------------------
 # compile design files in correct order
 if [ $SKIP_COM -eq 0 ]; then
-  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/PLL_i2s.vho"
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/PLL.vho"
 fi
 
 # ----------------------------------------

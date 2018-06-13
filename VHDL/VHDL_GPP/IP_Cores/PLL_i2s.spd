@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<simPackage>
- <file path="PLL_i2s_sim/PLL_i2s.vho" type="VHDL" />
- <topLevel name="PLL_i2s" />
- <deviceFamily name="cyclonev" />
-</simPackage>

@@ -162,6 +162,7 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL clk_counter : std_logic_vector(2 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
 
 	SIGNAL FLAG_FITLER : std_logic_vector(1 downto 0); --delete
+	
 BEGIN
 
 	PLL : ENTITY work.PLL(rtl)
