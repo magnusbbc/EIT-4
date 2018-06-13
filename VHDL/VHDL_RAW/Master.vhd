@@ -161,20 +161,27 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL pll_i2s_tmp_clk : std_logic; --I2S clock set when PLL lock signal is set
 	SIGNAL clk_counter : std_logic_vector(2 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
 
+	SIGNAL clk_buffered : std_logic;
 	SIGNAL FLAG_FITLER : std_logic_vector(1 downto 0); --delete
 BEGIN
 
-	PLL : ENTITY work.PLL(SYN)
+	clkbuf : ENTITY work.Clk_buf(rtl)
 		PORT MAP(
-			inclk0 => clk,
-			c0 => pll_clk,
+			inclk => clk,
+			outclk => clk_buffered
+		);
+
+	PLL : ENTITY work.PLL(rtl)
+		PORT MAP(
+			refclk => clk_buffered,
+			outclk_0 => pll_clk,
 			locked => pll_lock
 		);
 
-	PLL_i2s : ENTITY work.PLL_i2s(SYN)
+	PLL_i2s : ENTITY work.PLL_i2s(rtl)
 	PORT MAP(
-		inclk0 => clk,
-		c1 => pll_clk_i2s,
+		refclk => clk_buffered,
+		outclk_0 => pll_clk_i2s,
 		locked => pll_i2s_lock
 	);
 	MEMCNT : ENTITY work.MemoryController

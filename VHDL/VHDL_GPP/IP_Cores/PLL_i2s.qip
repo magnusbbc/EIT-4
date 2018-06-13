@@ -1,5 +1,13 @@
-set_global_assignment -name IP_TOOL_NAME "ALTPLL"
-set_global_assignment -name IP_TOOL_VERSION "13.1"
-set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "PLL_i2s.vhd"]
-set_global_assignment -name MISC_FILE [file join $::quartus(qip_path) "PLL_i2s.cmp"]
-set_global_assignment -name MISC_FILE [file join $::quartus(qip_path) "PLL_i2s.ppf"]
+set_global_assignment -entity "PLL_i2s" -library "PLL_i2s" -name IP_TOOL_NAME "altera_pll"
+set_global_assignment -entity "PLL_i2s" -library "PLL_i2s" -name IP_TOOL_VERSION "13.1"
+set_global_assignment -entity "PLL_i2s" -library "PLL_i2s" -name IP_TOOL_ENV "mwpim"
+set_global_assignment -library "PLL_i2s" -name MISC_FILE [file join $::quartus(qip_path) "PLL_i2s.cmp"]
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+
+set_global_assignment -library "PLL_i2s" -name VHDL_FILE [file join $::quartus(qip_path) "PLL_i2s.vhd"]
+set_global_assignment -library "PLL_i2s" -name VERILOG_FILE [file join $::quartus(qip_path) "PLL_i2s/PLL_i2s_0002.v"]
+set_global_assignment -library "PLL_i2s" -name QIP_FILE [file join $::quartus(qip_path) "PLL_i2s/PLL_i2s_0002.qip"]
+
+set_global_assignment -entity "PLL_i2s_0002" -library "PLL_i2s" -name IP_TOOL_NAME "altera_pll"
+set_global_assignment -entity "PLL_i2s_0002" -library "PLL_i2s" -name IP_TOOL_VERSION "13.1"
+set_global_assignment -entity "PLL_i2s_0002" -library "PLL_i2s" -name IP_TOOL_ENV "mwpim"
