@@ -147,15 +147,15 @@ BEGIN
 
 	PLL : ENTITY work.PLL(SYN)
 		PORT MAP(
-			inclk0 => clk,
-			c0 => pll_clk,
+			refclk => clk,
+			outclk_0 => pll_clk,
 			locked => pll_lock
 		);
 
 	PLL_i2s : ENTITY work.PLL_i2s(SYN)
 	PORT MAP(
-		inclk0 => clk,
-		c1 => pll_clk_i2s,
+		refclk => clk,
+		outclk_0 => pll_clk_i2s,
 		locked => pll_i2s_lock
 	);
 	MEMCNT : ENTITY work.MemoryController

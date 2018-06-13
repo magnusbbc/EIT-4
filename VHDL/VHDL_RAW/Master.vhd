@@ -68,7 +68,7 @@ ENTITY Master IS
 		btn   : IN std_logic_vector(2 DOWNTO 0); 	--Device's 3 available push buttons (note: active low)
 		sseg  : OUT std_logic_vector(31 DOWNTO 0); 	--Seven segment display control signals (8 signals for each of the four displays)
 
-		led   : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
+		--led   : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
 
 		--I2S input
 		bclk  : IN std_logic  := '0';				--External input bitclock signal
@@ -164,17 +164,17 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL FLAG_FITLER : std_logic_vector(1 downto 0); --delete
 BEGIN
 
-	PLL : ENTITY work.PLL(SYN)
+	PLL : ENTITY work.PLL(rtl)
 		PORT MAP(
-			inclk0 => clk,
-			c0 => pll_clk,
+			refclk => clk,
+			outclk_0 => pll_clk,
 			locked => pll_lock
 		);
 
-	PLL_i2s : ENTITY work.PLL_i2s(SYN)
+	PLL_i2s : ENTITY work.PLL_i2s(rtl)
 	PORT MAP(
-		inclk0 => clk,
-		c1 => pll_clk_i2s,
+		refclk => clk,
+		outclk_0 => pll_clk_i2s,
 		locked => pll_i2s_lock
 	);
 	MEMCNT : ENTITY work.MemoryController

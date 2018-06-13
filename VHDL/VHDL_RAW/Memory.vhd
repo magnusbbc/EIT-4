@@ -22,7 +22,7 @@ ENTITY Memory IS
 	PORT
 	(
 		data_in      : IN STD_LOGIC_VECTOR (16 -1 DOWNTO 0); --Data in
-		data_out           : OUT STD_LOGIC_VECTOR (16 -1 DOWNTO 0) := (OTHERS => '0'); --Data Out
+		data_out     : OUT STD_LOGIC_VECTOR (16 -1 DOWNTO 0) := (OTHERS => '0'); --Data Out
 		address      : IN STD_LOGIC_VECTOR (16 -1 DOWNTO 0); --address bus
 		write_enable : IN STD_LOGIC; -- Write Enable
 		read_enable  : IN STD_LOGIC; -- Read Enable
