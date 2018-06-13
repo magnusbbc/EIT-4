@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="simulation/submodules/Clk_buf_altclkctrl_0.vhd"
+   type="VHDL"
+   library="altclkctrl_0" />
+ <file path="simulation/Clk_buf.vhd" type="VHDL" />
+ <topLevel name="Clk_buf" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

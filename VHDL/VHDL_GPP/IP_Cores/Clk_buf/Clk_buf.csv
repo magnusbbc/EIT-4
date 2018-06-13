@@ -1,0 +1,18 @@
+# system info Clk_buf on 2018.06.13.18:31:12
+system_info:
+name,value
+DEVICE,5CEBA4F23C7
+DEVICE_FAMILY,Cyclone V
+GENERATION_ID,1528907471
+#
+#
+# Files generated for Clk_buf on 2018.06.13.18:31:12
+files:
+filepath,kind,attributes,module,is_top
+simulation/Clk_buf.vhd,VHDL,,Clk_buf,true
+simulation/submodules/Clk_buf_altclkctrl_0.vhd,VHDL,,Clk_buf_altclkctrl_0,false
+#
+# Map from instance-path to kind of module
+instances:
+instancePath,module
+Clk_buf.altclkctrl_0,Clk_buf_altclkctrl_0

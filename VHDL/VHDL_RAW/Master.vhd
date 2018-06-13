@@ -68,7 +68,7 @@ ENTITY Master IS
 		btn   : IN std_logic_vector(2 DOWNTO 0); 	--Device's 3 available push buttons (note: active low)
 		sseg  : OUT std_logic_vector(31 DOWNTO 0); 	--Seven segment display control signals (8 signals for each of the four displays)
 
-		--led   : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
+		led   : OUT std_logic_vector(9 DOWNTO 0) := (OTHERS => '0'); 	--Signals for controlling onboard LED's
 
 		--I2S input
 		bclk  : IN std_logic  := '0';				--External input bitclock signal
@@ -161,20 +161,26 @@ ARCHITECTURE Behavioral OF Master IS
 	SIGNAL pll_i2s_tmp_clk : std_logic; --I2S clock set when PLL lock signal is set
 	SIGNAL clk_counter : std_logic_vector(2 DOWNTO 0); --Clock divider, used to switch LED (works as a clock heart beat)
 
+	SIGNAL clk_buffered : std_logic;
 	SIGNAL FLAG_FITLER : std_logic_vector(1 downto 0); --delete
-	
 BEGIN
+
+	clkbuf : ENTITY work.Clk_buf(rtl)
+		PORT MAP(
+			inclk => clk,
+			outclk => clk_buffered
+	);
 
 	PLL : ENTITY work.PLL(rtl)
 		PORT MAP(
-			refclk => clk,
+			refclk => clk_buffered,
 			outclk_0 => pll_clk,
 			locked => pll_lock
 		);
 
 	PLL_i2s : ENTITY work.PLL_i2s(rtl)
 	PORT MAP(
-		refclk => clk,
+		refclk => clk_buffered,
 		outclk_0 => pll_clk_i2s,
 		locked => pll_i2s_lock
 	);
