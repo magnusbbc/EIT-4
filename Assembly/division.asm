@@ -72,8 +72,8 @@ POP $pc //return to signDiv Call
 //using division "function"
 MOVI 10 $r20 //N
 MOVI 2 $r21 //D
+//result Q will be in register r20
 //set return point for function
 ADDI $pc 2 $r25
 PUSH $r25
 JMP #signDiv
-//code after div function
