@@ -1,0 +1,2 @@
+label:
+JMP #label
