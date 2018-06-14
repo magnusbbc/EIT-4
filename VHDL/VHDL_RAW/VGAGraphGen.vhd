@@ -1,6 +1,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_unsigned.ALL;
 use IEEE.NUMERIC_STD.ALL;
+
 
 
 
@@ -10,14 +12,22 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity VGAGraphGen is
     Port ( 
-        max_y     :  IN std_logic_vector(16 - 1 DOWNTO 0):= (0=>'0',OTHERS => '1');
-        index_in  :  IN std_logic_vector(16 - 1 DOWNTO 0):= (OTHERS => '0');
-        point_in  :  IN std_logic_vector(16 - 1 DOWNTO 0):= (OTHERS => '0');
-        bg_color  :  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"111";
-        p_color   :  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"339";
-        lines_on  : in STD_LOGIC :='1';
+        point_address  :  IN std_logic_vector(16 - 1 DOWNTO 0):= (OTHERS => '0');    --Address for writing a point to ram
+        point_in  :  IN std_logic_vector(16 - 1 DOWNTO 0):= (14=>'1',OTHERS => '0'); --The data to write to the specified address
+        point_write_enable : IN STD_LOGIC:='0';                                                   --Write enable
 
-      
+        max_y     :  IN std_logic_vector(16 - 1 DOWNTO 0):= (15=>'1',OTHERS => '1'); --Scaling for the y-axis, max_y will be the max value shown
+        bg_color  :  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"422";  --Color for the background (BGR)
+        p_color   :  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"33b";  --Color for the points (BGR)
+        grid_color:  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"666";  --Color for the grid (BGR)
+        h_grid    :  IN INTEGER := 20;      --Grid distance horizontal
+        v_grid    :  IN INTEGER := 20;      --Grid distance vertical
+        thickness :  IN INTEGER := 3;       --Thickness of the line when linemode is on 
+        lines_on  :  IN STD_LOGIC :='1';    --Linemode on/off
+
+        bclk      :  IN STD_LOGIC;          --Bitclock from vga controller
+        write_clk :  IN STD_LOGIC;          --Clock from writing source
+
         disp_ena  :  IN   STD_LOGIC;  --display enable ('1' = display time, '0' = blanking time)
         row       :  IN   INTEGER;    --row pixel coordinate
         column    :  IN   INTEGER;    --column pixel coordinate
@@ -29,40 +39,91 @@ entity VGAGraphGen is
 end VGAGraphGen;
 
 architecture Behavioral of VGAGraphGen is
-type point_array_type     is array (0 to 640 -1) of std_logic_vector(16 - 1 DOWNTO 0);
 
-signal point_array        : point_array_type:=(1=>x"1fff",  2=>x"2fff",  3=>x"3fff",  4=>x"4fff",  5=>x"5fff",  6=>x"6fff",  7=>x"7fff",  8=>x"8fff",  9=>x"9fff",  10=>x"afff",  11=>x"bfff",  12=>x"cfff",  13=>x"0dff",  14=>x"0eff",  others => x"09ff");
+component GRAM is --Ram component for dedicated ram
+PORT
+(
+  data		    : IN STD_LOGIC_VECTOR (15 DOWNTO 0);  
+  rdaddress		: IN STD_LOGIC_VECTOR (9 DOWNTO 0);
+  rdclock		  : IN STD_LOGIC ;
+  wraddress		: IN STD_LOGIC_VECTOR (9 DOWNTO 0);
+  wrclock		  : IN STD_LOGIC  := '1';
+  wren	  	  : IN STD_LOGIC  := '0';
+  q		        : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+);
+end component;
+
+signal ram_in             :  STD_LOGIC_VECTOR (15 DOWNTO 0);  --Data in for ram
+signal ram_out            :  STD_LOGIC_VECTOR (15 DOWNTO 0);  --Data out for ram
+signal read_address       :  STD_LOGIC_VECTOR (9 DOWNTO 0);   --Read address for ram
+signal write_address      :  STD_LOGIC_VECTOR (9 DOWNTO 0);   --Write address for ram
 
 begin
-    PROCESS(disp_ena, row, column)
-    variable current_point :STD_LOGIC_VECTOR(16-1 DOWNTO 0) := (others=>'1');
+
+  RAM : component GRAM  --wirering of ram
+  port map (
+    data		    => ram_in,
+    rdaddress		=> read_address,
+    rdclock		  => not bclk,
+    wraddress		=> write_address,
+    wrclock		  => not write_clk,
+    wren	  	  => point_write_enable,
+    q		        => ram_out
+  );
+  
+
+
+
+    PROCESS(bclk,disp_ena, row, column)
     BEGIN
 
-      current_point:=point_array(column);  
+     
+    if rising_edge(bclk) then
+      --What should be ready at ram_out on the next cycle
+      if(column>=640-1)then
+      read_address<= std_logic_vector(to_unsigned(1,10));           -- When at the last column the next data will be the first data point 
+      else
+      read_address<= std_logic_vector(to_unsigned((column+2),10));  --The column is 0-indexed and ram is 1-indexed plus the delay and thus +2
+      end if; 
 
       IF(disp_ena = '1') THEN        --display time
         if(lines_on='1') then
           
-          if(unsigned(abs(signed(unsigned(current_point)-((480-row)*(unsigned(max_y)/480))))) < 1*(unsigned(max_y)/480)) then
+          if(unsigned(abs(signed(unsigned(ram_out)-((480-row)*(unsigned(max_y)/480))))) < thickness*(unsigned(max_y)/480)) then --check if the scaled row is within 'thickness' of data point
+            --If it is draw the line in 'p_color'
             red     <=  p_color(4-1 DOWNTO 0);
             green   <=  p_color(4+4-1 DOWNTO 4);
             blue    <=  p_color(4+4+4-1 DOWNTO 4+4);
-          else
-            red     <=  bg_color(4-1 DOWNTO 0);
-            green   <=  bg_color(4+4-1 DOWNTO 4);
-            blue    <=  bg_color(4+4+4-1 DOWNTO 4+4);
-          end if;
-
+            else
+            --Else draw the background with a grid
+              if ((column mod h_grid)=0) OR ((row mod v_grid)=0) then
+                red     <=  grid_color(4-1 DOWNTO 0);
+                green   <=  grid_color(4+4-1 DOWNTO 4);
+                blue    <=  grid_color(4+4+4-1 DOWNTO 4+4);
+              else
+                red     <=  bg_color(4-1 DOWNTO 0);
+                green   <=  bg_color(4+4-1 DOWNTO 4);
+                blue    <=  bg_color(4+4+4-1 DOWNTO 4+4);
+              end if;
+            end if;
         else
 
-          if(unsigned(current_point)<(480-row)*(unsigned(max_y)/480))then
+          if(unsigned(ram_out)>(480-row)*(unsigned(max_y)/480))then --Checks if scalled row is less than datapoint
+                  --If it is then fill with'p_color'
             red     <=  p_color(4-1 DOWNTO 0);
             green   <=  p_color(4+4-1 DOWNTO 4);
             blue    <=  p_color(4+4+4-1 DOWNTO 4+4);
           else
-            red     <=  bg_color(4-1 DOWNTO 0);
-            green   <=  bg_color(4+4-1 DOWNTO 4);
-            blue    <=  bg_color(4+4+4-1 DOWNTO 4+4);
+           --Else draw the background with a grid
+            if ((column mod h_grid)=0) OR ((row mod v_grid)=0) then
+              red     <=  grid_color(4-1 DOWNTO 0);
+              green   <=  grid_color(4+4-1 DOWNTO 4);
+              blue    <=  grid_color(4+4+4-1 DOWNTO 4+4);
+            else
+              red     <=  bg_color(4-1 DOWNTO 0);
+              green   <=  bg_color(4+4-1 DOWNTO 4);
+              blue    <=  bg_color(4+4+4-1 DOWNTO 4+4);
+            end if;
           end if;
 
         end if;
@@ -73,13 +134,15 @@ begin
         green <= (OTHERS => '0');
         blue <= (OTHERS => '0');
       END IF;
-    
+      end if ;
     END PROCESS;
-   PROCESS(index_in,point_in)
-  begin
+
+   PROCESS(write_clk,point_address,point_in)--Write to RAM if write enable is on
+   begin
       
-        if(to_integer(unsigned(index_in))<640  -1) then
-          point_array(to_integer(unsigned(index_in)))<=point_in;
+        if rising_edge(write_clk) then
+          write_address<=point_address(9 downto 0); --Set address
+          ram_in<=point_in;                         --Set data
         end if;
     
      

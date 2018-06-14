@@ -28,7 +28,7 @@ entity VGAGPU is
 end VGAGPU;
 
 architecture VGAGPU of VGAGPU is
-	component PLL is 
+	component PLL_VGA is 
 	port (
 		refclk   : in  std_logic := '0'; --  refclk.clk
 		rst      : in  std_logic := '0'; --   reset.reset
@@ -47,6 +47,9 @@ end component;
 
 component VGAGraphGen is 
 	Port ( 
+		lines_on :	IN 	 STD_LOGIC;	
+		bclk		 :	IN 	 STD_LOGIC;	
+		write_clk	:IN STD_LOGIC;
 		disp_ena :  IN   STD_LOGIC;  --display enable ('1' = display time, '0' = blanking time)
 		row      :  IN   INTEGER;    --row pixel coordinate
 		column   :  IN   INTEGER;    --column pixel coordinate
@@ -71,7 +74,7 @@ begin
 --	HEX4 <= sseg(34 downto 28);
 	--HEX5 <= sseg(41 downto 35);
 
-clk1 : component PLL
+clk1 : component PLL_VGA
 	port map (
 				refclk=>clk,
 				rst=>resetn,
@@ -91,6 +94,9 @@ port map (
 
 imagegen : component VGAGraphGen 
 port map (
+	lines_on	=>sw(0),
+	bclk			=> mclk,
+	write_clk	=> clk,
 	disp_ena	=> disp_en_s,
 	row  		=>	row_s,
 	column 		=> col_s,

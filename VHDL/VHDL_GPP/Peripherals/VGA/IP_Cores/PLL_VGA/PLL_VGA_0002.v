@@ -1,5 +1,5 @@
 `timescale 1ns/10ps
-module  PLL_0002(
+module  PLL_VGA_0002(
 
 	// interface 'refclk'
 	input wire refclk,
