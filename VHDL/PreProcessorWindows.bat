@@ -1,1 +1,1 @@
-for /r "VHDL_GPP\" %%v in (*.vhd, *.do, *.qip) do gpp -n +c "//" "\n" -I VHDL_GPP\Headers "%%v"  > "VHDL_RAW\%%~nxv"
+for /r "VHDL_GPP\" %%v in (*.vhd, *.do, *.qip, *.mif) do gpp -n +c "//" "\n" -I VHDL_GPP\Headers "%%v"  > "VHDL_RAW\%%~nxv"
