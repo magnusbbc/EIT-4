@@ -1,0 +1,23 @@
+#define POINTS 640 
+#define COLUMNS 640
+#define ROWS 480
+#define POINT_BIT_WIDTH 16
+#define WORD_LENGTH 16
+#define RED_BIT_WIDTH 4
+#define GREEN_BIT_WIDTH 4
+#define BLUE_BIT_WIDTH 4
+#define H_VISIBLE_AREA	640             //Horizontal timing (pixels)//timing based on 25 mHz
+#define H_FRONT_PORCH   16
+#define H_SYNC_PULSE    96
+#define H_BACK_PORCH	48	
+#define H_TOTAL	        H_VISIBLE_AREA + H_FRONT_PORCH + H_SYNC_PULSE + H_BACK_PORCH
+#define H_PERIOD		H_TOTAL - 1
+#define V_VISIBLE_AREA	480             //Vertical timing (lines)
+#define V_FRONT_PORCH   10
+#define V_SYNC_PULSE    2
+#define V_BACK_PORCH	33	
+#define V_TOTAL	        V_VISIBLE_AREA + V_FRONT_PORCH + V_SYNC_PULSE + V_BACK_PORCH
+#define V_PERIOD		V_TOTAL - 1
+#define H_POL '0' //Polarity of sync signals
+#define V_POL '0'
+

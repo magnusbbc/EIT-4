@@ -1,15 +1,9 @@
+#include VGA_Config.hvhd
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_unsigned.ALL;
 use IEEE.NUMERIC_STD.ALL;
-#define POINTS 640 
-#define COLUMNS 640
-#define ROWS 480
-#define POINT_BIT_WIDTH 16
-#define WORD_LENGTH 16
-#define RED_BIT_WIDTH 4
-#define GREEN_BIT_WIDTH 4
-#define BLUE_BIT_WIDTH 4
+
 entity VGAGraphGen is
     Port ( 
         point_address  :  IN std_logic_vector(POINT_BIT_WIDTH - 1 DOWNTO 0):= (OTHERS => '0');    --Address for writing a point to ram

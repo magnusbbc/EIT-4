@@ -41,7 +41,7 @@ ENTITY ssgddriver IS
 		clr                       : IN STD_LOGIC; --Clear
 		bcd_enable                : IN std_LOGIC; --Enable BCD format
 		input_data                : IN STD_LOGIC_vector (15 DOWNTO 0) := (OTHERS => '0'); --Hex data in 4 nibbles
-		dot_control               : IN STD_LOGIC_vector (3 DOWNTO 0); --Dots data
+		dot_control               : IN STD_LOGIC_vector (3 DOWNTO 0) := (OTHERS => '0'); --Dots data
 		seven_seg_control_signals : OUT STD_LOGIC_vector (31 DOWNTO 0) --Segments connections (31| dot4 - 7seg4 - dot3 - 7seg3 - dot2 - 7seg2 - dot1 - 7seg1 |0)
 	);
 END ssgddriver;
