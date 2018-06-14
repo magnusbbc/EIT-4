@@ -25,8 +25,8 @@ ENTITY ssgddriver IS
 		clr                       : IN STD_LOGIC; --Clear
 		bcd_enable                : IN std_LOGIC; --Enable BCD format
 		input_data                : IN STD_LOGIC_vector (15 DOWNTO 0) := (OTHERS => '0'); --Hex data in 4 nibbles
-		dot_control               : IN STD_LOGIC_vector (3 DOWNTO 0); --Dots data
-		seven_seg_control_signals : OUT STD_LOGIC_vector (31 DOWNTO 0) --Segments connections (31| dot4 - 7seg4 - dot3 - 7seg3 - dot2 - 7seg2 - dot1 - 7seg1 |0)
+		dot_control               : IN STD_LOGIC_vector (3 DOWNTO 0); --Dots data, NOTE: dot_control(3) is for sign enable/disable on CV0
+		seven_seg_control_signals : OUT STD_LOGIC_vector (47 DOWNTO 0) --Segments connections (31| dot4 - 7seg4 - dot3 - 7seg3 - dot2 - 7seg2 - dot1 - 7seg1 |0)
 	);
 END ssgddriver;
 
@@ -37,28 +37,31 @@ ARCHITECTURE Behavioral OF ssgddriver IS
 		(
 			clr    : IN std_logic; --Clear
 			binary : IN std_logic_vector (15 DOWNTO 0); --Binary data in
-			bcd    : OUT std_logic_vector (15 DOWNTO 0) --BCD formatet output
+			bcd    : OUT std_logic_vector (19 DOWNTO 0) --BCD formatet output
 		);
 	END COMPONENT;
 
-	SIGNAL bcd     : std_logic_vector (15 DOWNTO 0);
-	SIGNAL display : std_logic_vector (15 DOWNTO 0);
+	SIGNAL bcd     : std_logic_vector (19 DOWNTO 0);
+	SIGNAL display : std_logic_vector (19 DOWNTO 0);
+
+	SIGNAL input_data_temp : STD_LOGIC_vector (15 DOWNTO 0) := (OTHERS => '0'); 
+	SIGNAL sign_bit : std_logic := '0';
 
 BEGIN
 	con : COMPONENT b2bcd
 		PORT MAP
 		(
 			clr    => clr,
-			binary => input_data,
+			binary => input_data_temp,
 			bcd    => bcd
 		);
 
 		display <=
 			bcd WHEN bcd_enable = '1' ELSE
-			input_data;
+			"0000" & input_data;
 
 		--Sets the first display
-		seven_seg_control_signals(7)                                          <= dot_control(0);
+		seven_seg_control_signals(7)                                          <= '1';
 		WITH display(3 DOWNTO 0) SELECT seven_seg_control_signals(6 DOWNTO 0) <=
 		"1000000" WHEN "0000", 
 "1111001" WHEN "0001", 
@@ -79,7 +82,7 @@ BEGIN
 "0000000" WHEN OTHERS;
 
 		--Sets the second display
-		seven_seg_control_signals(15)                                          <= dot_control(1);
+		seven_seg_control_signals(15)                                          <= '1';
 		WITH display(7 DOWNTO 4) SELECT seven_seg_control_signals(14 DOWNTO 8) <=
 		"1000000" WHEN "0000", 
 "1111001" WHEN "0001", 
@@ -100,7 +103,7 @@ BEGIN
 "0000000" WHEN OTHERS;
 
 		--Sets the third display
-		seven_seg_control_signals(23)                                            <= dot_control(2);
+		seven_seg_control_signals(23)                                            <= '1';
 		WITH display(11 DOWNTO 8) SELECT seven_seg_control_signals(22 DOWNTO 16) <=
 		"1000000" WHEN "0000", 
 "1111001" WHEN "0001", 
@@ -121,7 +124,7 @@ BEGIN
 "0000000" WHEN OTHERS;
 
 		--Sets the fourth display
-		seven_seg_control_signals(31)                                             <= dot_control(3);
+		seven_seg_control_signals(31)                                             <= '1';
 		WITH display(15 DOWNTO 12) SELECT seven_seg_control_signals(30 DOWNTO 24) <=
 		"1000000" WHEN "0000", 
 "1111001" WHEN "0001", 
@@ -141,4 +144,45 @@ BEGIN
 "0001110" WHEN "1111", 
 "0000000" WHEN OTHERS;
 
+		--Sets the fifth display
+		seven_seg_control_signals(39)                                             <= '1';
+		WITH display(19 DOWNTO 16) SELECT seven_seg_control_signals(38 DOWNTO 32) <=
+		"1000000" WHEN "0000", 
+"1111001" WHEN "0001", 
+"0100100" WHEN "0010", 
+"0110000" WHEN "0011", 
+"0011001" WHEN "0100", 
+"0010010" WHEN "0101", 
+"0000010" WHEN "0110", 
+"1111000" WHEN "0111", 
+"0000000" WHEN "1000", 
+"0010000" WHEN "1001", 
+"0001000" WHEN "1010", 
+"0000011" WHEN "1011", 
+"1000110" WHEN "1100", 
+"0100001" WHEN "1101", 
+"0000110" WHEN "1110", 
+"0001110" WHEN "1111", 
+"0000000" WHEN OTHERS;
+
+		--Sets the sixth display
+		--seven_seg_control_signals(47)                                             <= dot_control(5);
+		--WITH display(15 DOWNTO 12) SELECT seven_seg_control_signals(46 DOWNTO 40) <=
+		--
+		seven_seg_control_signals(47)                                             <= '1';
+		WITH sign_bit SELECT seven_seg_control_signals(46 DOWNTO 40) <=
+		"1111111" WHEN '0',
+		"0111111" WHEN '1',
+		"0000000" WHEN OTHERS;
+
+		process(input_data)
+		BEGIN
+			IF(to_integer(UNSIGNED(input_data)) < 32768) THEN
+				input_data_temp <= input_data;
+				sign_bit <= '1';
+			ELSE
+				input_data_temp <= not(input_data) + x"0001";
+				sign_bit <= '0';
+			END IF;
+		END PROCESS; 
 	END Behavioral;
