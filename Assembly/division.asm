@@ -1,3 +1,19 @@
+//using division "function"
+MOVI 10 $r20 //N
+MOVI 2 $r21 //D
+//result Q will be in register r20
+//set return point for function
+ADDI $pc 2 $r25
+PUSH $r25
+JMP #signDiv
+
+MOVI 31 $r1 
+STORE $r1 [65001]
+STORE $r20 [65000]
+
+
+HALT
+
 //unsigned division start
 div:
 MOVI 0 $r22 //Q
@@ -69,11 +85,5 @@ divEnd:
 POP $pc //return to signDiv Call
 //signed division end
 
-//using division "function"
-MOVI 10 $r20 //N
-MOVI 2 $r21 //D
-//result Q will be in register r20
-//set return point for function
-ADDI $pc 2 $r25
-PUSH $r25
-JMP #signDiv
+
+
