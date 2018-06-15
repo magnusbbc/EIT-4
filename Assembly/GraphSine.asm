@@ -1,3 +1,6 @@
+MOVI 0 $r1
+STORE $r1 [64647]
+
 MOVI 64000 $r3
 MOVI 2057 $r5
 ADDI $r3 1 $r3
