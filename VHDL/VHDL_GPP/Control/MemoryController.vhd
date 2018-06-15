@@ -23,7 +23,7 @@ ENTITY MemoryController IS
 		data_out                  : BUFFER STD_LOGIC_vector (WORD_SIZE-1 DOWNTO 0) := (OTHERS => '0');
 		clk                       : IN STD_LOGIC;
 		btn                       : IN std_LOGIC_vector(2 DOWNTO 0);
-		seven_seg_control_signals : OUT std_LOGIC_vector(31 DOWNTO 0);
+		seven_seg_control_signals : OUT std_LOGIC_vector(47 DOWNTO 0);
 		interrupt_address         : OUT std_logic_vector(PC_SIZE - 1 DOWNTO 0);
 		interrupt_cpu             : OUT std_logic;
 		interrupt_enable          : IN std_logic := '0';
