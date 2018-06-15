@@ -12,4 +12,11 @@ STORE $r1 [65000]
 //64646 line thickness
 //64647 line mode on lsb
 
+MOVI 0 $r1
+
+loop:
+NOP
+
+JMP #loop
+
 HALT
