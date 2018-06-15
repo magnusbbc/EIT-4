@@ -5,6 +5,30 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------------------------------------
 --Engineer: Jakob Thomsen, Mikkel Hardysoe, Magnus Christensen
 --Module Name: Memory Controller
@@ -28,6 +52,7 @@ ENTITY MemoryController IS
 		data_in                   : IN STD_LOGIC_vector (16 -1 DOWNTO 0);
 		data_out                  : BUFFER STD_LOGIC_vector (16 -1 DOWNTO 0) := (OTHERS => '0');
 		clk                       : IN STD_LOGIC;
+		real_clk				  : IN std_logic;
 		btn                       : IN std_LOGIC_vector(2 DOWNTO 0);
 		seven_seg_control_signals : OUT std_LOGIC_vector(47 DOWNTO 0);
 		interrupt_address         : OUT std_logic_vector(13  - 1 DOWNTO 0);
@@ -41,7 +66,13 @@ ENTITY MemoryController IS
 		i2s_data_in               : IN std_logic  := '0';
 		i2s_bit_clk_out           : OUT std_logic := '0';
 		i2s_word_select_out       : OUT std_logic := '0';
-		i2s_data_out              : OUT std_logic := '0'
+		i2s_data_out              : OUT std_logic := '0';
+
+		VGA_Red_P		: OUT std_logic_vector(3 downto 0);
+		VGA_Green_P		: OUT std_logic_vector(3 downto 0);
+		VGA_Blue_P		: OUT std_logic_vector(3 downto 0);
+		VGA_H_SYNC_P 	: OUT std_logic;
+		VGA_V_SYNC_P	: OUT std_logic
 	);
 END MemoryController;
 
@@ -56,7 +87,45 @@ ARCHITECTURE Behavioral OF MemoryController IS
 	SIGNAL read_enable_dram                                                  							: std_logic                            := '0';
 	SIGNAL i2s_mono_in_data_out                                              							: std_logic_vector(16 -1 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL i2s_mono_out_data_in                                              							: std_logic_vector(16 -1 DOWNTO 0) := (OTHERS => '0');
+
+	SIGNAL point_address_s  																			: std_logic_vector(16 - 1 DOWNTO 0):= (OTHERS => '0');    --Address for writing a point to ram
+	SIGNAL point_in_s   																				: std_logic_vector(16 - 1 DOWNTO 0):= (14=>'1',OTHERS => '0'); --The data to write to the specified address
+	SIGNAL point_write_enable_s 																		: STD_LOGIC:='0';                                                   --Write enable
+	SIGNAL max_y_s    																					: std_logic_vector(16 - 1 DOWNTO 0):= (15=>'1',OTHERS => '1'); --Scaling for the y-axis, max_y will be the max value shown
+	SIGNAL bg_color_s 																					: std_logic_vector(4+4+4-1 DOWNTO 0):=x"422";  --Color for the background (BGR)
+	SIGNAL p_color_s  																					: std_logic_vector(4+4+4-1 DOWNTO 0):=x"33b";  --Color for the points (BGR)
+	SIGNAL grid_color_s																					: std_logic_vector(4+4+4-1 DOWNTO 0):=x"666";  --Color for the grid (BGR)
+	SIGNAL h_grid_s    																					: std_logic_vector(16 - 1 DOWNTO 0):= x"0014";      --Grid distance horizontal
+	SIGNAL v_grid_s    																					: std_logic_vector(16 - 1 DOWNTO 0):= x"0014";     --Grid distance vertical
+	SIGNAL thickness_s 																					: std_logic_vector(16 - 1 DOWNTO 0):= x"0001";       --Thickness of the line when linemode is on 
+	SIGNAL lines_on_s  																					: STD_LOGIC :='1';    --Linemode on/off
 BEGIN
+
+	VGA : ENTITY work.VGAGPU
+		PORT MAP
+		(
+				reset 		=> '0',
+				clk_50 		=> real_clk,
+				clk_sync 	=> clk,
+
+				point_address  		=>	point_address_s,  				
+				point_in  			=>	point_in_s,   					
+				point_write_enable 	=>	write_enable, 			
+				max_y    			=>	max_y_s,    									
+				bg_color 			=>	bg_color_s, 						
+				p_color  			=>	p_color_s,  						
+				grid_color			=>	grid_color_s,						
+				h_grid    			=>	h_grid_s,    						
+				v_grid    			=>	v_grid_s,    						
+				thickness 			=>	thickness_s, 						
+				lines_on  			=>	lines_on_s, 				
+		
+				VGA_Red		=> VGA_Red_P,
+				VGA_Green	=> VGA_Green_P,
+				VGA_Blue	=> VGA_Blue_P,
+				VGA_H_SYNC	=> VGA_H_SYNC_P,
+				VGA_V_SYNC	=> VGA_V_SYNC_P
+		);
 
 	SevenSegmentDisplayDriver : ENTITY work.ssgddriver
 		PORT MAP
@@ -139,10 +208,56 @@ BEGIN
 	-- While much of this process's syntax/logic may seem strange,
 	-- illogical and obscure, it was required for quartus to be able to
 	-- synthesize the design ¯_(ツ)_/¯
-	--------------------------------------------
+	-------------------------------------------- 																	    						
 	MainReadWrite : PROCESS (clk, btn_data, dram_data_out)
 	BEGIN
-		IF (to_integer(unsigned(address)) = 65000 AND write_enable = '1') THEN -- sevensegdriver data
+		IF (64000 <= to_integer(unsigned(address)) AND 64639 >= to_integer(unsigned(address)) AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				point_address_s <= std_logic_vector(to_unsigned(to_integer(unsigned(address) - 63999), point_address_s'length));
+				point_in_s                     <= data_in;
+			END IF;
+
+		ELSIF (to_integer(unsigned(address)) = 64640 AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				max_y_s <= data_in;
+			END IF;
+
+		ELSIF (to_integer(unsigned(address)) = 64641 AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				bg_color_s <= data_in(11 downto 0);
+			END IF;
+
+		ELSIF (to_integer(unsigned(address)) = 64642 AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				p_color_s <= data_in(11 downto 0);
+			END IF;
+
+		ELSIF (to_integer(unsigned(address)) = 64643 AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				grid_color_s <= data_in(11 downto 0);
+			END IF;	
+
+		ELSIF (to_integer(unsigned(address)) = 64644 AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				h_grid_s <= data_in;
+			END IF;	
+
+		ELSIF (to_integer(unsigned(address)) = 64645 AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				v_grid_s <= data_in;
+			END IF;	
+
+		ELSIF (to_integer(unsigned(address)) = 64646 AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				thickness_s <= data_in;
+			END IF;	
+
+		ELSIF (to_integer(unsigned(address)) = 64647 AND write_enable = '1') THEN
+			IF (falling_edge(clk)) THEN
+				lines_on_s <= data_in(0);
+			END IF;	
+
+		ELSIF (to_integer(unsigned(address)) = 65000 AND write_enable = '1') THEN -- sevensegdriver data
 			IF (falling_edge(clk)) THEN
 				seven_seg_data <= data_in;
 			END IF;

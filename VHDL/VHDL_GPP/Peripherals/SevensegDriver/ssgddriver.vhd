@@ -115,10 +115,10 @@ BEGIN
 		BEGIN
 			IF(to_integer(UNSIGNED(input_data)) < 32768) THEN
 				input_data_temp <= input_data;
-				sign_bit <= '1';
+				sign_bit <= '0';
 			ELSE
 				input_data_temp <= not(input_data) + x"0001";
-				sign_bit <= '0';
+				sign_bit <= '1';
 			END IF;
 		END PROCESS; 
 	END Behavioral;

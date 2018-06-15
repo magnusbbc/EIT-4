@@ -31,20 +31,20 @@ entity VGAGPU is
    Port 	 ( 
 	   			reset 		: in  STD_LOGIC;
 				clk_50 		: in std_logic;
-				clk_sync	: in std_logic;
+				clk_sync		: in std_logic;
 
 				point_address  		:  IN std_logic_vector(16 - 1 DOWNTO 0):= (OTHERS => '0');    --Address for writing a point to ram
 				point_in  			:  IN std_logic_vector(16 - 1 DOWNTO 0):= (14=>'1',OTHERS => '0'); --The data to write to the specified address
 				point_write_enable 	: IN STD_LOGIC:='0';                                                   --Write enable
 		
-				max_y     :  IN std_logic_vector(16 - 1 DOWNTO 0):= (15=>'1',OTHERS => '1'); --Scaling for the y-axis, max_y will be the max value shown
-				bg_color  :  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"422";  --Color for the background (BGR)
-				p_color   :  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"33b";  --Color for the points (BGR)
-				grid_color:  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"666";  --Color for the grid (BGR)
+				max_y     			:  IN std_logic_vector(16 - 1 DOWNTO 0):= (15=>'1',OTHERS => '1'); --Scaling for the y-axis, max_y will be the max value shown
+				bg_color  			:  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"422";  --Color for the background (BGR)
+				p_color   			:  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"33b";  --Color for the points (BGR)
+				grid_color			:  IN std_logic_vector(4+4+4-1 DOWNTO 0):=x"666";  --Color for the grid (BGR)
 				h_grid    			:  IN std_logic_vector(16 - 1 DOWNTO 0):= x"0014";      --Grid distance horizontal
 				v_grid    			:  IN std_logic_vector(16 - 1 DOWNTO 0):= x"0014";     --Grid distance vertical
 				thickness 			:  IN std_logic_vector(16 - 1 DOWNTO 0):= x"0001";       --Thickness of the line when linemode is on 
-				lines_on  :  IN STD_LOGIC :='1';    --Linemode on/off
+				lines_on  			:  IN STD_LOGIC :='1';    --Linemode on/off
 		
 				VGA_Red		: out std_logic_vector (3 downto 0);
 				VGA_Green	: out std_logic_vector (3 downto 0);

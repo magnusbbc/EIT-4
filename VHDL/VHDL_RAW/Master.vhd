@@ -78,9 +78,15 @@ ENTITY Master IS
 		--I2S output
 		bclkO : OUT std_logic := '0';				--Bitclock output
 		wsO   : OUT std_logic := '0';				--Word select output
-		DOut  : OUT std_logic := '0'				--data output
+		DOut  : OUT std_logic := '0';				--data output
 		
 
+		--VGA
+		VGA_Blue : OUT std_logic_vector(3 downto 0);
+		VGA_Green  : OUT std_logic_vector(3 downto 0);
+		VGA_Red : OUT std_logic_vector(3 downto 0);
+		VGA_H_SYNC : OUT std_logic := '0';
+		VGA_V_SYNC : OUT std_logic := '0'
 	);
 END ENTITY Master;
 
@@ -192,6 +198,7 @@ BEGIN
 			data_in => dram_data_in,
 			data_out => dram_data_out,
 			CLK => sys_clk,
+			real_clk => clk,
 			btn => btn_inverted,
 			seven_seg_control_signals => sseg,
 			interrupt_address => interrupt_address,
@@ -205,7 +212,12 @@ BEGIN
 			i2s_data_in => Din,
 			i2s_bit_clk_out => bclkO,
 			i2s_word_select_out => wsO,
-			i2s_data_out => DOut
+			i2s_data_out => DOut,
+			VGA_Red_P	=> VGA_Red,	
+			VGA_Green_P	=> VGA_Green,	
+			VGA_Blue_P	=> VGA_Blue,	
+			VGA_H_SYNC_P => VGA_H_SYNC, 
+			VGA_V_SYNC_P=> VGA_V_SYNC
 		);
 
 	CONTROLLER : ENTITY work.Control(Behavioral)
