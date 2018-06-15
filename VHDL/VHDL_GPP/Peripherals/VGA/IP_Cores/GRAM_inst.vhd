@@ -1,4 +1,3 @@
-GRAM_inst : GRAM PORT MAP (
 		data	 => data_sig,
 		rdaddress	 => rdaddress_sig,
 		rdclock	 => rdclock_sig,
