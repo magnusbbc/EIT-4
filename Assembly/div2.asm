@@ -1,7 +1,7 @@
 MOVI 15 $r1 
 STORE $r1 [65001]
 //using division "function"
-MOVI 30 $r20 //N
+MOVI 9000 $r20 //N
 MOVI 3 $r21 //D
 MOVI 32767 $r24
 //result Q will be in register r22
