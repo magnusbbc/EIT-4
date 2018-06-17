@@ -16,6 +16,7 @@ STORE $r3 [$r8]
 HALT
 
 LESS:
+NOP
 MOVI 1 $r3
 STORE $r3 [$r8]
 HALT

@@ -1,8 +1,8 @@
 MOVI 31 $r1 
 STORE $r1 [65001]
 
-MOVI 16222 $r20
-MOVI 7 $r21 
+MOVI 10 $r20
+MOVI 2 $r21 
 
 NOP
 MOVI 0 $r22 //Q=0
