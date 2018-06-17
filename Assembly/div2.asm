@@ -1,4 +1,4 @@
-MOVI 15 $r1 
+MOVI 31 $r1 
 STORE $r1 [65001]
 //using division "function"
 MOVI 9000 $r20 //N

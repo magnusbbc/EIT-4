@@ -1,0 +1,319 @@
+MOVI 31 $r1         //display mode- 15 for hex and 21 for decimal
+STORE $r1 [65001]
+//64000 - 64639 addresses for Graph points
+MOVI 546 $r1
+STORE $r1 [64641] //64641 bckgrnd colour 12 lsb 4B 4G 4R
+MOVI 2594 $r1
+STORE $r1 [64642] //64642 paint colour 12 lsb 4B 4G 4R
+MOVI 2713 $r1
+STORE $r1 [64643] //64643 grid colour 12 lsb 4B 4G 4R
+//64644 h grid space
+//64645 v grid space
+//64646 line thickness
+MOVI 0 $r1
+STORE $r1 [64647] //64647 line mode on lsb
+
+
+
+
+
+
+MOVI 64000 $r3
+MOVI 2057 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 4106 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 6139 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 8148 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 10125 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 12062 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 13951 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 15785 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 17557 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 19259 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 20886 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 22430 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 23886 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 25247 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 26509 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 27666 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 28713 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 29648 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 30465 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 31163 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 31737 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 32186 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 32508 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 32702 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 32767 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 32702 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 32508 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 32186 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 31737 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 31163 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 30465 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 29648 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 28713 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 27666 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 26509 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 25247 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 23886 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 22430 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 20886 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 19259 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 17557 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 15785 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 13951 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 12062 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 10125 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 8148 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 6139 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 4106 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 2057 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI 0 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -2057 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -4106 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -6139 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -8148 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -10125 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -12062 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -13951 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -15785 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -17557 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -19259 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -20886 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -22430 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -23886 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -25247 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -26509 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -27666 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -28713 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -29648 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -30465 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -31163 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -31737 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -32186 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -32508 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -32702 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -32767 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -32702 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -32508 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -32186 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -31737 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -31163 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -30465 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -29648 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -28713 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -27666 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -26509 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -25247 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -23886 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -22430 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -20886 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -19259 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -17557 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -15785 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -13951 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -12062 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -10125 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -8148 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -6139 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -4106 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+MOVI -2057 $r5
+ADDI $r3 1 $r3
+STORE $r5 [$r3]
+HALT
