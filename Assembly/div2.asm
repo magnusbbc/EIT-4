@@ -1,7 +1,7 @@
-MOVI 15 $r1 
+MOVI 31 $r1 
 STORE $r1 [65001]
 //using division "function"
-MOVI 9000 $r20 //N
+MOVI 12325 $r20 //N
 MOVI 3 $r21 //D
 MOVI 32767 $r24
 //result Q will be in register r22
@@ -10,24 +10,32 @@ ADDI $pc 3 $r25
 PUSH $r25
 JMP #signDiv
 NOP
-STORE $r22 [65000]
+NOP
+NOP
+NOP
+NOP
+
+STORE $r13 [65000]
 HALT
 
 //unsigned division start
 divvy:
 NOP
-MOVI 0 $r22 //Q=0   
+MOVI 0 $r13 //Q=0   
 MOV $r20 $r23 //R=N
 
 dloop:
 NOP
-ADDI $r22 1 $r22 //Q=Q+1
+ADDI $r13 1 $r13 //Q=Q+1
 SUBR $r23 $r21 $r23 // R=R-D
 
 CMP $r21 $r23 //D<=R => R>=D (?)
 JMPLE #dloop
 CMP $r21 $r23
 JMPEQ #dloop
+
+STORE $r13 [65000]
+HALT
 
 POP $pc //return to signDiv
 //unsigned division end
@@ -67,7 +75,7 @@ JMP #divvy //divide
 //convert back to neg
 NOP
 
-MULTI $r22 -1 $r22 //Q=-Q
+MULTI $r13 -1 $r13 //Q=-Q
 JMP #divEnd
 
 negD: //+N/-D
@@ -83,7 +91,7 @@ PUSH $r25
 JMP #divvy //divide
 //convert back to neg
 NOP
-MULTI $r22 -1 $r22 //Q=-Q
+MULTI $r13 -1 $r13 //Q=-Q
 JMP #divEnd
 
 negBoth: //-N/-D

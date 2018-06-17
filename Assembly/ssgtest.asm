@@ -23,7 +23,8 @@ STORE $r1 [65000]
 POP $pc
 
 overflow:
-NOP
-MOVI 0 $r1
-STORE $r1 [65000]
+MOVI 0 $r2
+STORE $r2 [65001]
 POP $pc
+
+
